@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://76gciy1xq0kx"]
+
+[ext_resource type="Script" uid="uid://dwt580rw5t5qr" path="res://Test.gd" id="1_myinc"]
+
+[node name="Node2D" type="Node2D" unique_id=1598025409]
+script = ExtResource("1_myinc")
+
+[node name="Button" type="Button" parent="." unique_id=1102806255]
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 132.0
+offset_bottom = 57.0
+text = "generate"
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
