@@ -46,15 +46,15 @@ static func load_palette(world: World) -> void:
 		world.palette.push_back(Color.from_rgba8(r, g, b))
 
 
-static func load_and_merge(game, host: String, path: String) -> void:
+static func load_and_merge(world_game: Dictionary, host: String, path: String) -> void:
 	var all_defaults = JSON.parse_string(FileAccess.get_file_as_string(path))
 	
-	if not game.iwad in all_defaults:
-		print("Unable to load defaults for %s for iwad %s", path, game.iwad)
+	if not world_game.iwad in all_defaults:
+		print("Unable to load defaults for %s for iwad %s", path, world_game.iwad)
 		return
 	
-	var iwad_defaults = all_defaults[game.iwad]
-	var target = game.get_or_add(host, {})
+	var iwad_defaults = all_defaults[world_game.iwad]
+	var target = world_game.get_or_add(host, {})
 	for key in iwad_defaults:
 		if key in target:
 			continue

@@ -15,3 +15,14 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# wads
+wads/*.wad
+wads/*.WAD
+
+# games and data
+games/*.game.json
+data/*.data.json
+
+#output
+output/*.apworld

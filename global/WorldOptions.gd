@@ -32,7 +32,7 @@ var option_definitions = {
 
 # ==== Difficult ===
 
-func difficulty_py_options(world: World, option: Dictionary, py_options: Array) -> void:
+func difficulty_py_options(_world: World, _option: Dictionary, py_options: Array) -> void:
 	var opt_difficulty = PyOptions.create("difficulty", "DifficultyDoom", PyOptions.OptionType.InID1Common)
 	opt_difficulty.option_group = "Difficulty Options"
 	py_options.push_back(opt_difficulty)
@@ -47,7 +47,7 @@ func start_with_maps_init(world: World, option: Dictionary) -> void:
 	option.py_data_name = "start_with_%s" % option.plural.to_snake_case()
 
 
-func start_with_maps_world_hook(world: World, hook: String, option: Dictionary) -> Array:
+func start_with_maps_world_hook(_world: World, hook: String, option: Dictionary) -> Array:
 	if hook != "create_items":
 		return []
 	
@@ -59,7 +59,7 @@ func start_with_maps_world_hook(world: World, hook: String, option: Dictionary) 
 	]
 
 
-func start_with_maps_py_options(world: World, option: Dictionary, py_options: Array) -> void:
+func start_with_maps_py_options(_world: World, option: Dictionary, py_options: Array) -> void:
 	var opt_maps = PyOptions.create(option.py_data_name, "StartWithComputerAreaMaps", PyOptions.OptionType.InID1Common)
 	opt_maps.option_group = "Randomizer Options"
 	py_options.push_back(opt_maps)
@@ -73,7 +73,7 @@ func invis_as_trap_init(world: World, option: Dictionary) -> void:
 	option.py_data_name = "%s_as_trap" % option.invis_name.to_snake_case()
 
 
-func invis_as_trap_world_hook(world: World, hook: String, option: Dictionary) -> Array:
+func invis_as_trap_world_hook(_world: World, hook: String, option: Dictionary) -> Array:
 	if hook != "create_item":
 		return []
 	
@@ -84,7 +84,7 @@ func invis_as_trap_world_hook(world: World, hook: String, option: Dictionary) ->
 	]
 
 
-func invis_as_trap_py_options(world: World, option: Dictionary, py_options: Array) -> void:
+func invis_as_trap_py_options(_world: World, option: Dictionary, py_options: Array) -> void:
 	var opt_invis := PyOptions.create(option.py_data_name, "", PyOptions.OptionType.InvisibilityTrap)
 	opt_invis.option_group = "Randomizer Options"
 	py_options.push_back(opt_invis)
@@ -103,7 +103,7 @@ func custom_ammo_capacity_init(world: World, option: Dictionary) -> void:
 		})
 
 
-func custom_ammo_capacity_world_hook(world: World, hook: String, option: Dictionary) -> Array:
+func custom_ammo_capacity_world_hook(_world: World, hook: String, option: Dictionary) -> Array:
 	if hook == "generate_early":
 		var result = ["if ("]
 		var first := true
@@ -132,7 +132,7 @@ func custom_ammo_capacity_world_hook(world: World, hook: String, option: Diction
 	return []
 
 
-func custom_ammo_capacity_py_options(world: World, option: Dictionary, py_options: Array) -> void:
+func custom_ammo_capacity_py_options(_world: World, option: Dictionary, py_options: Array) -> void:
 	for ammo in option.ammo_types:
 		var opt_max := PyOptions.create("max_ammo_%s" % ammo.py_suffix, "Max Ammo - %s" % ammo.name, PyOptions.OptionType.BoundedRandomRange)
 		opt_max.docstring = [
@@ -168,7 +168,7 @@ func capacity_upgrades_init(world: World, option: Dictionary) -> void:
 	option.get_or_add("item_count", 6 if world.game.iwad == "HERETIC.WAD" else 4)
 
 
-func capacity_upgrades_world_hook(world: World, hook: String, option: Dictionary) -> Array:
+func capacity_upgrades_world_hook(_world: World, hook: String, option: Dictionary) -> Array:
 	if hook != "create_items":
 		return []
 	
@@ -189,7 +189,7 @@ func capacity_upgrades_world_hook(world: World, hook: String, option: Dictionary
 	]
 
 
-func capacity_upgrades_py_options(world: World, option: Dictionary, py_options: Array) -> void:
+func capacity_upgrades_py_options(_world: World, option: Dictionary, py_options: Array) -> void:
 	var opt_split := PyOptions.create(option.split_name, "SplitBackpack", PyOptions.OptionType.InID1Common)
 	opt_split.option_group = "Randomizer Options"
 	py_options.push_back(opt_split)
@@ -201,7 +201,7 @@ func capacity_upgrades_py_options(world: World, option: Dictionary, py_options: 
 
 # === Custom Options ===
 
-func custom_option_py_options(world: World, option: Dictionary, py_options: Array) -> void:
+func custom_option_py_options(_world: World, option: Dictionary, py_options: Array) -> void:
 	var type := PyOptions.OptionType.Removed
 	match option.get("type", "(not set)"):
 		"Toggle": type = PyOptions.OptionType.Toggle

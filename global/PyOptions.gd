@@ -19,14 +19,14 @@ enum OptionType {
 	CapacityCount,
 }
 
-static func create(py_data_name: String, name: String, type: OptionType) -> Dictionary:
-	var py_class_name := name if type == OptionType.InID1Common else py_data_name.to_pascal_case()
+static func create(py_data_name: String, human_name: String, type: OptionType) -> Dictionary:
+	var py_class_name := human_name if type == OptionType.InID1Common else py_data_name.to_pascal_case()
 	return {
 		py_data_name = py_data_name,
 		py_class_name = py_class_name,
-		name = name,
+		name = human_name,
 		type = type,
-		has_own_class = not (name.is_empty() or type in [OptionType.Removed, OptionType.InID1Common]),
+		has_own_class = not (human_name.is_empty() or type in [OptionType.Removed, OptionType.InID1Common]),
 		docstring = []
 	}
 
