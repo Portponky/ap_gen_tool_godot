@@ -1,5 +1,7 @@
 extends Node2D
 
+signal task_complete
+
 var world : World
 var map : Map
 var lump_name: String
@@ -122,7 +124,15 @@ func next_map() -> void:
 
 
 func _on_load_pressed() -> void:
-	world = World.load("doom2")
+	var thread := Thread.new()
+	thread.start(func() -> void:
+		world = World.load("doom2")
+		task_complete.emit.call_deferred()
+	)
+	
+	await task_complete
+	thread.wait_to_finish()
+	
 	if not world:
 		return
 	
@@ -141,4 +151,11 @@ func _on_generate_pressed() -> void:
 	if not world:
 		return
 	
-	Generate.generate(world)
+	var thread = Thread.new()
+	thread.start(func() -> void:
+		Generate.generate(world)
+		task_complete.emit.call_deferred()
+	)
+	
+	await task_complete
+	thread.wait_to_finish()
