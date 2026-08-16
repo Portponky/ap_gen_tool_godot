@@ -11,33 +11,16 @@ var highlight_sector := 0
 var mouse_dragging := false
 var mouse_position : Vector2
 
-# hacks
-var known_things := {}
+var cached_things := {}
 
 func _ready() -> void:
-	world = World.load("doom2")
-	
-	load_map(world.maps.keys()[0])
-	
-	var items = Default.items[world.game.iwad]
-	for category in items:
-		for type in items[category]:
-			if type.get("count", 1.0) == 0.0:
-				continue
-			if type.has("group") and "Junk" in type.group:
-				continue
-			known_things[int(type.doom_type)] = world.load_graphic(type.sprite)
-	
-	var graphic := world.load_graphic("PLAYA1")
-	if graphic.valid:
-		var sprite := Sprite2D.new()
-		sprite.centered = false
-		sprite.texture = graphic.texture
-		sprite.offset = graphic.offset
-		add_child(sprite)
+	pass
 
 
 func _draw() -> void:
+	if not world or not map:
+		return
+	
 	var to_map := Transform2D.IDENTITY.translated(-offset).scaled(zoom * Vector2.ONE).translated(get_viewport_rect().get_center())
 	draw_set_transform_matrix(to_map)
 	
@@ -62,12 +45,15 @@ func _draw() -> void:
 	for thing in map.things:
 		if thing.flags & Map.Thing.Flags.Multiplayer:
 			continue
-		if thing.type in known_things:
+		if thing.type in cached_things:
 			var pos := to_map * Vector2(thing.x, -thing.y)
-			draw_texture(known_things[thing.type].texture, pos + Vector2(known_things[thing.type].offset))
+			draw_texture(cached_things[thing.type].texture, pos + Vector2(cached_things[thing.type].offset))
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not map:
+		return
+	
 	if event is InputEventMouseMotion:
 		if mouse_dragging:
 			var pos := get_global_mouse_position()
@@ -135,5 +121,24 @@ func next_map() -> void:
 		load_map(lumps[i + 1])
 
 
-func _on_button_pressed() -> void:
+func _on_load_pressed() -> void:
+	world = World.load("doom2")
+	if not world:
+		return
+	
+	load_map(world.maps.keys()[0])
+	
+	for category in world.game.items:
+		for type in world.game.items[category]:
+			if type.get("count", 1.0) == 0.0:
+				continue
+			if type.has("group") and "Junk" in type.group:
+				continue
+			cached_things[int(type.doom_type)] = world.load_graphic(type.sprite)
+
+
+func _on_generate_pressed() -> void:
+	if not world:
+		return
+	
 	Generate.generate(world)

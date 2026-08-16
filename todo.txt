@@ -1,3 +1,4 @@
 Lump renaming
 Heretic & custom world option code generation
 Custom options might not generate correctly
+Error and warning system, thread lengthy processes and give feedback
