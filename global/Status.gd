@@ -28,10 +28,10 @@ func set_task(next_task: String) -> void:
 func add_warning(warning: String) -> void:
 	var collated := "Warning (%s): %s" % [task, warning]
 	warnings.push_back(collated)
-	new_warning.emit(collated)
+	new_warning.emit.call_deferred(collated)
 
 
 func add_error(error: String) -> void:
 	var collated := "Error (%s): %s" % [task, error]
 	errors.push_back(collated)
-	new_error.emit(collated)
+	new_error.emit.call_deferred(collated)

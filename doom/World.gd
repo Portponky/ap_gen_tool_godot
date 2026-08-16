@@ -7,17 +7,83 @@ var wads: Array[Wad]
 var palette: Array[Color]
 var maps: Dictionary[String, Map]
 
-static func attempt_load_json(path: String) -> Variant:
+func populate_default_data() -> void:
+	Status.set_task("Populating default data")
+	
+	# quickly cache doom_types we care about
+	var ap_doom_types := {}
+	for item in game.ap_doom_types:
+		ap_doom_types[int(item.doom_type)] = true
+	
+	# ensure maps structure exists
+	var data_maps: Array = data.get_or_add("maps", [])
+	
+	var i := 0
+	for e: int in game.episodes.size():
+		var episode: Dictionary = game.episodes[e]
+		for m: int in episode.maps.size():
+			var map: Dictionary = episode.maps[m]
+			
+			if data_maps.size() <= i:
+				data_maps.push_back({
+					regions = [],
+					bbs = [],
+					locations = [],
+					world_rules = {
+						connections = [],
+						x = 0,
+						y = 0
+					},
+					exit_rules = {
+						connections = [],
+						x = 0,
+						y = 0
+					}
+				})
+			
+			var target: Dictionary = data_maps[i]
+			target._lump = map.lump
+			target.ep = e
+			target.map = m
+			
+			var locations_by_thing := {}
+			for location in target.locations:
+				locations_by_thing[int(location.index)] = location
+			
+			target.locations.clear()
+			for t: int in maps[map.lump].things.size():
+				var thing := maps[map.lump].things[t] 
+				if thing.flags & Map.Thing.Flags.Multiplayer:
+					continue
+				if not ap_doom_types.has(thing.type):
+					continue
+				
+				if locations_by_thing.has(t):
+					target.locations.append(locations_by_thing[t])
+				else:
+					target.locations.append({
+						index = t,
+						name = "",
+						description = "",
+						check_sanity = false,
+						death_logic = false,
+						unreachable = false
+					})
+			
+			i += 1
+
+
+static func attempt_load_json(path: String) -> Dictionary:
 	Status.set_task("Loading %s" % path.get_file())
 	
 	var string := FileAccess.get_file_as_string(path)
 	if string.is_empty():
 		Status.add_error("Unable to read file %s: %s" % [path, error_string(FileAccess.get_open_error())])
-		return null
+		return {}
 	var json := JSON.new()
 	if json.parse(string) != OK:
 		Status.add_error("Error parsing %s at line %d: %s" % [path, json.get_error_line(), json.get_error_message()])
-		return null
+		return {}
 	
 	return json.data
 
@@ -68,7 +134,8 @@ static func load(gamename: String) -> World:
 	Status.set_task("Loading %s.game.json" % gamename)
 	world.game = attempt_load_json("res://games/%s.game.json" % gamename)
 	world.data = attempt_load_json("res://data/%s.data.json" % gamename)
-	if not world.game or not world.data:
+	if not world.game:
+		Status.add_error("Game json not present")
 		return null
 	
 	if not world.game.has("iwad"):
@@ -138,12 +205,22 @@ static func load(gamename: String) -> World:
 	world.game.all_items.append_array(world.game.unique_items)
 	world.game.all_items.append_array(world.game.items.keys)
 	
+	world.game.ap_doom_types = []
+	for item in world.game.all_items:
+		if item.get("count", 1.0) == 0.0:
+			continue
+		if item.has("group") and "Junk" in item.group:
+			continue
+		world.game.ap_doom_types.push_back(item)
+	
 	world.game.get_or_add("ap_name", "Unnamed id1 Game")
 	world.game.get_or_add("ap_world_name", "id1_game")
 	world.game.get_or_add("ap_class_name", "id1Game")
 	world.game.get_or_add("full_name", world.game.ap_name)
 	
 	world.game.get_or_add("check_sanity", false)
+	
+	world.populate_default_data()
 	
 	return world
 

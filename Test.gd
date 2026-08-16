@@ -17,6 +17,8 @@ var cached_things := {}
 
 func _ready() -> void:
 	Status.task_changed.connect(%Label.set_text)
+	Status.new_error.connect(issue)
+	Status.new_warning.connect(issue)
 
 
 func _draw() -> void:
@@ -123,6 +125,10 @@ func next_map() -> void:
 		load_map(lumps[i + 1])
 
 
+func issue(what: String) -> void:
+	print(what)
+
+
 func _on_load_pressed() -> void:
 	var thread := Thread.new()
 	thread.start(func() -> void:
@@ -139,13 +145,8 @@ func _on_load_pressed() -> void:
 	
 	load_map(world.maps.keys()[0])
 	
-	for category in world.game.items:
-		for type in world.game.items[category]:
-			if type.get("count", 1.0) == 0.0:
-				continue
-			if type.has("group") and "Junk" in type.group:
-				continue
-			cached_things[int(type.doom_type)] = world.load_graphic(type.sprite)
+	for item in world.game.ap_doom_types:
+		cached_things[int(item.doom_type)] = world.load_graphic(item.sprite)
 
 
 func _on_generate_pressed() -> void:
