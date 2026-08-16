@@ -264,7 +264,7 @@ static func build_mesh(sector: Sector) -> void:
 	
 	var array_mesh := ArrayMesh.new()
 	
-	var arrays = []
+	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = verts
 	
@@ -331,17 +331,17 @@ static func load(world: World, map_lump: String) -> Map:
 	return map
 
 
-func apply_map_tweaks(tweaks) -> void:
+func apply_map_tweaks(tweaks: Dictionary) -> void:
 	if not tweaks.has("things"):
 		return
 	
-	for id in tweaks.things:
-		var i = id.to_int()
+	for id: String in tweaks.things:
+		var i := id.to_int()
 		if i < 0 or i >= things.size():
 			print("Out of bounds map tweak thing error")
 			continue
-		var tweak = tweaks.things[id]
-		var target = things[i]
+		var tweak : Dictionary = tweaks.things[id]
+		var target := things[i]
 		target.x = tweak.get("x", target.x)
 		target.y = tweak.get("y", target.y)
 		target.type = tweak.get("type", target.type)

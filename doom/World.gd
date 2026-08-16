@@ -1,8 +1,8 @@
 class_name World
 extends Resource
 
-var game
-var data
+var game: Dictionary
+var data: Dictionary
 var wads: Array[Wad]
 var palette: Array[Color]
 var maps: Dictionary[String, Map]
@@ -12,24 +12,12 @@ static func attempt_load_json(path: String) -> Variant:
 	if string.is_empty():
 		print("Error reading file at %s: %s" % [path, error_string(FileAccess.get_open_error())])
 		return null
-	var json = JSON.new()
+	var json := JSON.new()
 	if json.parse(string) != OK:
 		print("Error parsing %s at line %d: %s" % [path, json.get_error_line(), json.get_error_message()])
 		return null
 	
 	return json.data
-
-
-static func build_array(array: Array, base: Variant, key: String):
-	if base is not Dictionary:
-		return
-	if not key in base:
-		return
-	var value = base[key]
-	if value is Array:
-		array.append_array(value)
-	else:
-		array.append(value)
 
 
 static func load_palette(world: World) -> void:
@@ -46,16 +34,22 @@ static func load_palette(world: World) -> void:
 		world.palette.push_back(Color.from_rgba8(r, g, b))
 
 
+static func enforce_array(world_game: Dictionary, key: String) -> void:
+	world_game.get_or_add(key, [])
+	if not world_game[key] is Array:
+		world_game[key] = [world_game[key]]
+
+
 static func load_and_merge(world_game: Dictionary, host: String, path: String) -> void:
-	var all_defaults = JSON.parse_string(FileAccess.get_file_as_string(path))
+	var all_defaults := JSON.parse_string(FileAccess.get_file_as_string(path)) as Dictionary
 	
 	if not world_game.iwad in all_defaults:
 		print("Unable to load defaults for %s for iwad %s", path, world_game.iwad)
 		return
 	
-	var iwad_defaults = all_defaults[world_game.iwad]
-	var target = world_game.get_or_add(host, {})
-	for key in iwad_defaults:
+	var iwad_defaults := all_defaults[world_game.iwad] as Dictionary
+	var target := world_game.get_or_add(host, {}) as Dictionary
+	for key: String in iwad_defaults:
 		if key in target:
 			continue
 		target[key] = iwad_defaults[key]
@@ -68,23 +62,29 @@ static func load(gamename: String) -> World:
 	if not world.game or not world.data:
 		return null
 	
-	var all_wads = []
-	build_array(all_wads, world.game, "iwad")
-	build_array(all_wads, world.game, "required_wads")
-	build_array(all_wads, world.game, "included_wads")
+	enforce_array(world.game, "required_wads")
+	enforce_array(world.game, "included_wads")
+	enforce_array(world.game, "optional_wads")
+	enforce_array(world.game, "authors")
+	world.game.get_or_add("world_info", {})
+	enforce_array(world.game.world_info, "description")
+	
+	var all_wads := [world.game.iwad]
+	all_wads.append_array(world.game.required_wads)
+	all_wads.append_array(world.game.included_wads)
 	
 	print("Loading ", all_wads)
-	for wadname in all_wads:
+	for wadname: String in all_wads:
 		var wad := Wad.load("res://wads/%s" % wadname)
 		world.wads.push_front(wad)
 	
 	load_palette(world)
 	
-	for episode in world.game.episodes:
-		for map in episode.maps:
+	for episode: Dictionary in world.game.episodes:
+		for map: Dictionary in episode.maps:
 			world.maps[map.lump] = Map.load(world, map.lump)
 	
-	for lump in world.game.get("map_tweaks", {}):
+	for lump: String in world.game.get("map_tweaks", {}):
 		world.maps[lump].apply_map_tweaks(world.game.map_tweaks[lump])
 	
 	load_and_merge(world.game, "game_info", "res://assets/json/default_game_info.json")
@@ -92,11 +92,16 @@ static func load(gamename: String) -> World:
 	load_and_merge(world.game, "items", "res://assets/json/default_items.json")
 	load_and_merge(world.game, "world_info", "res://assets/json/default_world_info.json")
 	
+	# Ensure weird items are present
+	world.game.items.get_or_add("unique_progression", [])
+	world.game.items.get_or_add("unique_useful", [])
+	world.game.items.get_or_add("unique_filler", [])
+	
 	# Extra things that are required
 	world.game.item_requirements = []
 	world.game.item_requirements.append_array(world.game.items.extra_connection_requirements)
 	world.game.item_requirements.append_array(world.game.items.progression)
-	world.game.item_requirements.append_array(world.game.items.get("unique_progression", []))
+	world.game.item_requirements.append_array(world.game.items.unique_progression)
 	
 	world.game.common_items = []
 	world.game.common_items.append_array(world.game.items.progression)
@@ -104,9 +109,9 @@ static func load(gamename: String) -> World:
 	world.game.common_items.append_array(world.game.items.filler)
 	
 	world.game.unique_items = []
-	world.game.unique_items.append_array(world.game.items.get("unique_progression", []))
-	world.game.unique_items.append_array(world.game.items.get("unique_useful", []))
-	world.game.unique_items.append_array(world.game.items.get("unique_filler", []))
+	world.game.unique_items.append_array(world.game.items.unique_progression)
+	world.game.unique_items.append_array(world.game.items.unique_useful)
+	world.game.unique_items.append_array(world.game.items.unique_filler)
 	
 	world.game.all_items = []
 	world.game.all_items.append_array(world.game.common_items)
@@ -168,5 +173,5 @@ func load_graphic(lump_name: String) -> Dictionary:
 
 
 func get_item_name(doom_type: int) -> String:
-	var index = game.all_items.find_custom(func(x): return x.doom_type == doom_type)
+	var index : int = game.all_items.find_custom(func(x: Dictionary) -> bool: return x.doom_type == doom_type)
 	return "(no item)" if index == -1 else game.all_items[index].name

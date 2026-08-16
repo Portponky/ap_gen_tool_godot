@@ -73,7 +73,7 @@ static func generate_py_option_class(py_option: Dictionary) -> String:
 	
 	match py_option.type:
 		OptionType.Choice:
-			for opt in py_option.option_list:
+			for opt: String in py_option.option_list:
 				if opt.find("=") != -1:
 					result.push_back("    %s" % opt)
 			result.push_back("    default = %d" % [0 if py_option.default_int == -9999 else py_option.default_int])
@@ -91,11 +91,11 @@ static func generate_py_option_class(py_option: Dictionary) -> String:
 			result.push_back("    default = %d" % [py_option.range_end if py_option.default_int == -9999 else py_option.default_int])
 		OptionType.OptionSet:
 			result.push_back("    valid_keys = (")
-			for opt in py_option.option_list:
+			for opt: String in py_option.option_list:
 				result.push_back("        \"%s\"," % opt.json_escape())
 			result.push_back("    )")
 			result.push_back("    default = frozenset({")
-			for opt in py_option.default_list:
+			for opt: String in py_option.default_list:
 				result.push_back("        \"%s\"," % opt.json_escape())
 			result.push_back("    })")
 	

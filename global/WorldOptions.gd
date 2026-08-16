@@ -1,7 +1,7 @@
 extends Node
 
 
-var option_definitions = {
+var option_definitions := {
 	"Difficulty" = {
 		py_options = difficulty_py_options
 	},
@@ -33,7 +33,7 @@ var option_definitions = {
 # ==== Difficult ===
 
 func difficulty_py_options(_world: World, _option: Dictionary, py_options: Array) -> void:
-	var opt_difficulty = PyOptions.create("difficulty", "DifficultyDoom", PyOptions.OptionType.InID1Common)
+	var opt_difficulty := PyOptions.create("difficulty", "DifficultyDoom", PyOptions.OptionType.InID1Common)
 	opt_difficulty.option_group = "Difficulty Options"
 	py_options.push_back(opt_difficulty)
 
@@ -60,7 +60,7 @@ func start_with_maps_world_hook(_world: World, hook: String, option: Dictionary)
 
 
 func start_with_maps_py_options(_world: World, option: Dictionary, py_options: Array) -> void:
-	var opt_maps = PyOptions.create(option.py_data_name, "StartWithComputerAreaMaps", PyOptions.OptionType.InID1Common)
+	var opt_maps := PyOptions.create(option.py_data_name, "StartWithComputerAreaMaps", PyOptions.OptionType.InID1Common)
 	opt_maps.option_group = "Randomizer Options"
 	py_options.push_back(opt_maps)
 
@@ -94,8 +94,8 @@ func invis_as_trap_py_options(_world: World, option: Dictionary, py_options: Arr
 
 func custom_ammo_capacity_init(world: World, option: Dictionary) -> void:
 	option.ammo_types = []
-	for ammo in world.game.game_info.ammo:
-		var ammo_name = ammo.get("name", "(no name)")
+	for ammo: Dictionary in world.game.game_info.ammo:
+		var ammo_name := ammo.get("name", "(no name)") as String
 		option.ammo_types.push_back({
 			name = ammo_name,
 			py_suffix = ammo_name.to_snake_case(),
@@ -105,10 +105,10 @@ func custom_ammo_capacity_init(world: World, option: Dictionary) -> void:
 
 func custom_ammo_capacity_world_hook(_world: World, hook: String, option: Dictionary) -> Array:
 	if hook == "generate_early":
-		var result = ["if ("]
+		var result := ["if ("]
 		var first := true
-		for ammo in option.ammo_types:
-			var condition = "    " if first else "    or "
+		for ammo: Dictionary in option.ammo_types:
+			var condition := "    " if first else "    or "
 			condition += "self.options.max_ammo_%s.value < " % ammo.py_suffix
 			condition += "self.options.max_ammo_%s.default" % ammo.py_suffix
 			result.push_back(condition)
@@ -119,12 +119,12 @@ func custom_ammo_capacity_world_hook(_world: World, hook: String, option: Dictio
 		return result
 	
 	elif hook == "fill_slot_data":
-		var result = ["slot_data[\"ammo_start\"] = ["]
-		for ammo in option.ammo_types:
+		var result := ["slot_data[\"ammo_start\"] = ["]
+		for ammo: Dictionary in option.ammo_types:
 			result.push_back("    self.options.max_ammo_%s.value," % ammo.py_suffix)
 		result.push_back("]")
 		result.push_back("slot_data[\"ammo_add\"] = [")
-		for ammo in option.ammo_types:
+		for ammo: Dictionary in option.ammo_types:
 			result.push_back("    self.options.added_ammo_%s.value," % ammo.py_suffix)
 		result.push_back("]")
 		return result
@@ -133,7 +133,7 @@ func custom_ammo_capacity_world_hook(_world: World, hook: String, option: Dictio
 
 
 func custom_ammo_capacity_py_options(_world: World, option: Dictionary, py_options: Array) -> void:
-	for ammo in option.ammo_types:
+	for ammo: Dictionary in option.ammo_types:
 		var opt_max := PyOptions.create("max_ammo_%s" % ammo.py_suffix, "Max Ammo - %s" % ammo.name, PyOptions.OptionType.BoundedRandomRange)
 		opt_max.docstring = [
 			"Set the starting capacity for %s." % ammo.name,
@@ -147,7 +147,7 @@ func custom_ammo_capacity_py_options(_world: World, option: Dictionary, py_optio
 		opt_max.default_int = ammo.capacity
 		py_options.push_back(opt_max)
 	
-	for ammo in option.ammo_types:
+	for ammo: Dictionary in option.ammo_types:
 		var opt_add := PyOptions.create("added_ammo_%s" % ammo.py_suffix, "Added Ammo - %s" % ammo.name, PyOptions.OptionType.Range)
 		opt_add.docstring = ["Set how much capacity for %s will be added when a capacity upgrade is obtained." % ammo.name]
 		opt_add.option_group = "Ammo Capacity"
@@ -211,11 +211,11 @@ func custom_option_py_options(_world: World, option: Dictionary, py_options: Arr
 		# Option set
 		_: push_error("Unknown custom option error goes here")
 	
-	var public_name = option.get("display_name", "")
+	var public_name := option.get("display_name", "") as String
 	if public_name.is_empty():
 		push_error("Missing display name for custom option error goes here")
 	
-	var private_name = option.get("option_name", "")
+	var private_name := option.get("option_name", "") as String
 	if private_name.is_empty():
 		private_name = public_name.to_snake_case()
 	
@@ -238,13 +238,13 @@ func custom_option_py_options(_world: World, option: Dictionary, py_options: Arr
 				var first_value := -9999
 				var choices := []
 				var aliases := []
-				for choice in option.options:
+				for choice: Dictionary in option.options:
 					if not choice.has("name") or not choice.has("value"):
 						continue
 					if first_value == -9999:
 						first_value = choice.value
 					choices.push_back("option_%s = %d" % [choice.name.to_snake_case(), choice.value])
-					for alias in option.get("aliases", []):
+					for alias: String in option.get("aliases", []):
 						aliases.push_back("alias_%s = %d" % [alias.to_snake_case(), choice.value])
 				opt.option_list = choices
 				opt.option_list.append_array(aliases)
@@ -258,13 +258,13 @@ func custom_option_py_options(_world: World, option: Dictionary, py_options: Arr
 func build_options(world: World) -> Array:
 	var result := []
 	
-	for option in world.game.world_info.get("world_options", []):
+	for option: Dictionary in world.game.world_info.get("world_options", []):
 		# name, some other params
 		if not option.name in option_definitions:
 			print("Unknown option warning goes here")
 			continue
 		
-		var build = {}.merged(option).merged(option_definitions[option.name])
+		var build := {}.merged(option).merged(option_definitions[option.name])
 		
 		if build.has("init"):
 			build.init.call(world, build)
@@ -286,11 +286,11 @@ func add_hook(world: World, hook: String, options: Array) -> Array:
 		content.push_back("######## Custom code for this world ends here ########")
 		content.push_back("")
 	
-	for option in options:
+	for option: Dictionary in options:
 		if not option.has("world_hook"):
 			continue
 		
-		var premade_content = option.world_hook.call(world, hook, option)
+		var premade_content := option.world_hook.call(world, hook, option) as Array
 		if premade_content.is_empty():
 			continue
 		
@@ -324,12 +324,12 @@ func add_default_options(world: World, levels: Array, py_options: Array) -> void
 	opt_specific_levels.option_group = "Goal Options"
 	opt_specific_levels.option_list = []
 	opt_specific_levels.default_list = []
-	for level in levels:
+	for level: Dictionary in levels:
 		opt_specific_levels.option_list.push_back(level.name)
-	for ep in world.game.episodes.size():
+	for ep: int in world.game.episodes.size():
 		if world.game.episodes[ep].get("minor", false):
 			continue
-		var boss_level = world.game.episodes[ep].get("boss_level", world.game.episodes[ep].maps.size()) - 1
+		var boss_level := world.game.episodes[ep].get("boss_level", world.game.episodes[ep].maps.size()) as int - 1 
 		if boss_level >= 0 and boss_level < world.game.episodes[ep].maps.size():
 			opt_specific_levels.default_list.push_back(world.game.episodes[ep].maps[boss_level].name)
 	py_options.push_back(opt_specific_levels)
@@ -337,8 +337,8 @@ func add_default_options(world: World, levels: Array, py_options: Array) -> void
 	# Episodes
 	
 	if world.game.episodes.size() > 1:
-		for ep in world.game.episodes.size():
-			var episode = world.game.episodes[ep]
+		for ep: int in world.game.episodes.size():
+			var episode := world.game.episodes[ep] as Dictionary
 			var opt_episode := PyOptions.create("episode%d" % (ep + 1), "Episode %d" % (ep + 1), PyOptions.OptionType.Episode)
 			opt_episode.option_group = "Episodes to Play"
 			opt_episode.docstring = [
@@ -352,7 +352,7 @@ func add_default_options(world: World, levels: Array, py_options: Array) -> void
 				opt_episode.docstring.push_back("This is a minor episode. Another episode must be played alongside this one.")
 			opt_episode.docstring.push_back("This episode includes the following levels:")
 			opt_episode.docstring.push_back("")
-			for map in episode.maps:
+			for map: Dictionary in episode.maps:
 				opt_episode.docstring.push_back("- %s" % map.name)
 			opt_episode.default_int = 1 if episode.get("default", true) else 0
 			py_options.push_back(opt_episode)
@@ -369,7 +369,7 @@ func add_default_options(world: World, levels: Array, py_options: Array) -> void
 
 
 func add_py_options(world: World, options: Array, py_options: Array) -> void:
-	for option in options:
+	for option: Dictionary in options:
 		if not option.has("py_options"):
 			continue
 		option.py_options.call(world, option, py_options)

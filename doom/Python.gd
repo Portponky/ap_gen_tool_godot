@@ -2,11 +2,9 @@ class_name Python
 extends Node
 
 
-static func make_indent(content, size: int) -> String:
-	var indent = " ".repeat(size)
-	if content is String:
-		return indent + content
-	return "\n".join(content.map(func(x): return indent + x))
+static func make_indent(content: Array, size: int) -> String:
+	var indent := " ".repeat(size)
+	return "\n".join(content.map(func(x: String) -> String: return indent + x))
 
 
 static func generate_header(ap_name: String) -> String:
@@ -31,7 +29,7 @@ static func generate_id1_import(import: String) -> String:
   
 
 static func generate_init(world: World, options: Array) -> PackedByteArray:
-	var cn = world.game.ap_class_name
+	var cn := world.game.ap_class_name as String
 	var code := [
 		generate_header(world.game.ap_name),
 		"import typing",
@@ -142,7 +140,7 @@ static func generate_options(world: World, levels: Array, options: Array) -> Pac
 	WorldOptions.add_default_options(world, levels, py_options)
 	WorldOptions.add_py_options(world, options, py_options)
 	
-	var cn = world.game.ap_class_name
+	var cn := world.game.ap_class_name as String
 	var code := [
 		generate_header(world.game.ap_name),
 		"# Options docstrings may exceed the line length limit.",
@@ -156,19 +154,19 @@ static func generate_options(world: World, levels: Array, options: Array) -> Pac
 		""
 	]
 	
-	for option in py_options:
+	for option: Dictionary in py_options:
 		code.push_back(PyOptions.generate_py_option_class(option))
 	
 	code.push_back("@dataclass")
 	code.push_back("class %sOptions(id1Options.id1CommonOptions):" % cn)
 	
-	for option in py_options:
+	for option: Dictionary in py_options:
 		code.push_back("    %s" % PyOptions.generate_data_class(option))
 	
 	code.push_back("")
 	code.push_back("")
 	
-	var option_groups = {
+	var option_groups := {
 		"Episodes to Play": [],
 		"Goal Options": [],
 		"Difficulty Options": [],
@@ -178,7 +176,7 @@ static func generate_options(world: World, levels: Array, options: Array) -> Pac
 	
 	var group_order := ["Episodes to Play", "Goal Options", "Difficulty Options", "Randomizer Options"]
 	
-	for option in py_options:
+	for option: Dictionary in py_options:
 		if option.has("option_group") and not option_groups.has(option.option_group):
 			option_groups[option.option_group] = []
 			group_order.push_back(option.option_group)
@@ -197,7 +195,7 @@ static func generate_options(world: World, levels: Array, options: Array) -> Pac
 		option_groups["Randomizer Options"].push_back("id1Options.FlipLevels")
 	else:
 		option_groups["Randomizer Options"].push_back("BaseOptions.Removed");
-	for option in py_options:
+	for option: Dictionary in py_options:
 		if option.has("option_group"):
 			option_groups[option.option_group].push_back(PyOptions.get_class_name(option))
 	option_groups["Difficulty Options"].push_back("id1Options.TrickDifficulty")
@@ -207,12 +205,12 @@ static func generate_options(world: World, levels: Array, options: Array) -> Pac
 	option_groups["Difficulty Options"].push_back("id1Options.EnergyLink")
 	
 	code.push_back("%sOptionGroups = [" % world.game.ap_class_name)
-	for group in group_order:
+	for group: String in group_order:
 		if option_groups[group].is_empty():
 			continue
 		
 		code.push_back("    BaseOptions.OptionGroup(\"%s\", [" % group.json_escape())
-		for option_class in option_groups[group]:
+		for option_class: String in option_groups[group]:
 			code.push_back("        %s," % option_class)
 		
 		if group == group_order.back():

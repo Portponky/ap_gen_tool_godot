@@ -12,7 +12,7 @@ var mouse_dragging := false
 var mouse_position : Vector2
 
 # hacks
-var known_things = {}
+var known_things := {}
 
 func _ready() -> void:
 	world = World.load("doom2")

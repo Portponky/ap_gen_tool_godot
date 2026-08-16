@@ -11,21 +11,21 @@ const SKIP_BALANCING := 0x0008
 const DEPRIORITIZED := 0x0010
 
 
-static func get_location_id_base(idx) -> int:
+static func get_location_id_base(idx: Dictionary) -> int:
 	return ((idx.ep + 1) * 100_000) + ((idx.map + 1) * 1_000)
 
 
-static func get_item_id_base(idx) -> int:
+static func get_item_id_base(idx: Dictionary) -> int:
 	return ((idx.ep + 1) * 10_000_000) + ((idx.map + 1) * 100_000)
 
 
 static func build_levels(world: World) -> Array:
 	var levels := []
-	for e in world.game.episodes.size():
-		var episode = world.game.episodes[e]
-		for m in episode.maps.size():
-			var map = episode.maps[m]
-			var map_index = world.data.maps.find_custom(func(x): return x._lump == map.lump)
+	for e: int in world.game.episodes.size():
+		var episode: Dictionary = world.game.episodes[e]
+		for m: int in episode.maps.size():
+			var map: Dictionary = episode.maps[m]
+			var map_index: int = world.data.maps.find_custom(func(x: Dictionary) -> bool: return x._lump == map.lump)
 			levels.push_back({
 				idx = {ep = e, map = m},
 				name = map.name,
@@ -38,20 +38,20 @@ static func build_levels(world: World) -> Array:
 	return levels
 
 
-static func region_name_for_position(pos: Vector2, level) -> String:
+static func region_name_for_position(pos: Vector2, level: Dictionary) -> String:
 	var region_name : String
-	var sector = level.map.sector_for_point(pos)
-	for region in level.state.regions:
-		if region.sectors.any(func(x): return int(x) == sector):
+	var sector: int = level.map.sector_for_point(pos)
+	for region: Dictionary in level.state.regions:
+		if region.sectors.any(func(x: float) -> bool: return int(x) == sector):
 			region_name = "%s @ %s" % [level.name, region.name]
 			break
 	
-	for bb in level.state.bbs:
+	for bb: Array in level.state.bbs:
 		if pos.x < bb[0] or pos.x > bb[2]:
 			continue
 		if pos.y < bb[1] or pos.y > bb[3]:
 			continue
-		var region = bb[4]
+		var region : int = bb[4]
 		if region > -1 and region < level.state.regions.size():
 			region_name = "%s @ %s" % [level.name, level.state.regions[region].name]
 	
@@ -60,32 +60,32 @@ static func region_name_for_position(pos: Vector2, level) -> String:
 
 static func build_locations(world: World, levels: Array) -> Array:
 	# keycards
-	var locations = []
+	var locations := []
 	
-	for level in levels:
+	for level: Dictionary in levels:
 		var next_location := 1
-		for i in level.map.things.size():
-			var thing = level.map.things[i]
+		for i: int in level.map.things.size():
+			var thing: Map.Thing = level.map.things[i]
 			var string_type := str(thing.type)
 			if not world.game.location_doom_types.has(string_type) or thing.flags & Map.Thing.Flags.Multiplayer:
 				continue
 			
-			var location_index = level.state.locations.find_custom(func(x): return x.index == i)
-			var location = level.state.locations[location_index]
+			var location_index: int = level.state.locations.find_custom(func(x: Dictionary) -> bool: return x.index == i)
+			var location: Dictionary = level.state.locations[location_index]
 			if location.unreachable:
 				continue
 			if next_location > 999:
 				print("Max locations error")
 				break
 			
-			var extension = ""
+			var extension := ""
 			if world.game.settings.extended_names and not location.get("name", "").is_empty():
 				extension = " (%s)" % location.name
 			
-			var item_name = world.game.location_doom_types[str(thing.type)]
-			var location_name = "%s - %s%s" % [level.name, item_name, extension]
+			var item_name: String = world.game.location_doom_types[str(thing.type)]
+			var location_name := "%s - %s%s" % [level.name, item_name, extension]
 			var count := 1
-			while locations.find_custom(func(x): return x.name == location_name) != -1:
+			while locations.find_custom(func(x: Dictionary) -> bool: return x.name == location_name) != -1:
 				count += 1
 				location_name = "%s - %s %d%s" % [level.name, item_name, count, extension]
 			
@@ -103,10 +103,10 @@ static func build_locations(world: World, levels: Array) -> Array:
 			next_location += 1
 		
 		# exit location
-		var exit_location_name = "Hub @ Entrance to %s" % level.name
+		var exit_location_name := "Hub @ Entrance to %s" % level.name
 		var exit_found := false
-		for region in level.state.regions:
-			for connection in region.rules.connections:
+		for region: Dictionary in level.state.regions:
+			for connection: Dictionary in region.rules.connections:
 				if connection.target_region == DOOM_TYPE_LEVEL_COMPLETE:
 					exit_location_name = "%s @ %s" % [level.name, region.name]
 					exit_found = true
@@ -129,8 +129,8 @@ static func build_locations(world: World, levels: Array) -> Array:
 	return locations
 
 
-static func make_item(def: Dictionary, type: int, level, key := false):
-	var item = {
+static func make_item(def: Dictionary, type: int, level: Dictionary, key := false) -> Dictionary:
+	var item := {
 		is_key = key,
 		count = def.get("count", 1),
 		classification = type,
@@ -139,7 +139,7 @@ static func make_item(def: Dictionary, type: int, level, key := false):
 		level = level
 	}
 	
-	var base_item_id = int(def.doom_type)
+	var base_item_id := int(def.doom_type)
 	if base_item_id == DOOM_TYPE_LEVEL_UNLOCK:
 		base_item_id = 0
 	elif base_item_id == DOOM_TYPE_LEVEL_COMPLETE:
@@ -159,15 +159,15 @@ static func make_item(def: Dictionary, type: int, level, key := false):
 	return item
 
 
-static func build_items(world: World, levels):
+static func build_items(world: World, levels: Array) -> Array:
 	var items := []
 	
-	for def in world.game.items.progression:
-		items.push_back(make_item(def, PROGRESSION, null))
-	for def in world.game.items.useful:
-		items.push_back(make_item(def, USEFUL, null))
-	for def in world.game.items.filler:
-		items.push_back(make_item(def, FILLER, null))
+	for def: Dictionary in world.game.items.progression:
+		items.push_back(make_item(def, PROGRESSION, {}))
+	for def: Dictionary in world.game.items.useful:
+		items.push_back(make_item(def, USEFUL, {}))
+	for def: Dictionary in world.game.items.filler:
+		items.push_back(make_item(def, FILLER, {}))
 	
 	var level_unlock_item := {
 		doom_type = DOOM_TYPE_LEVEL_UNLOCK,
@@ -181,28 +181,28 @@ static func build_items(world: World, levels):
 		name = "Complete"
 	}
 	
-	for level in levels:
+	for level: Dictionary in levels:
 		items.push_back(make_item(level_unlock_item, PROGRESSION | USEFUL, level))
 		items.push_back(make_item(level_complete_item, PROGRESSION, level))
-		for def in world.game.items.get("unique_progression", []):
+		for def: Dictionary in world.game.items.unique_progression:
 			items.push_back(make_item(def, PROGRESSION, level))
-		for def in world.game.items.get("unique_useful", []):
+		for def: Dictionary in world.game.items.unique_useful:
 			items.push_back(make_item(def, USEFUL, level))
-		for def in world.game.items.get("unique_filler", []):
+		for def: Dictionary in world.game.items.unique_filler:
 			items.push_back(make_item(def, FILLER, level))
 		
 		# add unique keys
-		for i in level.map.things.size():
-			var thing = level.map.things[i]
+		for i: int in level.map.things.size():
+			var thing : Map.Thing = level.map.things[i]
 			var string_type := str(thing.type)
 			if not world.game.location_doom_types.has(string_type) or thing.flags & Map.Thing.Flags.Multiplayer:
 				continue
 			
-			for key in world.game.items.keys:
+			for key: Dictionary in world.game.items.keys:
 				if key.doom_type != thing.type:
 					continue
-				var key_item = make_item(key, PROGRESSION, level, true)
-				if items.find_custom(func(x): return x.name == key_item.name) == -1:
+				var key_item := make_item(key, PROGRESSION, level, true)
+				if items.find_custom(func(x: Dictionary) -> bool: return x.name == key_item.name) == -1:
 					items.push_back(key_item)
 	
 	return items
@@ -218,35 +218,30 @@ static func build_manifest(world: World) -> Dictionary:
 	if world.game.full_name != world.game.ap_name:
 		result.full_name = world.game.full_name
 	
-	if world.game.has("required_wads"):
-		var wads = world.game.required_wads
-		wads = wads if wads is Array else [wads]
-		result.wads_required = wads
+	if world.game.required_wads:
+		result.wads_required = world.game.required_wads
 	
-	if world.game.has("optional_wads"):
-		var wads = world.game.optional_wads
-		wads = wads if wads is Array else [wads]
-		result.wads_optional = wads
+	if world.game.optional_wads:
+		result.wads_optional = world.game.optional_wads
 	
-	if world.game.has("included_wads"):
-		var wads = world.game.included_wads
-		wads = wads if wads is Array else [wads]
-		wads = wads.map(func(x): return "%s/wad/%s" % [world.game.ap_world_name, x.get_file()])
-		result.wads_included = wads
+	if world.game.included_wads:
+		result.wads_included = world.game.included_wads.map(
+			func(x: String) -> String: return "%s/wad/%s" % [world.game.ap_world_name, x.get_file()]
+		)
 	
 	return result
 
 
 static func get_requirement_name(world: World, level_name: String, doom_type: int) -> String:
-	for item in world.game.get("unique_progression", {}):
+	for item: Dictionary in world.game.items.unique_progression:
 		if item.doom_type == doom_type:
 			return "%s - %s" % [level_name, item.name]
 	
-	for item in world.game.items.keys:
+	for item: Dictionary in world.game.items.keys:
 		if item.doom_type == doom_type:
 			return "%s - %s" % [level_name, item.name]
 	
-	for requirement in world.game.item_requirements:
+	for requirement: Dictionary in world.game.item_requirements:
 		if requirement.doom_type == doom_type:
 			return requirement.name
 	
@@ -254,28 +249,28 @@ static func get_requirement_name(world: World, level_name: String, doom_type: in
 
 
 static func get_extra_requirement_name(world: World, doom_type: int) -> String:
-	for requirement in world.game.items.extra_connection_requirements:
+	for requirement: Dictionary in world.game.items.extra_connection_requirements:
 		if requirement.doom_type == doom_type:
 			return requirement.name
 	
 	return "ERROR"
 
 
-static func make_connection(world, connection, level_name: String, region_name: String):
-	var result = {
+static func make_connection(world: World, connection: Dictionary, level_name: String, region_name: String) -> Dictionary:
+	var result := {
 		_target = region_name
 	}
 	
-	var requires = []
-	var rules = {}
+	var requires := []
+	var rules := {}
 	
-	for doom_type in connection.requirements_and:
+	for doom_type: int in connection.requirements_and:
 		if doom_type < 0:
 			requires.push_back(get_extra_requirement_name(world, doom_type))
 		else:
 			rules.get_or_add("and", []).push_back(get_requirement_name(world, level_name, doom_type))
 	
-	for doom_type in connection.requirements_or:
+	for doom_type: int in connection.requirements_or:
 		rules.get_or_add("or", []).push_back(get_requirement_name(world, level_name, doom_type))
 	
 	if not rules.is_empty():
@@ -286,14 +281,14 @@ static func make_connection(world, connection, level_name: String, region_name: 
 	return result
 
 
-static func generate_regions(world: World, levels) -> Array:
+static func generate_regions(world: World, levels: Array) -> Array:
 	var result := []
 	
 	var game_hub_region := {
 		_name = "Hub",
 		connections = []
 	}
-	for level in levels:
+	for level: Dictionary in levels:
 		var connection := {
 			_target = "Hub @ Entrance to %s" % level.name,
 			rules = [{"and": [level.name]}]
@@ -301,25 +296,23 @@ static func generate_regions(world: World, levels) -> Array:
 		game_hub_region.connections.append(connection)
 	result.append(game_hub_region)
 	
-	for level in levels:
-		var level_hub_region = {
+	for level: Dictionary in levels:
+		var level_hub_region := {
 			_name = "Hub @ Entrance to %s" % level.name,
 			exmx = [level.idx.ep + 1, level.idx.map + 1],
 			connections = []
 		}
 		
-		for connection in level.state.world_rules.connections:
-			var target_region = level.state.regions[connection.target_region]
-			var region_name = "%s @ %s" % [level.name, target_region.name]
+		for connection: Dictionary in level.state.world_rules.connections:
+			var target_region: Dictionary = level.state.regions[connection.target_region]
+			var region_name := "%s @ %s" % [level.name, target_region.name]
 			level_hub_region.connections.push_back(make_connection(world, connection, level.name, region_name))
 		
 		result.append(level_hub_region)
 		
-		for region in level.state.regions:
-			# do something with location
-			
-			var connections = []
-			for connection in region.rules.connections:
+		for region: Dictionary in level.state.regions:
+			var connections := []
+			for connection: Dictionary in region.rules.connections:
 				var target_region_name : String
 				if connection.target_region == DOOM_TYPE_LEVEL_COMPLETE:
 					continue
@@ -338,11 +331,11 @@ static func generate_regions(world: World, levels) -> Array:
 	return result
 
 
-static func generate_item_table(items) -> Dictionary:
+static func generate_item_table(items: Array) -> Dictionary:
 	var result := {}
 	
-	for item in items:
-		var i = {
+	for item: Dictionary in items:
+		var i := {
 			_name = item.name,
 			classification = item.classification,
 			doom_type = item.doom_type,
@@ -356,24 +349,24 @@ static func generate_item_table(items) -> Dictionary:
 	return result
 
 
-static func generate_item_name_groups(items) -> Dictionary:
+static func generate_item_name_groups(items: Array) -> Dictionary:
 	var result := {}
 	
-	for item in items:
-		for group in item.group:
-			var key = group.replace("%MAP%", item.level.group_name if item.level else "NULL")
-			var list = result.get_or_add(key, [])
+	for item: Dictionary in items:
+		for group: String in item.group:
+			var key := group.replace("%MAP%", item.level.group_name if item.level else "NULL")
+			var list: Array = result.get_or_add(key, [])
 			list.append(item.name)
 	
 	return result
 
 
-static func generate_location_table(world: World, locations) -> Dictionary:
+static func generate_location_table(world: World, locations: Array) -> Dictionary:
 	var result := {}
 	
-	for location in locations:
-		var id = str(location.id)
-		var region_name = location.get("region_name", "")
+	for location: Dictionary in locations:
+		var id := str(location.id)
+		var region_name := location.get("region_name", "") as String
 		if region_name.is_empty():
 			print("Unreachable thing warning")
 			region_name = "Hub @ Entrance to " + location.level_name
@@ -390,19 +383,19 @@ static func generate_location_table(world: World, locations) -> Dictionary:
 	return result
 
 
-static func generate_location_name_groups(locations) -> Dictionary:
+static func generate_location_name_groups(locations: Array) -> Dictionary:
 	var result := {}
 	
-	for location in locations:
+	for location: Dictionary in locations:
 		result.get_or_add(location.level_name, []).push_back(location.name)
 	
 	return result
 
 
-static func generate_death_logic_excluded_locations(locations) -> Array:
+static func generate_death_logic_excluded_locations(locations: Array) -> Array:
 	var result := []
 	
-	for location in locations:
+	for location: Dictionary in locations:
 		if location.has("state") and location.state.death_logic:
 			result.push_back(location.name)
 	
@@ -412,10 +405,10 @@ static func generate_death_logic_excluded_locations(locations) -> Array:
 static func generate_starting_levels_by_episode(world: World) -> Dictionary:
 	var result := {}
 	
-	for ep in world.game.episodes.size():
+	for ep: int in world.game.episodes.size():
 		if world.game.episodes[ep].get("minor", false):
 			continue
-		var start_level = world.game.episodes[ep].get("start_level", 1) - 1
+		var start_level: int = world.game.episodes[ep].get("start_level", 1) - 1
 		if start_level >= 0 and start_level < world.game.episodes[ep].maps.size():
 			result[str(ep + 1)] = world.game.episodes[ep].maps[start_level].name
 	
@@ -425,8 +418,8 @@ static func generate_starting_levels_by_episode(world: World) -> Dictionary:
 static func generate_item_pool_ratio(world: World) -> Dictionary:
 	var result := {}
 	
-	for pool in world.game.world_info.item_pool_ratio:
-		var ratio = world.game.world_info.item_pool_ratio[pool]
+	for pool: String in world.game.world_info.item_pool_ratio:
+		var ratio: Dictionary = world.game.world_info.item_pool_ratio[pool]
 		result[pool] = [ratio.helpful, ratio.random]
 	
 	return result
@@ -436,10 +429,10 @@ static func generate_helpful_item_weight(world: World) -> Dictionary:
 	return world.game.world_info.helpful_item_weight
 
 
-static func generate_flat_location_table(locations) -> Dictionary:
+static func generate_flat_location_table(locations: Array) -> Dictionary:
 	var result := {}
 	
-	for location in locations:
+	for location: Dictionary in locations:
 		var ep := str(location.idx.ep + 1)
 		var map := str(location.idx.map + 1)
 		var index := str(location.doom_thing_index)
@@ -449,10 +442,10 @@ static func generate_flat_location_table(locations) -> Dictionary:
 	return result
 
 
-static func generate_flat_item_table(items) -> Dictionary:
+static func generate_flat_item_table(items: Array) -> Dictionary:
 	var result := {}
 	
-	for item in items:
+	for item: Dictionary in items:
 		var id := str(item.id)
 		if item.idx.ep >= 0:
 			result[id] = [item.name, item.doom_type, item.idx.ep + 1, item.idx.map + 1]
@@ -462,10 +455,10 @@ static func generate_flat_item_table(items) -> Dictionary:
 	return result
 
 
-static func generate_level_info(world: World, levels, locations) -> Array:
+static func generate_level_info(world: World, levels: Array, locations: Array) -> Array:
 	var result := []
 	
-	for level in levels:
+	for level: Dictionary in levels:
 		var map_index := [1, level.group_name.right(-3).to_int()]
 		if not level.group_name.begins_with("MAP"):
 			map_index[0] = level.group_name[1].to_int()
@@ -481,17 +474,17 @@ static func generate_level_info(world: World, levels, locations) -> Array:
 			info.music = level.music_override
 		
 		var thing_list := []
-		for t in level.map.things.size():
-			var thing = level.map.things[t]
+		for t: int in level.map.things.size():
+			var thing: Map.Thing = level.map.things[t]
 			
-			for key in world.game.items.keys:
+			for key: Dictionary in world.game.items.keys:
 				if key.doom_type == thing.type:
 					info.key[key.key] = true
 					if key.use_skull:
 						info.use_skull[key.key] = true
 					break
 			
-			for location in locations:
+			for location: Dictionary in locations:
 				if location.idx == level.idx and t == location.doom_thing_index:
 					thing_list.push_back([thing.type, location.id])
 					break
@@ -510,7 +503,7 @@ static func generate_level_info(world: World, levels, locations) -> Array:
 static func generate_type_sprites(world: World) -> Dictionary:
 	var result := {}
 	
-	for item in world.game.all_items:
+	for item: Dictionary in world.game.all_items:
 		result[str(int(item.doom_type))] = item.sprite
 	
 	return result
@@ -519,7 +512,7 @@ static func generate_type_sprites(world: World) -> Dictionary:
 static func generate_energy_link_shop(world: World) -> Array:
 	var result := []
 	
-	for item in world.game.common_items:
+	for item: Dictionary in world.game.common_items:
 		if item.get("buyable", false):
 			result.push_back(int(item.doom_type))
 	
@@ -529,14 +522,14 @@ static func generate_energy_link_shop(world: World) -> Array:
 static func generate_ap_location_types(world: World) -> Array:
 	var result := []
 	
-	for type in world.game.location_doom_types:
+	for type: String in world.game.location_doom_types:
 		result.push_back(type.to_int())
 	
 	result.sort() # cosmetic
 	return result
 
 
-static func generate_manifest(world: World, info) -> Dictionary:
+static func generate_manifest(world: World, info: Dictionary) -> Dictionary:
 	var dt := Time.get_date_dict_from_system()
 	
 	var result := {
@@ -549,11 +542,8 @@ static func generate_manifest(world: World, info) -> Dictionary:
 		repo_url = "https://archipelagodoom.github.io/worlds/index.json"
 	}
 	
-	if world.game.has("authors"):
-		if world.game.authors is Array:
-			result.authors = world.game.authors
-		else:
-			result.authors = [world.game.authors]
+	if world.game.authors:
+		result.authors = world.game.authors
 	
 	return result
 
@@ -576,7 +566,7 @@ static func patch_zip_file(filename: String) -> void:
 		print("Invalid central header")
 		return
 	
-	var num_entries = bytes.decode_u16(bytes.size() - 14)
+	var num_entries := bytes.decode_u16(bytes.size() - 14)
 	var dir_offset := bytes.decode_u32(bytes.size() - 6)
 	for n in num_entries:
 		if bytes.decode_u32(dir_offset) != 0x02014b50:
@@ -663,11 +653,10 @@ static func generate(world: World) -> void:
 	zip.write_file(Python.generate_options(world, info.levels, info.options))
 	zip.close_file()
 	
-	if world.game.has("included_wads"):
-		for wad in world.game.included_wads if world.game.included_wads is Array else [world.game.included_wads]:
-			zip.start_file("%s/wad/%s" % [world.game.ap_world_name, wad.get_file()])
-			zip.write_file(FileAccess.get_file_as_bytes("res://wads/%s" % wad))
-			zip.close_file()
+	for wad: String in world.game.included_wads:
+		zip.start_file("%s/wad/%s" % [world.game.ap_world_name, wad.get_file()])
+		zip.write_file(FileAccess.get_file_as_bytes("res://wads/%s" % wad))
+		zip.close_file()
 	
 	zip.start_file("%s/id1common/__init__.py" % world.game.ap_world_name)
 	zip.write_file(FileAccess.get_file_as_bytes("res://assets/py/id1common/__init__.py"))

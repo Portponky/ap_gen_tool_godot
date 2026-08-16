@@ -1,9 +1,9 @@
 extends Node
 
-var game_info
-var items
-var locations
-var world_info
+var game_info : Dictionary
+var items : Dictionary
+var locations : Dictionary
+var world_info : Dictionary
 
 func _ready() -> void:
 	game_info = JSON.parse_string(FileAccess.get_file_as_string("res://assets/json/default_game_info.json"))
