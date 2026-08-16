@@ -21,6 +21,10 @@ Default="*uid://hpbkl5l4iwlj"
 WorldOptions="*uid://slrs58wrydga"
 Status="*uid://dc4nygk1htgif"
 
+[debug]
+
+gdscript/warnings/integer_division=0
+
 [display]
 
 window/stretch/mode="canvas_items"

@@ -265,7 +265,8 @@ func load_graphic(lump_name: String) -> Dictionary:
 	return {
 		valid = true,
 		texture = ImageTexture.create_from_image(image),
-		offset = -Vector2i(x_offset, y_offset)
+		offset = Vector2i(x_offset, y_offset),
+		center = Vector2i(width, height) / 2
 	}
 
 

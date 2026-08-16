@@ -51,7 +51,7 @@ func _draw() -> void:
 			continue
 		if thing.type in cached_things:
 			var pos := to_map * Vector2(thing.x, -thing.y)
-			draw_texture(cached_things[thing.type].texture, pos + Vector2(cached_things[thing.type].offset))
+			draw_texture(cached_things[thing.type].texture, pos - Vector2(cached_things[thing.type].center))
 
 
 func _unhandled_input(event: InputEvent) -> void:
