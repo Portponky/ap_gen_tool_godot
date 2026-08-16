@@ -275,6 +275,7 @@ static func build_mesh(sector: Sector) -> void:
 static func load(world: World, map_lump: String) -> Map:
 	var load_wad := world.wad_for_lump(map_lump)
 	if not load_wad:
+		Status.add_error("Unable to find lump %s" % map_lump)
 		return null
 	
 	var map := Map.new()

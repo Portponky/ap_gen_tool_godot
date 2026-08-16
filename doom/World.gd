@@ -157,6 +157,9 @@ static func load(gamename: String) -> World:
 	for wadname: String in all_wads:
 		Status.set_task("Loading wad %s" % wadname)
 		var wad := Wad.load("res://wads/%s" % wadname)
+		if not wad:
+			Status.add_error("Unable to load wad %s" % wadname)
+			return null
 		world.wads.push_front(wad)
 	
 	if not load_palette(world):
@@ -217,6 +220,7 @@ static func load(gamename: String) -> World:
 	world.game.get_or_add("ap_world_name", "id1_game")
 	world.game.get_or_add("ap_class_name", "id1Game")
 	world.game.get_or_add("full_name", world.game.ap_name)
+	world.game.get_or_add("settings", {})
 	
 	world.game.get_or_add("check_sanity", false)
 	

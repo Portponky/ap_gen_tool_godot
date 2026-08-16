@@ -80,7 +80,7 @@ static func build_locations(world: World, levels: Array) -> Array:
 				break
 			
 			var extension := ""
-			if world.game.settings.extended_names and not location.get("name", "").is_empty():
+			if world.game.settings.get("extended_names", false) and not location.get("name", "").is_empty():
 				extension = " (%s)" % location.name
 			
 			var item_name: String = world.game.location_doom_types[str(thing.type)]
@@ -495,7 +495,7 @@ static func generate_level_info(world: World, levels: Array, locations: Array) -
 			for key: Dictionary in world.game.items.keys:
 				if key.doom_type == thing.type:
 					info.key[key.key] = true
-					if key.use_skull:
+					if key.get("use_skull", false):
 						info.use_skull[key.key] = true
 					break
 			

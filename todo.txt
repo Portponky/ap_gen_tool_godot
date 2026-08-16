@@ -4,3 +4,4 @@ Custom options might not generate correctly
 Error and warning system, thread lengthy processes and give feedback
 Consider merging location_doom_types and ap_doom_types
 Behaves as? other similar map modifiers
+Heretic data is missing check sanity flag in location table
