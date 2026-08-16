@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 Default="*uid://hpbkl5l4iwlj"
 WorldOptions="*uid://slrs58wrydga"
+Status="*uid://dc4nygk1htgif"
 
 [display]
 

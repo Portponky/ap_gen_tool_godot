@@ -19,5 +19,10 @@ offset_right = 132.0
 offset_bottom = 100.0
 text = "Generate"
 
+[node name="Label" type="Label" parent="." unique_id=190907776]
+unique_name_in_owner = true
+offset_right = 334.0
+offset_bottom = 110.0
+
 [connection signal="pressed" from="Load" to="." method="_on_load_pressed"]
 [connection signal="pressed" from="Generate" to="." method="_on_generate_pressed"]

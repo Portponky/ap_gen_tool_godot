@@ -20,6 +20,7 @@ static func get_item_id_base(idx: Dictionary) -> int:
 
 
 static func build_levels(world: World) -> Array:
+	Status.set_task("Building level info")
 	var levels := []
 	for e: int in world.game.episodes.size():
 		var episode: Dictionary = world.game.episodes[e]
@@ -59,7 +60,7 @@ static func region_name_for_position(pos: Vector2, level: Dictionary) -> String:
 
 
 static func build_locations(world: World, levels: Array) -> Array:
-	# keycards
+	Status.set_task("Building location info")
 	var locations := []
 	
 	for level: Dictionary in levels:
@@ -160,6 +161,7 @@ static func make_item(def: Dictionary, type: int, level: Dictionary, key := fals
 
 
 static func build_items(world: World, levels: Array) -> Array:
+	Status.set_task("Building item info")
 	var items := []
 	
 	for def: Dictionary in world.game.items.progression:
@@ -209,6 +211,7 @@ static func build_items(world: World, levels: Array) -> Array:
 
 
 static func build_manifest(world: World) -> Dictionary:
+	Status.set_task("Building manifest info")
 	var result := {
 		short_name = world.game.short_name,
 		iwad = world.game.iwad,
@@ -282,6 +285,7 @@ static func make_connection(world: World, connection: Dictionary, level_name: St
 
 
 static func generate_regions(world: World, levels: Array) -> Array:
+	Status.set_task("Generating regions")
 	var result := []
 	
 	var game_hub_region := {
@@ -332,6 +336,7 @@ static func generate_regions(world: World, levels: Array) -> Array:
 
 
 static func generate_item_table(items: Array) -> Dictionary:
+	Status.set_task("Generating item table")
 	var result := {}
 	
 	for item: Dictionary in items:
@@ -362,6 +367,7 @@ static func generate_item_name_groups(items: Array) -> Dictionary:
 
 
 static func generate_location_table(world: World, locations: Array) -> Dictionary:
+	Status.set_task("Generating location table")
 	var result := {}
 	
 	for location: Dictionary in locations:
@@ -384,6 +390,7 @@ static func generate_location_table(world: World, locations: Array) -> Dictionar
 
 
 static func generate_location_name_groups(locations: Array) -> Dictionary:
+	Status.set_task("Generating location name groups")
 	var result := {}
 	
 	for location: Dictionary in locations:
@@ -393,6 +400,7 @@ static func generate_location_name_groups(locations: Array) -> Dictionary:
 
 
 static func generate_death_logic_excluded_locations(locations: Array) -> Array:
+	Status.set_task("Generating death logic excluded locations")
 	var result := []
 	
 	for location: Dictionary in locations:
@@ -403,6 +411,7 @@ static func generate_death_logic_excluded_locations(locations: Array) -> Array:
 
 
 static func generate_starting_levels_by_episode(world: World) -> Dictionary:
+	Status.set_task("Generating starting levels by episode")
 	var result := {}
 	
 	for ep: int in world.game.episodes.size():
@@ -416,6 +425,7 @@ static func generate_starting_levels_by_episode(world: World) -> Dictionary:
 
 
 static func generate_item_pool_ratio(world: World) -> Dictionary:
+	Status.set_task("Generating item pool ratio")
 	var result := {}
 	
 	for pool: String in world.game.world_info.item_pool_ratio:
@@ -426,10 +436,12 @@ static func generate_item_pool_ratio(world: World) -> Dictionary:
 
 
 static func generate_helpful_item_weight(world: World) -> Dictionary:
+	Status.set_task("Generating helpful item weight")
 	return world.game.world_info.helpful_item_weight
 
 
 static func generate_flat_location_table(locations: Array) -> Dictionary:
+	Status.set_task("Generating flat location table")
 	var result := {}
 	
 	for location: Dictionary in locations:
@@ -443,6 +455,7 @@ static func generate_flat_location_table(locations: Array) -> Dictionary:
 
 
 static func generate_flat_item_table(items: Array) -> Dictionary:
+	Status.set_task("Generating flat item table")
 	var result := {}
 	
 	for item: Dictionary in items:
@@ -459,6 +472,8 @@ static func generate_level_info(world: World, levels: Array, locations: Array) -
 	var result := []
 	
 	for level: Dictionary in levels:
+		Status.set_task("Generating level info for %s" % level.name)
+		
 		var map_index := [1, level.group_name.right(-3).to_int()]
 		if not level.group_name.begins_with("MAP"):
 			map_index[0] = level.group_name[1].to_int()
@@ -501,6 +516,7 @@ static func generate_level_info(world: World, levels: Array, locations: Array) -
 
 
 static func generate_type_sprites(world: World) -> Dictionary:
+	Status.set_task("Generating type sprites")
 	var result := {}
 	
 	for item: Dictionary in world.game.all_items:
@@ -510,6 +526,7 @@ static func generate_type_sprites(world: World) -> Dictionary:
 
 
 static func generate_energy_link_shop(world: World) -> Array:
+	Status.set_task("Generating energy link shop")
 	var result := []
 	
 	for item: Dictionary in world.game.common_items:
@@ -520,6 +537,7 @@ static func generate_energy_link_shop(world: World) -> Array:
 
 
 static func generate_ap_location_types(world: World) -> Array:
+	Status.set_task("Generating ap location types")
 	var result := []
 	
 	for type: String in world.game.location_doom_types:
@@ -530,6 +548,7 @@ static func generate_ap_location_types(world: World) -> Array:
 
 
 static func generate_manifest(world: World, info: Dictionary) -> Dictionary:
+	Status.set_task("Generating manifest")
 	var dt := Time.get_date_dict_from_system()
 	
 	var result := {
@@ -549,6 +568,7 @@ static func generate_manifest(world: World, info: Dictionary) -> Dictionary:
 
 
 static func generate_copy(target: Dictionary, from: Dictionary, key: String) -> void:
+	Status.set_task("Generating copy of %s" % key)
 	if from.has(key):
 		target[key] = from[key]
 
@@ -558,7 +578,7 @@ static func patch_zip_file(filename: String) -> void:
 	# APDoom rejects the files because of this
 	# However, the zip files are only ascii so we can manually disable the utf-8 setting
 	
-	print("Patching zip file...")
+	Status.set_task("Patching zip file")
 	var bytes := FileAccess.get_file_as_bytes(filename)
 	
 	# check header, assuming no comment

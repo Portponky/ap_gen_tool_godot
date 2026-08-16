@@ -16,7 +16,7 @@ var mouse_position : Vector2
 var cached_things := {}
 
 func _ready() -> void:
-	pass
+	Status.task_changed.connect(%Label.set_text)
 
 
 func _draw() -> void:
@@ -132,6 +132,7 @@ func _on_load_pressed() -> void:
 	
 	await task_complete
 	thread.wait_to_finish()
+	%Label.text = ""
 	
 	if not world:
 		return
@@ -159,3 +160,4 @@ func _on_generate_pressed() -> void:
 	
 	await task_complete
 	thread.wait_to_finish()
+	%Label.text = ""

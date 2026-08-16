@@ -29,6 +29,7 @@ static func generate_id1_import(import: String) -> String:
   
 
 static func generate_init(world: World, options: Array) -> PackedByteArray:
+	Status.set_task("Generating init script")
 	var cn := world.game.ap_class_name as String
 	var code := [
 		generate_header(world.game.ap_name),
@@ -134,7 +135,7 @@ static func generate_init(world: World, options: Array) -> PackedByteArray:
 
 
 static func generate_options(world: World, levels: Array, options: Array) -> PackedByteArray:
-	# build py options from (a) options, (b) built in
+	Status.set_task("Generating options script")
 	var py_options := []
 	
 	WorldOptions.add_default_options(world, levels, py_options)

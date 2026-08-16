@@ -223,6 +223,8 @@ func custom_option_py_options(_world: World, option: Dictionary, py_options: Arr
 	opt.option_group = option.get("group", "Randomizer Options")
 	opt.doom_type = option.get("doom_type", 0)
 	opt.docstring = option.get("description", [])
+	if opt.docstring is String:
+		opt.docstring = [opt.docstring]
 	
 	match type:
 		PyOptions.OptionType.Toggle:
@@ -256,6 +258,7 @@ func custom_option_py_options(_world: World, option: Dictionary, py_options: Arr
 # ===
 
 func build_options(world: World) -> Array:
+	Status.set_task("Building options")
 	var result := []
 	
 	for option: Dictionary in world.game.world_info.get("world_options", []):

@@ -8,22 +8,26 @@ var palette: Array[Color]
 var maps: Dictionary[String, Map]
 
 static func attempt_load_json(path: String) -> Variant:
+	Status.set_task("Loading %s" % path.get_file())
+	
 	var string := FileAccess.get_file_as_string(path)
 	if string.is_empty():
-		print("Error reading file at %s: %s" % [path, error_string(FileAccess.get_open_error())])
+		Status.add_error("Unable to read file %s: %s" % [path, error_string(FileAccess.get_open_error())])
 		return null
 	var json := JSON.new()
 	if json.parse(string) != OK:
-		print("Error parsing %s at line %d: %s" % [path, json.get_error_line(), json.get_error_message()])
+		Status.add_error("Error parsing %s at line %d: %s" % [path, json.get_error_line(), json.get_error_message()])
 		return null
 	
 	return json.data
 
 
-static func load_palette(world: World) -> void:
+static func load_palette(world: World) -> bool:
+	Status.set_task("Loading palette")
 	var wad := world.wad_for_lump("PLAYPAL")
 	if not wad:
-		return
+		Status.add_error("No wads have a PLAYPAL lump, cannot load palette")
+		return false
 	
 	world.palette.clear()
 	var playpal := wad.load_lump("PLAYPAL")
@@ -32,6 +36,8 @@ static func load_palette(world: World) -> void:
 		var g := playpal.decode_u8(3 * i + 1)
 		var b := playpal.decode_u8(3 * i + 2)
 		world.palette.push_back(Color.from_rgba8(r, g, b))
+	
+	return true
 
 
 static func enforce_array(world_game: Dictionary, key: String) -> void:
@@ -56,12 +62,20 @@ static func load_and_merge(world_game: Dictionary, host: String, path: String) -
 
 
 static func load(gamename: String) -> World:
+	Status.reset()
+	
 	var world := World.new()
+	Status.set_task("Loading %s.game.json" % gamename)
 	world.game = attempt_load_json("res://games/%s.game.json" % gamename)
 	world.data = attempt_load_json("res://data/%s.data.json" % gamename)
 	if not world.game or not world.data:
 		return null
 	
+	if not world.game.has("iwad"):
+		Status.add_error("No iwad specified in game json")
+		return null
+	
+	Status.set_task("Verifying game json")
 	enforce_array(world.game, "required_wads")
 	enforce_array(world.game, "included_wads")
 	enforce_array(world.game, "optional_wads")
@@ -73,24 +87,30 @@ static func load(gamename: String) -> World:
 	all_wads.append_array(world.game.required_wads)
 	all_wads.append_array(world.game.included_wads)
 	
-	print("Loading ", all_wads)
 	for wadname: String in all_wads:
+		Status.set_task("Loading wad %s" % wadname)
 		var wad := Wad.load("res://wads/%s" % wadname)
 		world.wads.push_front(wad)
 	
-	load_palette(world)
+	if not load_palette(world):
+		return null
 	
 	for episode: Dictionary in world.game.episodes:
 		for map: Dictionary in episode.maps:
+			Status.set_task("Loading map for lump %s" % map.lump)
 			world.maps[map.lump] = Map.load(world, map.lump)
 	
 	for lump: String in world.game.get("map_tweaks", {}):
+		Status.set_task("Applying map tweaks for %s" % lump)
 		world.maps[lump].apply_map_tweaks(world.game.map_tweaks[lump])
 	
+	Status.set_task("Merging default settings for iwad")
 	load_and_merge(world.game, "game_info", "res://assets/json/default_game_info.json")
 	load_and_merge(world.game, "location_doom_types", "res://assets/json/default_locations.json")
 	load_and_merge(world.game, "items", "res://assets/json/default_items.json")
 	load_and_merge(world.game, "world_info", "res://assets/json/default_world_info.json")
+	
+	Status.set_task("Assigning default settings for iwad")
 	
 	# Ensure weird items are present
 	world.game.items.get_or_add("unique_progression", [])
