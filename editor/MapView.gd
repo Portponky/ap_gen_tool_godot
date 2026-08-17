@@ -75,10 +75,7 @@ func _gui_input(event: InputEvent) -> void:
 			queue_redraw()
 			mouse_position = pos
 		if not mouse_dragging:
-			var pos : Vector2 = event.position
-			var offset_from_center := pos - size / 2
-			var doom_coord := offset + offset_from_center / zoom
-			doom_coord.y = -doom_coord.y
+			var doom_coord := doom_coordinate(event.position)
 			highlight_sector = map.sector_for_point(doom_coord)
 			queue_redraw()
 	
@@ -89,9 +86,24 @@ func _gui_input(event: InputEvent) -> void:
 		if not event.pressed:
 			mouse_dragging = false
 		
+		var zoom_factor := 1.0
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			zoom /= 0.9
+			zoom_factor = 1.0 / 0.9
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			zoom *= 0.9
+			zoom_factor = 0.9
+		
+		if zoom_factor != 1.0:
+			var pre_coord := doom_coordinate(event.position)
+			zoom *= zoom_factor
+			var post_coord := doom_coordinate(event.position)
+			offset.x += pre_coord.x - post_coord.x
+			offset.y -= pre_coord.y - post_coord.y
 		
 		queue_redraw()
+
+
+func doom_coordinate(screen_pos: Vector2) -> Vector2:
+	var offset_from_center := screen_pos - size / 2
+	var doom_coord := offset + offset_from_center / zoom
+	doom_coord.y = -doom_coord.y
+	return doom_coord
