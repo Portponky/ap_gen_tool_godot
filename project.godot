@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="ap_gen_tool"
-run/main_scene="uid://76gciy1xq0kx"
+run/main_scene="uid://runubioujofn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -27,7 +27,6 @@ gdscript/warnings/integer_division=0
 
 [display]
 
-window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
 [physics]

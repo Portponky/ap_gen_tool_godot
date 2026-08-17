@@ -131,7 +131,7 @@ static func load(gamename: String) -> World:
 	Status.reset()
 	
 	var world := World.new()
-	Status.set_task("Loading %s.game.json" % gamename)
+	Status.set_task("Loading %s game files" % gamename)
 	world.game = attempt_load_json("res://games/%s.game.json" % gamename)
 	world.data = attempt_load_json("res://data/%s.data.json" % gamename)
 	if not world.game:

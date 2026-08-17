@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://runubioujofn"]
+
+[ext_resource type="Script" uid="uid://cks82c7y3n0kc" path="res://editor/Editor.gd" id="1_3cn80"]
+[ext_resource type="PackedScene" uid="uid://btohn4x1ysend" path="res://editor/MapView.tscn" id="2_i0blf"]
+
+[node name="Editor" type="VBoxContainer" unique_id=1097679433]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_3cn80")
+
+[node name="TopBar" type="HBoxContainer" parent="." unique_id=1773305517]
+layout_mode = 2
+
+[node name="MenuBar" type="MenuBar" parent="TopBar" unique_id=950123147]
+layout_mode = 2
+
+[node name="FileMenu" type="PopupMenu" parent="TopBar/MenuBar" unique_id=1378325486]
+unique_name_in_owner = true
+oversampling_override = 1.0
+title = "File"
+
+[node name="EditMenu" type="PopupMenu" parent="TopBar/MenuBar" unique_id=2087451213]
+unique_name_in_owner = true
+title = "Edit"
+item_count = 2
+item_0/text = "Undo"
+item_0/id = 0
+item_1/text = "Redo"
+item_1/id = 1
+
+[node name="MapMenu" type="PopupMenu" parent="TopBar/MenuBar" unique_id=431261792]
+unique_name_in_owner = true
+title = "Maps"
+item_count = 1
+item_0/text = "No maps loaded"
+item_0/id = 0
+item_0/disabled = true
+
+[node name="Spacer" type="Control" parent="TopBar" unique_id=1697790604]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="MapLabel" type="Label" parent="TopBar" unique_id=18611467]
+unique_name_in_owner = true
+layout_mode = 2
+text = "No map loaded"
+horizontal_alignment = 1
+
+[node name="MapView" parent="." unique_id=2068846691 instance=ExtResource("2_i0blf")]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+
+[connection signal="id_pressed" from="TopBar/MenuBar/FileMenu" to="." method="_on_file_menu_id_pressed"]

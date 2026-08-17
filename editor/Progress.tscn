@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://yi6n1h7vsjr7"]
+
+[ext_resource type="Script" uid="uid://dcggd1gwsiyro" path="res://editor/Progress.gd" id="1_ararm"]
+
+[node name="Progress" type="Window" unique_id=1013805312]
+oversampling_override = 1.0
+title = "Working..."
+position = Vector2i(0, 36)
+size = Vector2i(400, 300)
+visible = false
+exclusive = true
+popup_window = true
+popup_wm_hint = true
+minimize_disabled = true
+maximize_disabled = true
+force_native = true
+script = ExtResource("1_ararm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1552104307]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StatusLabel" type="Label" parent="VBoxContainer" unique_id=863334086]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Task"
+text_overrun_behavior = 1
+
+[node name="Errors" type="TextEdit" parent="VBoxContainer" unique_id=88447820]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+editable = false
+wrap_mode = 1
+
+[node name="ButtonArea" type="HBoxContainer" parent="VBoxContainer" unique_id=1499364779]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="Spacer1" type="Control" parent="VBoxContainer/ButtonArea" unique_id=1658342974]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="VBoxContainer/ButtonArea" unique_id=263155743]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Close"
+
+[node name="Spacer2" type="Control" parent="VBoxContainer/ButtonArea" unique_id=841226473]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[connection signal="pressed" from="VBoxContainer/ButtonArea/CloseButton" to="." method="_on_close_button_pressed"]
