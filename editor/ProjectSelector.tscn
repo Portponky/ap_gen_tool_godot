@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://ye51nwned2xx"]
+
+[ext_resource type="Script" uid="uid://dkhp4tc336whl" path="res://editor/ProjectSelector.gd" id="1_v43hf"]
+
+[node name="ProjectSelector" type="Window" unique_id=1077488847]
+oversampling_override = 1.0
+position = Vector2i(0, 36)
+size = Vector2i(500, 400)
+visible = false
+exclusive = true
+popup_window = true
+popup_wm_hint = true
+minimize_disabled = true
+maximize_disabled = true
+force_native = true
+script = ExtResource("1_v43hf")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=756306480]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Tree" type="Tree" parent="VBoxContainer" unique_id=425138869]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=129913837]
+layout_mode = 2
+
+[node name="Folder" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=230615905]
+layout_mode = 2
+text = "Open games directory"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/HBoxContainer" unique_id=745585131]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Cancel" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=1256809411]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancel"
+
+[node name="Accept" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=173651499]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Open"
+
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/Folder" to="." method="_on_folder_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/Accept" to="." method="_on_accept_pressed"]

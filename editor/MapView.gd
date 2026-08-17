@@ -54,9 +54,10 @@ func _draw() -> void:
 			draw_line(Vector2(v1.x, -v1.y), Vector2(v2.x, -v2.y), Color.AQUA)
 	
 	draw_set_transform_matrix(Transform2D.IDENTITY)
-	for thing in map.things:
-		if thing.flags & Map.Thing.Flags.Multiplayer:
-			continue
+	
+	for location: Dictionary in map_data.locations:
+		var t: int = location.index
+		var thing := map.things[t]
 		if thing.type in cached_things:
 			var pos := to_map * Vector2(thing.x, -thing.y)
 			draw_texture(cached_things[thing.type].texture, pos - Vector2(cached_things[thing.type].center))

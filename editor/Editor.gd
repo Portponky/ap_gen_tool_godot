@@ -2,6 +2,7 @@ extends VBoxContainer
 
 signal task_complete
 
+const PROJECT_SELECTOR := preload("res://editor/ProjectSelector.tscn")
 const PROGRESS := preload("res://editor/Progress.tscn")
 
 enum MenuOptions {
@@ -31,9 +32,16 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func open_file(file: String) -> void:
+	# Clear out any previous exclusive windows
+	while get_last_exclusive_window() != get_window():
+		get_last_exclusive_window().queue_free()
+		await get_tree().process_frame
+	
+	print(file)
 	var game := file.get_file()
 	const ext := ".game.json"
 	if not game.ends_with(ext):
+		print("Not a .game.json file at %s", file)
 		return
 	game = game.left(-ext.length())
 	
@@ -42,6 +50,7 @@ func open_file(file: String) -> void:
 	
 	# close world if necessary
 	
+	print("Starting load thread")
 	var thread := Thread.new()
 	thread.start(func() -> void:
 		world = World.load(game)
@@ -75,28 +84,43 @@ func open_file(file: String) -> void:
 	
 	%MapView.set_world(world)
 	load_level(0)
+	var id: int = %FileMenu.get_item_index(MenuOptions.Generate)
+	%FileMenu.set_item_disabled(id, false)
+
+
+func generate() -> void:
+	if not world:
+		return
+	
+	var progress := PROGRESS.instantiate()
+	progress.popup_exclusive_centered(self)
+
+	var thread = Thread.new()
+	thread.start(func() -> void:
+		Generate.generate(world)
+		task_complete.emit.call_deferred()
+	)
+	
+	await task_complete
+	thread.wait_to_finish()
+	
+	if not world:
+		Status.set_task("Failed to generate")
+		progress.show_close_button()
+		return
+	
+	progress.queue_free()
+
 
 
 func _on_file_menu_id_pressed(id: int) -> void:
 	match id:
 		MenuOptions.Open:
-			var fd := FileDialog.new()
-			fd.use_native_dialog = true
-			fd.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-			fd.add_filter("*.game.json", "APDoom games", "application/json")
-			fd.current_dir = "res://games/"
-			fd.root_subfolder = "res://games/"
-			fd.favorites_enabled = false
-			fd.file_filter_toggle_enabled = false
-			add_child(fd)
-			
-			fd.canceled.connect(fd.queue_free)
-			fd.file_selected.connect(open_file)
-			fd.file_selected.connect(func(_x: String) -> void: fd.queue_free())
-			
-			fd.popup_centered_clamped()
+			var selector := PROJECT_SELECTOR.instantiate()
+			selector.load_game.connect(open_file)
+			selector.popup_exclusive_centered(self)
 		MenuOptions.Generate:
-			pass
+			generate()
 		MenuOptions.Quit:
 			# ask to save changes
 			get_tree().quit()

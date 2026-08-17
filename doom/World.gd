@@ -112,11 +112,9 @@ static func enforce_array(world_game: Dictionary, key: String) -> void:
 		world_game[key] = [world_game[key]]
 
 
-static func load_and_merge(world_game: Dictionary, host: String, path: String) -> void:
-	var all_defaults := JSON.parse_string(FileAccess.get_file_as_string(path)) as Dictionary
-	
+static func load_and_merge(world_game: Dictionary, host: String, all_defaults: Dictionary) -> void:
 	if not world_game.iwad in all_defaults:
-		print("Unable to load defaults for %s for iwad %s", path, world_game.iwad)
+		print("Unable to load defaults into %s for iwad %s", host, world_game.iwad)
 		return
 	
 	var iwad_defaults := all_defaults[world_game.iwad] as Dictionary
@@ -132,8 +130,9 @@ static func load(gamename: String) -> World:
 	
 	var world := World.new()
 	Status.set_task("Loading %s game files" % gamename)
-	world.game = attempt_load_json("res://games/%s.game.json" % gamename)
-	world.data = attempt_load_json("res://data/%s.data.json" % gamename)
+	var path := "res://" if OS.has_feature("editor") else OS.get_executable_path().get_base_dir()
+	world.game = attempt_load_json("%s/games/%s.game.json" % [path, gamename])
+	world.data = attempt_load_json("%s/data/%s.data.json" % [path, gamename])
 	if not world.game:
 		Status.add_error("Game json not present")
 		return null
@@ -156,7 +155,7 @@ static func load(gamename: String) -> World:
 	
 	for wadname: String in all_wads:
 		Status.set_task("Loading wad %s" % wadname)
-		var wad := Wad.load("res://wads/%s" % wadname)
+		var wad := Wad.load("%s/wads/%s" % [path, wadname])
 		if not wad:
 			Status.add_error("Unable to load wad %s" % wadname)
 			return null
@@ -175,10 +174,10 @@ static func load(gamename: String) -> World:
 		world.maps[lump].apply_map_tweaks(world.game.map_tweaks[lump])
 	
 	Status.set_task("Merging default settings for iwad")
-	load_and_merge(world.game, "game_info", "res://assets/json/default_game_info.json")
-	load_and_merge(world.game, "location_doom_types", "res://assets/json/default_locations.json")
-	load_and_merge(world.game, "items", "res://assets/json/default_items.json")
-	load_and_merge(world.game, "world_info", "res://assets/json/default_world_info.json")
+	load_and_merge(world.game, "game_info", Default.game_info)
+	load_and_merge(world.game, "location_doom_types", Default.locations)
+	load_and_merge(world.game, "items", Default.items)
+	load_and_merge(world.game, "world_info", Default.world_info)
 	
 	Status.set_task("Assigning default settings for iwad")
 	

@@ -650,7 +650,10 @@ static func generate(world: World) -> void:
 	
 	var zip := ZIPPacker.new()
 	zip.compression_level = ZIPPacker.COMPRESSION_BEST
-	var output_file_name := "res://output/%s.apworld" % world.game.ap_world_name
+	
+	var path := "res://output/" if OS.has_feature("editor") else "%s/output" % OS.get_executable_path().get_base_dir()
+
+	var output_file_name := "%s/%s.apworld" % [path, world.game.ap_world_name]
 	zip.open(output_file_name)
 	
 	zip.start_file("%s/%s.data.json" % [world.game.ap_world_name, world.game.short_name])
@@ -675,7 +678,7 @@ static func generate(world: World) -> void:
 	
 	for wad: String in world.game.included_wads:
 		zip.start_file("%s/wad/%s" % [world.game.ap_world_name, wad.get_file()])
-		zip.write_file(FileAccess.get_file_as_bytes("res://wads/%s" % wad))
+		zip.write_file(FileAccess.get_file_as_bytes("%s/wads/%s" % [path, wad]))
 		zip.close_file()
 	
 	zip.start_file("%s/id1common/__init__.py" % world.game.ap_world_name)
