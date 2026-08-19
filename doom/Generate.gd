@@ -236,25 +236,13 @@ static func build_manifest(world: World) -> Dictionary:
 
 
 static func get_requirement_name(world: World, level_name: String, doom_type: int) -> String:
-	for item: Dictionary in world.game.items.unique_progression:
-		if item.doom_type == doom_type:
-			return "%s - %s" % [level_name, item.name]
-	
-	for item: Dictionary in world.game.items.keys:
-		if item.doom_type == doom_type:
-			return "%s - %s" % [level_name, item.name]
-	
-	for requirement: Dictionary in world.game.item_requirements:
-		if requirement.doom_type == doom_type:
-			return requirement.name
-	
-	return "ERROR"
-
-
-static func get_extra_requirement_name(world: World, doom_type: int) -> String:
-	for requirement: Dictionary in world.game.items.extra_connection_requirements:
-		if requirement.doom_type == doom_type:
-			return requirement.name
+	for item: Dictionary in world.game.connection_items:
+		if item.doom_type != doom_type:
+			continue
+		for g: String in item.get("group", []):
+			if g.begins_with("%MAP%"):
+				return "%s - %s" % [level_name, item.name]
+		return item.name
 	
 	return "ERROR"
 
@@ -268,10 +256,7 @@ static func make_connection(world: World, connection: Dictionary, level_name: St
 	var rules := {}
 	
 	for doom_type: int in connection.requirements_and:
-		if doom_type < 0:
-			requires.push_back(get_extra_requirement_name(world, doom_type))
-		else:
-			rules.get_or_add("and", []).push_back(get_requirement_name(world, level_name, doom_type))
+		rules.get_or_add("and", []).push_back(get_requirement_name(world, level_name, doom_type))
 	
 	for doom_type: int in connection.requirements_or:
 		rules.get_or_add("or", []).push_back(get_requirement_name(world, level_name, doom_type))

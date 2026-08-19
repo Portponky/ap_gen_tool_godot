@@ -145,8 +145,8 @@ func _on_load_pressed() -> void:
 	
 	load_map(world.maps.keys()[0])
 	
-	for item in world.game.ap_doom_types:
-		cached_things[int(item.doom_type)] = world.load_graphic(item.sprite)
+	for doom_type in world.game.check_items:
+		cached_things[doom_type] = world.load_graphic(world.game.check_items[doom_type].sprite)
 
 
 func _on_generate_pressed() -> void:

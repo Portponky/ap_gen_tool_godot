@@ -10,11 +10,6 @@ var maps: Dictionary[String, Map]
 func populate_default_data() -> void:
 	Status.set_task("Populating default data")
 	
-	# quickly cache doom_types we care about
-	var ap_doom_types := {}
-	for item in game.ap_doom_types:
-		ap_doom_types[int(item.doom_type)] = true
-	
 	# ensure maps structure exists
 	var data_maps: Array = data.get_or_add("maps", [])
 	
@@ -55,7 +50,7 @@ func populate_default_data() -> void:
 				var thing := maps[map.lump].things[t] 
 				if thing.flags & Map.Thing.Flags.Multiplayer:
 					continue
-				if not ap_doom_types.has(thing.type):
+				if not game.check_items.has(thing.type):
 					continue
 				
 				if locations_by_thing.has(t):
@@ -187,33 +182,36 @@ static func load(gamename: String) -> World:
 	world.game.items.get_or_add("unique_filler", [])
 	
 	# Extra things that are required
-	world.game.item_requirements = []
-	world.game.item_requirements.append_array(world.game.items.extra_connection_requirements)
-	world.game.item_requirements.append_array(world.game.items.progression)
-	world.game.item_requirements.append_array(world.game.items.unique_progression)
+	# Used in connection generation
+	world.game.connection_items = []
+	world.game.connection_items.append_array(world.game.items.extra_connection_requirements)
+	world.game.connection_items.append_array(world.game.items.progression)
+	world.game.connection_items.append_array(world.game.items.unique_progression)
+	world.game.connection_items.append_array(world.game.items.keys)
 	
+	# Used by energy link shop
 	world.game.common_items = []
 	world.game.common_items.append_array(world.game.items.progression)
 	world.game.common_items.append_array(world.game.items.useful)
 	world.game.common_items.append_array(world.game.items.filler)
 	
-	world.game.unique_items = []
-	world.game.unique_items.append_array(world.game.items.unique_progression)
-	world.game.unique_items.append_array(world.game.items.unique_useful)
-	world.game.unique_items.append_array(world.game.items.unique_filler)
-	
+	# Used by type sprites
 	world.game.all_items = []
 	world.game.all_items.append_array(world.game.common_items)
-	world.game.all_items.append_array(world.game.unique_items)
+	world.game.all_items.append_array(world.game.items.unique_progression)
+	world.game.all_items.append_array(world.game.items.unique_useful)
+	world.game.all_items.append_array(world.game.items.unique_filler)
 	world.game.all_items.append_array(world.game.items.keys)
 	
-	world.game.ap_doom_types = []
-	for item in world.game.all_items:
+	world.game.check_items = {}
+	for item: Dictionary in world.game.all_items:
 		if item.get("count", 1.0) == 0.0:
 			continue
 		if item.has("group") and "Junk" in item.group:
 			continue
-		world.game.ap_doom_types.push_back(item)
+		world.game.check_items[int(item.doom_type)] = item
+	for item: Dictionary in world.game.items.extra_connection_requirements:
+		world.game.check_items[int(item.doom_type)] = item
 	
 	world.game.get_or_add("ap_name", "Unnamed id1 Game")
 	world.game.get_or_add("ap_world_name", "id1_game")

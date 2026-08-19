@@ -1,5 +1,11 @@
 extends Control
 
+const RULE_SIZE := Vector2(1024, 400)
+const RULE_BOUNDARY := RULE_SIZE + 128.0 * Vector2.ONE
+const RULE_CONNECTION_OFFSET := 64.0
+const RULE_ARROWHEAD := 32.0
+const RULE_REQUIREMENT_SIZE := 96.0
+
 var map : Map
 var map_data : Dictionary
 
@@ -10,12 +16,14 @@ var mouse_dragging := false
 var mouse_position : Vector2
 var highlight_sector := -1
 
-var cached_things := {}
+var thing_cache := {}
+var rule_cache := []
+
 
 
 func set_world(world: World) -> void:
-	for item: Dictionary in world.game.ap_doom_types:
-		cached_things[int(item.doom_type)] = world.load_graphic(item.sprite)
+	for doom_type: int in world.game.check_items:
+		thing_cache[doom_type] = world.load_graphic(world.game.check_items[doom_type].sprite)
 
 
 func set_map(next_map: Map, next_map_data: Dictionary) -> void:
@@ -26,41 +34,138 @@ func set_map(next_map: Map, next_map_data: Dictionary) -> void:
 	offset.y = -offset.y
 	zoom = min(size.x / map.bbox.size.x, size.y / map.bbox.size.y) * 0.9
 	
+	rebuild_rule_cache()
+	
 	queue_redraw()
 
+
+func _add_to_rule_cache(rule: Dictionary, rule_name: String, color: Color) -> void:
+	rule_cache.push_back({
+		name = rule_name,
+		color = color,
+		dim_color = color * Color(1.0, 1.0, 1.0, 0.5),
+		rule = rule,
+		pos = Vector2(rule.x, -rule.y)
+	})
+
+
+func rebuild_rule_cache() -> void:
+	rule_cache.clear()
+	
+	for region in map_data.regions:
+		_add_to_rule_cache(region.rules, region.name, Color(region.tint[0], region.tint[1], region.tint[2], region.tint[3]))
+	_add_to_rule_cache(map_data.exit_rules, "Exit", Color.DIM_GRAY)
+	_add_to_rule_cache(map_data.world_rules, "Hub", Color.DIM_GRAY)
+
+
+# Return a new value for b which intersects the rectangle
+func _clip_line_end(a: Vector2, b: Vector2, rect_pos: Vector2, rect_size: Vector2) -> Vector2:
+	var relative_b := b - rect_pos
+	if relative_b.x > rect_size.x or relative_b.y > rect_size.y:
+		return b
+	
+	var d := b - a
+	var s: Vector2 = sign(d)
+	var edge := rect_pos - 0.5 * s * rect_size
+	
+	var hit := (edge - a) / d
+	if s.x * (edge.x - a.x) < 0.0 or is_zero_approx(d.x): hit.x = 0.0
+	if s.y * (edge.y - a.y) < 0.0 or is_zero_approx(d.y): hit.y = 0.0
+	
+	return  a + max(hit.x, hit.y) * d
 
 
 func _draw() -> void:
 	if not map:
 		return
 	
+	# Render in doom coordinates
 	var to_map := Transform2D.IDENTITY.translated(-offset).scaled(zoom * Vector2.ONE).translated(size / 2)
 	draw_set_transform_matrix(to_map)
 	
-	for region: Dictionary in map_data.regions:
-		var color := Color(region.tint[0], region.tint[1], region.tint[2], 0.5 * region.tint[3])
-		for s: int in region.sectors:
+	# Draw all sectors
+	for i: int in map_data.regions.size():
+		for s: int in map_data.regions[i].sectors:
 			var sector = map.sectors[s]
 			if sector.mesh:
-				draw_mesh(sector.mesh, null, Transform2D.IDENTITY, color)
+				draw_mesh(sector.mesh, null, Transform2D.IDENTITY, rule_cache[i].dim_color)
 	
+	# Draw linedefs
 	for color in map.lines:
 		draw_multiline(map.lines[color], color)
 	
+	# Draw highlighted sector if appropriate
 	if highlight_sector >= 0:
 		for linedef in map.linedefs.filter(func(x): return x.front_sector == highlight_sector or x.back_sector == highlight_sector):
 			var v1 := Vector2(map.vertices[linedef.start_vertex])
 			var v2 := Vector2(map.vertices[linedef.end_vertex])
 			draw_line(Vector2(v1.x, -v1.y), Vector2(v2.x, -v2.y), Color.AQUA)
 	
+	# Draw all the things
 	draw_set_transform_matrix(Transform2D.IDENTITY)
-	
 	for location: Dictionary in map_data.locations:
 		var t: int = location.index
 		var thing := map.things[t]
-		if thing.type in cached_things:
+		if thing.type in thing_cache:
 			var pos := to_map * Vector2(thing.x, -thing.y)
-			draw_texture(cached_things[thing.type].texture, pos - Vector2(cached_things[thing.type].center))
+			draw_texture(thing_cache[thing.type].texture, pos - Vector2(thing_cache[thing.type].center))
+	
+	# Draw rules
+	# Connections first
+	for r: int in rule_cache.size():
+		var from: Dictionary = rule_cache[r]
+		for c: Dictionary in rule_cache[r].rule.connections:
+			var to: Dictionary = rule_cache[int(c.target_region)]
+			var forward: Vector2 = (to.pos - from.pos).normalized()
+			var right := forward.rotated(0.5 * PI)
+			var a: Vector2 = from.pos + right * RULE_CONNECTION_OFFSET
+			var b: Vector2 = to.pos + right * RULE_CONNECTION_OFFSET
+			b = _clip_line_end(a, b, to.pos, RULE_BOUNDARY)
+			a = _clip_line_end(b, a, from.pos, RULE_BOUNDARY)
+			
+			draw_line(to_map * a, to_map * b, Color.WHITE, 1)
+			draw_line(to_map * b, to_map * (b + RULE_ARROWHEAD * (right - forward)), Color.WHITE, 1)
+			draw_line(to_map * b, to_map * (b - RULE_ARROWHEAD * (right + forward)), Color.WHITE, 1)
+			
+			# requirements
+			var requirements: int = c.requirements_and.size() + c.requirements_or.size()
+			if requirements == 0:
+				continue
+			
+			var distance := a.distance_to(b)
+			var requirement_length := minf(RULE_REQUIREMENT_SIZE * (requirements - 1), distance)
+			var requirements_space := 0.5 * (distance - requirement_length)
+			
+			print("Distance %f, rl %d, rs %f" % [distance, requirement_length, requirements_space])
+			
+			a += right * RULE_REQUIREMENT_SIZE
+			b += right * RULE_REQUIREMENT_SIZE
+			var d := (b - a) / distance
+			var i := 0
+			for type in c.requirements_or:
+				if int(type) in thing_cache:
+					var pos := to_map * (a + d * (requirements_space + i * RULE_REQUIREMENT_SIZE))
+					draw_texture(thing_cache[int(type)].texture, pos - Vector2(thing_cache[int(type)].center))
+					i += 1
+			for type in c.requirements_and:
+				if int(type) in thing_cache:
+					var pos := to_map * (a + d * (requirements_space + i * RULE_REQUIREMENT_SIZE))
+					draw_texture(thing_cache[int(type)].texture, pos - Vector2(thing_cache[int(type)].center))
+					i += 1
+	
+	
+	# Now boxes
+	var box_size := zoom * RULE_SIZE
+	const font_size := 128
+	var font_vertical_offset := ThemeDB.fallback_font.get_height(font_size) / 2 - ThemeDB.fallback_font.get_descent(font_size)
+	for rule in rule_cache:
+		var pos = to_map * rule.pos
+		var test := Rect2(pos - 0.5 * box_size, box_size)
+		draw_rect(test, Color.BLACK)
+		draw_rect(test, rule.color, false, 2.0)
+		draw_set_transform_matrix(to_map)
+		draw_string(ThemeDB.fallback_font, Vector2(rule.pos.x - RULE_SIZE.x / 2, rule.pos.y + font_vertical_offset), rule.name, HORIZONTAL_ALIGNMENT_CENTER, RULE_SIZE.x, font_size, Color.WHITE)
+		draw_set_transform_matrix(Transform2D.IDENTITY)
 
 
 func _gui_input(event: InputEvent) -> void:
