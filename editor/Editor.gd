@@ -5,55 +5,71 @@ signal task_complete
 const PROJECT_SELECTOR := preload("res://editor/ProjectSelector.tscn")
 const PROGRESS := preload("res://editor/Progress.tscn")
 
-enum MenuOptions {
+enum MenuChoice {
 	Open,
+	Save,
+	Close,
 	Generate,
 	Quit,
+	Undo,
+	Redo,
+	PreviousLevel,
+	NextLevel,
 }
 
+var world_stem : String
 var world: World
 var levels : Array[Dictionary]
+
 var current_level: int
+var modified := false
 
 func _ready() -> void:
-	%FileMenu.add_item("Open", MenuOptions.Open, KEY_MASK_CMD_OR_CTRL | KEY_O)
-	%FileMenu.add_item("Generate APWorld", MenuOptions.Generate, KEY_MASK_CMD_OR_CTRL | KEY_G)
-	%FileMenu.set_item_disabled(1, true)
-	%FileMenu.add_item("Quit", MenuOptions.Quit, KEY_MASK_CMD_OR_CTRL | KEY_Q)
+	add_menu_shortcut(%FileMenu, "Open", MenuChoice.Open, KEY_O, true, false)
+	add_menu_shortcut(%FileMenu, "Save", MenuChoice.Save, KEY_S, true, false)
+	add_menu_shortcut(%FileMenu, "Generate APWorld", MenuChoice.Generate, KEY_G, true, false)
+	add_menu_shortcut(%FileMenu, "Close", MenuChoice.Close, KEY_W, true, false)
+	add_menu_shortcut(%FileMenu, "Quit", MenuChoice.Quit, KEY_Q, true, false)
+	
+	add_menu_shortcut(%EditMenu, "Undo", MenuChoice.Undo, KEY_Z, true, false)
+	add_menu_shortcut(%EditMenu, "Redo", MenuChoice.Undo, KEY_Z, true, true)
+	
+	enable_specific_menus(false)
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey:
-		if event.pressed and event.keycode == KEY_PAGEDOWN and current_level < levels.size() - 1:
-			load_level(current_level + 1)
-		elif event.pressed and event.keycode == KEY_PAGEUP and current_level > 0:
-			load_level(current_level - 1)
+func add_menu_shortcut(menu: PopupMenu, title: String, id: int, keycode: Key, ctrl: bool, shift: bool) -> void:
+	var input := InputEventKey.new()
+	input.keycode = keycode
+	input.command_or_control_autoremap = ctrl
+	input.shift_pressed = shift
+	
+	var shortcut := Shortcut.new()
+	shortcut.events = [input]
+	shortcut.resource_name = title
+	
+	menu.add_shortcut(shortcut, id, true)
 
 
-
-func open_file(file: String) -> void:
+func open(file: String) -> void:
 	# Clear out any previous exclusive windows
 	while get_last_exclusive_window() != get_window():
 		get_last_exclusive_window().queue_free()
 		await get_tree().process_frame
 	
-	print(file)
+	# generate world stem
 	var game := file.get_file()
 	const ext := ".game.json"
 	if not game.ends_with(ext):
 		print("Not a .game.json file at %s", file)
 		return
-	game = game.left(-ext.length())
+	world_stem = game.left(-ext.length())
 	
 	var progress := PROGRESS.instantiate()
 	progress.popup_exclusive_centered(self)
 	
-	# close world if necessary
-	
-	print("Starting load thread")
 	var thread := Thread.new()
 	thread.start(func() -> void:
-		world = World.load(game)
+		world = World.load(world_stem)
 		task_complete.emit.call_deferred()
 	)
 	
@@ -67,7 +83,14 @@ func open_file(file: String) -> void:
 	
 	progress.queue_free()
 	
+	# Sort out menus
+	enable_specific_menus(true)
+	
 	%MapMenu.clear(true)
+	add_menu_shortcut(%MapMenu, "Previous level", MenuChoice.PreviousLevel, KEY_PAGEUP, false, false)
+	add_menu_shortcut(%MapMenu, "Next level", MenuChoice.NextLevel, KEY_PAGEDOWN, false, false)
+	%MapMenu.add_separator()
+	
 	levels.clear()
 	
 	for ep: int in world.game.episodes.size():
@@ -82,12 +105,31 @@ func open_file(file: String) -> void:
 		episode_menu.id_pressed.connect(load_level)
 		%MapMenu.add_submenu_node_item(episode.get("name", "Episode %d" % (ep + 1)), episode_menu)
 	
+	# init to first level
 	%MapView.set_world(world)
 	%Items.set_world(world)
-	%Connection.set_world(world)
+	%Connections.set_world(world)
 	load_level(0)
-	var id: int = %FileMenu.get_item_index(MenuOptions.Generate)
-	%FileMenu.set_item_disabled(id, false)
+
+
+func save() -> void:
+	if not world or not modified:
+		return
+	
+	var path := "res://data/" if OS.has_feature("editor") else "%s/data" % OS.get_executable_path().get_base_dir()
+	var target := "%s/%s.data.json" % [path, world_stem]
+	
+	var backup := "%s.back" % target
+	if FileAccess.file_exists(target):
+		if FileAccess.file_exists(backup):
+			DirAccess.remove_absolute(backup)
+		DirAccess.rename_absolute(target, backup)
+	
+	var save_file := FileAccess.open(target, FileAccess.WRITE)
+	save_file.store_string(JSON.stringify(world.data))
+	save_file.close()
+	
+	modified = false
 
 
 func generate() -> void:
@@ -114,18 +156,61 @@ func generate() -> void:
 	progress.queue_free()
 
 
+func close() -> void:
+	if not world:
+		return
+	
+	%MapView.clear_world()
+	%Items.clear_world()
+	%Regions.clear_world()
+	%Connections.clear_world()
+	
+	world = null
+	
+	# Sort out menus
+	enable_specific_menus(false)
+	
+	%MapMenu.clear(true)
+	%MapMenu.title = "Maps"
+	%MapMenu.add_item("No game loaded")
+	%MapMenu.set_item_disabled(0, true)
+	
+	modified = false
 
-func _on_file_menu_id_pressed(id: int) -> void:
+
+func enable_specific_menus(enabled: bool) -> void:
+	%FileMenu.set_item_disabled(%FileMenu.get_item_index(MenuChoice.Save), not enabled)
+	%FileMenu.set_item_disabled(%FileMenu.get_item_index(MenuChoice.Generate), not enabled)
+	%FileMenu.set_item_disabled(%FileMenu.get_item_index(MenuChoice.Close), not enabled)
+	
+	%EditMenu.set_item_disabled(%EditMenu.get_item_index(MenuChoice.Undo), not enabled)
+	%EditMenu.set_item_disabled(%EditMenu.get_item_index(MenuChoice.Redo), not enabled)
+
+
+func _execute_menu_choice(id: int) -> void:
 	match id:
-		MenuOptions.Open:
+		MenuChoice.Open:
 			var selector := PROJECT_SELECTOR.instantiate()
-			selector.load_game.connect(open_file)
+			selector.load_game.connect(open)
 			selector.popup_exclusive_centered(self)
-		MenuOptions.Generate:
+		MenuChoice.Save:
+			if modified:
+				save()
+		MenuChoice.Close:
+			close()
+		MenuChoice.Generate:
 			generate()
-		MenuOptions.Quit:
+		MenuChoice.Quit:
 			# ask to save changes
 			get_tree().quit()
+		
+		MenuChoice.PreviousLevel:
+			if current_level > 0:
+				load_level(current_level - 1)
+		MenuChoice.NextLevel:
+			if current_level < levels.size() - 1:
+				load_level(current_level + 1)
+
 
 
 func load_level(id: int) -> void:

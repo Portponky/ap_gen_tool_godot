@@ -46,6 +46,12 @@ func set_world(world: World) -> void:
 		thing_cache[doom_type] = world.load_graphic(world.game.check_items[doom_type].sprite)
 
 
+func clear_world() -> void:
+	map = null
+	thing_cache.clear()
+	queue_redraw()
+
+
 func set_map(next_map: Map, next_map_data: Dictionary) -> void:
 	map = next_map
 	map_data = next_map_data

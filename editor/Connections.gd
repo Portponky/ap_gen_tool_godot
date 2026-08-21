@@ -2,13 +2,7 @@ extends VBoxContainer
 
 
 func set_world(world: World) -> void:
-	# Clear out old buttons (messy)
-	for node: Control in %Ands.get_children():
-		if node is Button:
-			node.queue_free()
-	for node: Control in %Ors.get_children():
-		if node is Button:
-			node.queue_free()
+	clear_world()
 	
 	for item: Dictionary in world.game.connection_items:
 		var doom_type: int = item.doom_type
@@ -28,3 +22,12 @@ func set_world(world: World) -> void:
 			or_button.expand_icon = true
 			or_button.custom_minimum_size = Vector2(0, 48)
 			%Ors.add_child(or_button)
+
+
+func clear_world() -> void:
+	for node: Control in %Ands.get_children():
+		if node is Button:
+			node.queue_free()
+	for node: Control in %Ors.get_children():
+		if node is Button:
+			node.queue_free()

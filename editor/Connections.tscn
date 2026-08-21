@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://cwk2wxfpseos2"]
 
-[ext_resource type="Script" uid="uid://cxo8xye3qo2d0" path="res://editor/Connection.gd" id="1_7xqor"]
+[ext_resource type="Script" uid="uid://cxo8xye3qo2d0" path="res://editor/Connections.gd" id="1_7xqor"]
 
-[node name="Connection" type="VBoxContainer" unique_id=2127478461]
+[node name="Connections" type="VBoxContainer" unique_id=2127478461]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

@@ -15,6 +15,10 @@ func set_world(world: World) -> void:
 		}
 
 
+func clear_world() -> void:
+	%ItemList.clear()
+	thing_cache.clear()
+
 
 func set_map(map: Map, map_data: Dictionary) -> void:
 	%ItemList.clear()
