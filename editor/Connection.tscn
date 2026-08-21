@@ -1,0 +1,67 @@
+[gd_scene format=3 uid="uid://cwk2wxfpseos2"]
+
+[ext_resource type="Script" uid="uid://cxo8xye3qo2d0" path="res://editor/Connection.gd" id="1_7xqor"]
+
+[node name="Connection" type="VBoxContainer" unique_id=2127478461]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+script = ExtResource("1_7xqor")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1974144469]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer" unique_id=650086580]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/VBoxContainer" unique_id=639266956]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Ands" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/HBoxContainer" unique_id=1093850349]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/HBoxContainer/Ands" unique_id=1101236742]
+layout_mode = 2
+text = "And"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/VBoxContainer/HBoxContainer/Ands" unique_id=852526737]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VSeparator" type="VSeparator" parent="ScrollContainer/VBoxContainer/HBoxContainer" unique_id=1071297103]
+layout_mode = 2
+
+[node name="Ors" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/HBoxContainer" unique_id=1889445330]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/HBoxContainer/Ors" unique_id=1463988915]
+layout_mode = 2
+text = "Or"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/VBoxContainer/HBoxContainer/Ors" unique_id=162343583]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Spacer" type="Control" parent="ScrollContainer/VBoxContainer" unique_id=1731780327]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Button" type="Button" parent="." unique_id=1841552087]
+layout_mode = 2
+text = "Remove"

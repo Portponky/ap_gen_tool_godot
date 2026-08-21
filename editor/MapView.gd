@@ -6,19 +6,39 @@ const RULE_CONNECTION_OFFSET := 64.0
 const RULE_ARROWHEAD := 32.0
 const RULE_REQUIREMENT_SIZE := 96.0
 
+enum Tool {
+	SectorPaint,
+	RuleModify,
+	ItemClassify,
+	BoundingBox
+}
+
+# Come up with correct list of states
+enum State {
+	None,
+	Panning,
+	Moving,
+	Drawing,
+	Selected
+}
+
 var map : Map
 var map_data : Dictionary
 
 var zoom := 1.0
 var offset := Vector2.ZERO
 
+var tool := Tool.SectorPaint
+var state := State.None
+
 var mouse_dragging := false
 var mouse_position : Vector2
+
 var highlight_sector := -1
 
 var thing_cache := {}
 var rule_cache := []
-
+var line_cache := []
 
 
 func set_world(world: World) -> void:
@@ -112,23 +132,33 @@ func _draw() -> void:
 	
 	# Draw rules
 	# Connections first
+	# Cache as we go for selection
+	line_cache.clear()
 	for r: int in rule_cache.size():
 		var from: Dictionary = rule_cache[r]
-		for c: Dictionary in rule_cache[r].rule.connections:
-			var to: Dictionary = rule_cache[int(c.target_region)]
+		for c: int in from.rule.connections.size():
+			var connection: Dictionary= from.rule.connections[c]
+			var to: Dictionary = rule_cache[int(connection.target_region)]
 			var forward: Vector2 = (to.pos - from.pos).normalized()
 			var right := forward.rotated(0.5 * PI)
 			var a: Vector2 = from.pos + right * RULE_CONNECTION_OFFSET
-			var b: Vector2 = to.pos + right * RULE_CONNECTION_OFFSET
-			b = _clip_line_end(a, b, to.pos, RULE_BOUNDARY)
+			var b: Vector2 = _clip_line_end(a, to.pos + right * RULE_CONNECTION_OFFSET, to.pos, RULE_BOUNDARY)
 			a = _clip_line_end(b, a, from.pos, RULE_BOUNDARY)
+			
+			line_cache.push_back({
+				rule_index = r,
+				connection_index = c, # no it isn't
+				a = a,
+				b = b,
+				forward = forward
+			})
 			
 			draw_line(to_map * a, to_map * b, Color.WHITE, 1)
 			draw_line(to_map * b, to_map * (b + RULE_ARROWHEAD * (right - forward)), Color.WHITE, 1)
 			draw_line(to_map * b, to_map * (b - RULE_ARROWHEAD * (right + forward)), Color.WHITE, 1)
 			
 			# requirements
-			var requirements: int = c.requirements_and.size() + c.requirements_or.size()
+			var requirements: int = connection.requirements_and.size() + connection.requirements_or.size()
 			if requirements == 0:
 				continue
 			
@@ -136,23 +166,20 @@ func _draw() -> void:
 			var requirement_length := minf(RULE_REQUIREMENT_SIZE * (requirements - 1), distance)
 			var requirements_space := 0.5 * (distance - requirement_length)
 			
-			print("Distance %f, rl %d, rs %f" % [distance, requirement_length, requirements_space])
-			
 			a += right * RULE_REQUIREMENT_SIZE
 			b += right * RULE_REQUIREMENT_SIZE
 			var d := (b - a) / distance
 			var i := 0
-			for type in c.requirements_or:
-				if int(type) in thing_cache:
+			for type: int in connection.requirements_or:
+				if type in thing_cache:
 					var pos := to_map * (a + d * (requirements_space + i * RULE_REQUIREMENT_SIZE))
 					draw_texture(thing_cache[int(type)].texture, pos - Vector2(thing_cache[int(type)].center))
 					i += 1
-			for type in c.requirements_and:
-				if int(type) in thing_cache:
+			for type: int in connection.requirements_and:
+				if type in thing_cache:
 					var pos := to_map * (a + d * (requirements_space + i * RULE_REQUIREMENT_SIZE))
 					draw_texture(thing_cache[int(type)].texture, pos - Vector2(thing_cache[int(type)].center))
 					i += 1
-	
 	
 	# Now boxes
 	var box_size := zoom * RULE_SIZE

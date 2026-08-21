@@ -83,6 +83,8 @@ func open_file(file: String) -> void:
 		%MapMenu.add_submenu_node_item(episode.get("name", "Episode %d" % (ep + 1)), episode_menu)
 	
 	%MapView.set_world(world)
+	%Items.set_world(world)
+	%Connection.set_world(world)
 	load_level(0)
 	var id: int = %FileMenu.get_item_index(MenuOptions.Generate)
 	%FileMenu.set_item_disabled(id, false)
@@ -131,3 +133,5 @@ func load_level(id: int) -> void:
 	var lump: String = levels[id].lump
 	%MapLabel.text = levels[id].name
 	%MapView.set_map(world.maps[lump], world.data.maps[id])
+	%Regions.set_map_data(world.data.maps[id])
+	%Items.set_map(world.maps[lump], world.data.maps[id])

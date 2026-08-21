@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://dwcqav3eqjvh7"]
+
+[ext_resource type="Script" uid="uid://4y0vglium2vg" path="res://editor/Items.gd" id="1_l2876"]
+
+[node name="Items" type="VBoxContainer" unique_id=675127406]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+script = ExtResource("1_l2876")
+
+[node name="ItemList" type="ItemList" parent="." unique_id=249910139]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_vertical = 3
+fixed_icon_size = Vector2i(32, 32)
+
+[node name="CheckSanity" type="CheckBox" parent="." unique_id=539939513]
+layout_mode = 2
+text = "Check sanity"
+
+[node name="CheckUnreachable" type="CheckBox" parent="." unique_id=1325546236]
+layout_mode = 2
+text = "Unreachable
+"
+
+[node name="CheckDeathLogic" type="CheckBox" parent="." unique_id=1757081838]
+layout_mode = 2
+text = "Death logic
+"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=611567171]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer" unique_id=1518416771]
+layout_mode = 2
+text = "Name:"
+
+[node name="Name" type="LineEdit" parent="HBoxContainer" unique_id=1748292354]
+layout_mode = 2
+size_flags_horizontal = 3
