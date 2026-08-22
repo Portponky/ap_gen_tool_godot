@@ -16,18 +16,22 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 fixed_icon_size = Vector2i(32, 32)
 
 [node name="CheckSanity" type="CheckBox" parent="." unique_id=539939513]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Check sanity"
 
-[node name="CheckUnreachable" type="CheckBox" parent="." unique_id=1325546236]
+[node name="Unreachable" type="CheckBox" parent="." unique_id=1325546236]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Unreachable
 "
 
-[node name="CheckDeathLogic" type="CheckBox" parent="." unique_id=1757081838]
+[node name="DeathLogic" type="CheckBox" parent="." unique_id=1757081838]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Death logic
 "
@@ -40,5 +44,12 @@ layout_mode = 2
 text = "Name:"
 
 [node name="Name" type="LineEdit" parent="HBoxContainer" unique_id=1748292354]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+
+[connection signal="item_selected" from="ItemList" to="." method="_on_item_list_item_selected"]
+[connection signal="toggled" from="CheckSanity" to="." method="_on_check_sanity_toggled"]
+[connection signal="toggled" from="Unreachable" to="." method="_on_unreachable_toggled"]
+[connection signal="toggled" from="DeathLogic" to="." method="_on_death_logic_toggled"]
+[connection signal="text_submitted" from="HBoxContainer/Name" to="." method="_on_name_text_submitted"]

@@ -3,7 +3,11 @@ extends VBoxContainer
 var unreachable_icon := load("res://assets/graphics/unreachable.png")
 var check_sanity_icon := load("res://assets/graphics/check-sanity.png")
 
+var undo: UndoRedo
+
 var thing_cache := {}
+var map: Map
+var map_data: Dictionary
 
 
 func set_world(world: World) -> void:
@@ -20,17 +24,131 @@ func clear_world() -> void:
 	thing_cache.clear()
 
 
-func set_map(map: Map, map_data: Dictionary) -> void:
+func style_item_list(index: int) -> void:
+	var location: Dictionary = map_data.locations[index]
+	if location.death_logic:
+		%ItemList.set_item_custom_bg_color(index, Color.DARK_RED)
+	else:
+		%ItemList.set_item_custom_bg_color(index, Color.TRANSPARENT)
+	
+	if location.unreachable:
+		%ItemList.set_item_icon(index, unreachable_icon)
+	elif location.check_sanity:
+		%ItemList.set_item_icon(index, check_sanity_icon)
+	else:
+		var map_index: int = location.index
+		var doom_type := map.things[map_index].type
+		%ItemList.set_item_icon(index, thing_cache[doom_type].icon.texture)
+	
+	if location.name.is_empty():
+		var map_index: int = location.index
+		var doom_type := map.things[map_index].type
+		%ItemList.set_item_text(index, thing_cache[doom_type].name)
+	else:
+		%ItemList.set_item_text(index, location.name)
+
+
+func set_map(next_map: Map, next_map_data: Dictionary) -> void:
+	map = next_map
+	map_data = next_map_data
+	
 	%ItemList.clear()
 	for l in map_data.locations.size():
-		var location: Dictionary = map_data.locations[l]
-		var index: int = location.index
-		var type := map.things[index].type
-		var id: int = %ItemList.add_item(thing_cache[type].name, thing_cache[type].icon.texture)
-		
-		if location.death_logic:
-			%ItemList.set_item_custom_bg_color(id, Color.DARK_RED)
-		if location.check_sanity:
-			%ItemList.set_item_icon(id, check_sanity_icon)
-		if location.unreachable:
-			%ItemList.set_item_icon(id, unreachable_icon)
+		var id: int = %ItemList.add_item("")
+		style_item_list(id)
+	
+	if %ItemList.item_count > 0:
+		%ItemList.select(0)
+		_on_item_list_item_selected(0)
+
+
+func refresh() -> void:
+	for i in map_data.locations.size():
+		style_item_list(i)
+
+
+func _on_item_list_item_selected(index: int) -> void:
+	var location: Dictionary = map_data.locations[index]
+	%CheckSanity.set_pressed_no_signal(location.check_sanity)
+	%Unreachable.set_pressed_no_signal(location.unreachable)
+	%DeathLogic.set_pressed_no_signal(location.death_logic)
+	%Name.text = location.name
+
+
+func selected_index() -> int:
+	var selected: Array = %ItemList.get_selected_items()
+	if selected.size() == 1:
+		return selected[0]
+	return -1
+
+
+func set_location_flags(index: int, check_sanity: bool, unreachable: bool, death_logic: bool) -> void:
+	var location: Dictionary = map_data.locations[index]
+	location.check_sanity = check_sanity
+	location.unreachable = unreachable
+	location.death_logic = death_logic
+	style_item_list(index)
+	if index == selected_index():
+		%CheckSanity.set_pressed_no_signal(check_sanity)
+		%Unreachable.set_pressed_no_signal(unreachable)
+		%DeathLogic.set_pressed_no_signal(death_logic)
+
+
+func _on_check_sanity_toggled(on: bool) -> void:
+	var selected := selected_index()
+	if selected == -1:
+		return
+	
+	var location: Dictionary = map_data.locations[selected]
+	
+	undo.create_action("Set check sanity")
+	undo.add_do_method(set_location_flags.bind(selected, on, location.unreachable, location.death_logic))
+	undo.add_undo_method(set_location_flags.bind(selected, not on, location.unreachable, location.death_logic))
+	undo.commit_action()
+
+
+func _on_unreachable_toggled(on: bool) -> void:
+	var selected := selected_index()
+	if selected == -1:
+		return
+	
+	var location: Dictionary = map_data.locations[selected]
+	
+	undo.create_action("Set unreachable")
+	undo.add_do_method(set_location_flags.bind(selected, location.check_sanity, on, location.death_logic))
+	undo.add_undo_method(set_location_flags.bind(selected, location.check_sanity, not on, location.death_logic))
+	undo.commit_action()
+
+
+func _on_death_logic_toggled(on: bool) -> void:
+	var selected := selected_index()
+	if selected == -1:
+		return
+	
+	var location: Dictionary = map_data.locations[selected]
+	
+	undo.create_action("Set death logic")
+	undo.add_do_method(set_location_flags.bind(selected, location.check_sanity, location.unreachable, on))
+	undo.add_undo_method(set_location_flags.bind(selected, location.check_sanity, location.unreachable, not on))
+	undo.commit_action()
+
+
+func set_location_name(index: int, location_name: String) -> void:
+	var location: Dictionary = map_data.locations[index]
+	location.name = location_name
+	style_item_list(index)
+	if index == selected_index():
+		%Name.text = location_name
+
+
+func _on_name_text_submitted(new_text: String) -> void:
+	var selected := selected_index()
+	if selected == -1:
+		return
+	
+	var location: Dictionary = map_data.locations[selected]
+	
+	undo.create_action("Set name")
+	undo.add_do_method(set_location_name.bind(selected, new_text))
+	undo.add_undo_method(set_location_name.bind(selected, location.name))
+	undo.commit_action()

@@ -26,6 +26,7 @@ var current_level: int
 var modified := false
 
 func _ready() -> void:
+	%Items.undo = undo
 	%Regions.undo = undo
 	undo.version_changed.connect(_on_modified)
 	
