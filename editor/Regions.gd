@@ -6,6 +6,11 @@ var undo: UndoRedo
 
 var map_data: Dictionary
 
+
+func _ready() -> void:
+	%ColorPopup.size = %ColorPopup.get_child(0).get_combined_minimum_size()
+
+
 func create_tree_item(index: int, region: Dictionary) -> void:
 	var root: TreeItem = %Tree.get_root()
 	var item: TreeItem = %Tree.create_item(root, index)
@@ -126,9 +131,9 @@ func _on_remove_button_pressed() -> void:
 		undo.add_do_method(apply_connections.bind(r, stripped))
 		undo.add_undo_method(apply_connections.bind(r, region.rules.connections))
 	
-	var stripped: Array = map_data.world_rules.connections.filter(func(x: Dictionary) -> bool: return x.target_region != index)
-	if stripped.size() == map_data.world_rules.connections.size():
-		undo.add_do_method(apply_connections.bind(-1, stripped))
+	var world_stripped: Array = map_data.world_rules.connections.filter(func(x: Dictionary) -> bool: return x.target_region != index)
+	if world_stripped.size() == map_data.world_rules.connections.size():
+		undo.add_do_method(apply_connections.bind(-1, world_stripped))
 		undo.add_undo_method(apply_connections.bind(-1, map_data.world_rules.connections))
 	
 	# shuffle to end
@@ -140,3 +145,47 @@ func _on_remove_button_pressed() -> void:
 	
 	undo.commit_action()
 	changes.emit()
+
+
+func set_region_color(index: int, color: Color) -> void:
+	var tint := [
+		color.r,
+		color.g,
+		color.b,
+		color.a
+	]
+
+	map_data.regions[index].tint = tint
+	%Tree.get_root().get_child(index).set_button_color(0, 0, color)
+
+
+func _on_set_region_color(index: int) -> void:
+	var region: Dictionary = map_data.regions[index]
+	var old_color := Color(region.tint[0], region.tint[1], region.tint[2], region.tint[3])
+	
+	undo.create_action("Set region color")
+	undo.add_do_method(set_region_color.bind(index, %ColorPicker.color))
+	undo.add_undo_method(set_region_color.bind(index, old_color))
+	undo.commit_action()
+	
+	%ColorPopup.hide()
+	changes.emit()
+
+
+func _on_tree_button_clicked(_item: TreeItem, _column: int, id: int, mouse_button_index: int) -> void:
+	if mouse_button_index != MOUSE_BUTTON_LEFT:
+		return
+	
+	# id is index
+	var region: Dictionary = map_data.regions[id]
+	var color := Color(region.tint[0], region.tint[1], region.tint[2], region.tint[3])
+	
+	%ColorPicker.color = color
+	%ColorPopup.popup()
+	%AcceptButton.pressed.connect(_on_set_region_color.bind(id), CONNECT_ONE_SHOT)
+
+
+func _on_color_popup_close_requested() -> void:
+	%ColorPopup.hide()
+	for c: Dictionary in %AcceptButton.pressed.get_connections():
+		%AcceptButton.pressed.disconnect(c.callable)
