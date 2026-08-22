@@ -84,6 +84,12 @@ func rebuild_rule_cache() -> void:
 	_add_to_rule_cache(map_data.world_rules, "Hub", Color.DIM_GRAY)
 
 
+# external changes, flush state
+func refresh() -> void:
+	rebuild_rule_cache()
+	queue_redraw()
+
+
 # Return a new value for b which intersects the rectangle
 func _clip_line_end(a: Vector2, b: Vector2, rect_pos: Vector2, rect_size: Vector2) -> Vector2:
 	var relative_b := b - rect_pos

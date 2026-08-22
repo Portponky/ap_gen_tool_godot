@@ -21,10 +21,14 @@ var world_stem : String
 var world: World
 var levels : Array[Dictionary]
 
+var undo := UndoRedo.new()
 var current_level: int
 var modified := false
 
 func _ready() -> void:
+	%Regions.undo = undo
+	undo.version_changed.connect(_on_modified)
+	
 	add_menu_shortcut(%FileMenu, "Open", MenuChoice.Open, KEY_O, true, false)
 	add_menu_shortcut(%FileMenu, "Save", MenuChoice.Save, KEY_S, true, false)
 	add_menu_shortcut(%FileMenu, "Generate APWorld", MenuChoice.Generate, KEY_G, true, false)
@@ -32,7 +36,7 @@ func _ready() -> void:
 	add_menu_shortcut(%FileMenu, "Quit", MenuChoice.Quit, KEY_Q, true, false)
 	
 	add_menu_shortcut(%EditMenu, "Undo", MenuChoice.Undo, KEY_Z, true, false)
-	add_menu_shortcut(%EditMenu, "Redo", MenuChoice.Undo, KEY_Z, true, true)
+	add_menu_shortcut(%EditMenu, "Redo", MenuChoice.Redo, KEY_Z, true, true)
 	
 	enable_specific_menus(false)
 
@@ -204,6 +208,13 @@ func _execute_menu_choice(id: int) -> void:
 			# ask to save changes
 			get_tree().quit()
 		
+		MenuChoice.Undo:
+			undo.undo()
+			%MapView.refresh()
+		MenuChoice.Redo:
+			undo.redo()
+			%MapView.refresh()
+		
 		MenuChoice.PreviousLevel:
 			if current_level > 0:
 				load_level(current_level - 1)
@@ -211,6 +222,9 @@ func _execute_menu_choice(id: int) -> void:
 			if current_level < levels.size() - 1:
 				load_level(current_level + 1)
 
+
+func _on_modified() -> void:
+	modified = true
 
 
 func load_level(id: int) -> void:

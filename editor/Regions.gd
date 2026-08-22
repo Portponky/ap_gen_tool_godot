@@ -1,16 +1,142 @@
 extends VBoxContainer
 
-func set_map_data(map_data: Dictionary) -> void:
+signal changes
+
+var undo: UndoRedo
+
+var map_data: Dictionary
+
+func create_tree_item(index: int, region: Dictionary) -> void:
+	var root: TreeItem = %Tree.get_root()
+	var item: TreeItem = %Tree.create_item(root, index)
+	item.set_text(0, region.name)
+	item.add_button(0, load("res://assets/graphics/white-24.png"), index)
+	var color := Color(region.tint[0], region.tint[1], region.tint[2], region.tint[3])
+	item.set_button_color(0, 0, color)
+
+
+func set_map_data(next_map_data: Dictionary) -> void:
+	map_data = next_map_data
+	
 	%Tree.clear()
-	var root: TreeItem = %Tree.create_item()
+	%Tree.create_item()
 	for r in map_data.regions.size():
 		var region: Dictionary = map_data.regions[r]
-		var item: TreeItem = %Tree.create_item(root, r)
-		item.set_text(0, region.name)
-		item.add_button(0, load("res://assets/graphics/white-24.png"), r)
-		var color := Color(region.tint[0], region.tint[1], region.tint[2], region.tint[3])
-		item.set_button_color(0, 0, color)
+		create_tree_item(r, region)
 
 
 func clear_world() -> void:
 	%Tree.clear()
+
+
+func add_region(region: Dictionary) -> void:
+	create_tree_item(map_data.regions.size(), region)
+	map_data.regions.push_back(region)
+
+
+func remove_last_region() -> void:
+	var root: TreeItem = %Tree.get_root()
+	root.remove_child(root.get_child(-1))
+	map_data.regions.pop_back()
+
+
+func swap_regions(first: int, second: int) -> void:
+	if first == second or first < 0 or first >= map_data.regions.size() or second < 0 or second >= map_data.regions.size():
+		return
+	
+	# rewire all connections first <-> second
+	for region: Dictionary in map_data.regions:
+		for connection: Dictionary in region.rules.connections:
+			if connection.target_region == first:
+				connection.target_region = second
+			elif connection.target_region == second:
+				connection.target_region = first
+	for connection: Dictionary in map_data.world_rules.connections:
+		if connection.target_region == first:
+			connection.target_region = second
+		elif connection.target_region == second:
+			connection.target_region = first
+	
+	var temp: Dictionary = map_data.regions[first]
+	map_data.regions[first] = map_data.regions[second]
+	map_data.regions[second] = temp
+	
+	# update tree items
+	var root: TreeItem = %Tree.get_root()
+	for i in [first, second]:
+		var item: TreeItem = root.get_child(i)
+		var region: Dictionary = map_data.regions[i]
+		item.set_text(0, region.name)
+		var color := Color(region.tint[0], region.tint[1], region.tint[2], region.tint[3])
+		item.set_button_color(0, 0, color)
+
+
+func apply_connections(index: int, connections: Array) -> void:
+	if index == -1:
+		map_data.world_rules.connections = connections
+	else:
+		map_data.regions[index].rules.connections = connections
+
+
+func _on_add_button_pressed() -> void:
+	# name sure it isn't a duplicate name
+	
+	var target: String = %RegionName.text
+	var color := Color.from_string(target.to_lower(), Color.WHITE)
+	%RegionName.text = ""
+	
+	var region := {
+		name = target,
+		tint = [color.r, color.g, color.b, color.a],
+		sectors = [],
+		rules = {
+			connections = [],
+			x = 0,
+			y = 0
+		}
+	}
+	
+	undo.create_action("Add region")
+	undo.add_do_method(add_region.bind(region))
+	undo.add_undo_method(remove_last_region)
+	undo.commit_action()
+	changes.emit()
+
+
+func _on_remove_button_pressed() -> void:
+	# make sure something selected, and selection is valid
+	var index: int = %Tree.get_selected().get_index()
+	
+	undo.create_action("Remove region")
+	
+	var target_region: Dictionary = map_data.regions[index]
+	
+	# undo: replace region
+	undo.add_undo_method(add_region.bind(target_region))
+	for i in range(map_data.regions.size() - 1, index, -1):
+		undo.add_undo_method(swap_regions.bind(i - 1, i))
+	
+	# modify all connections
+	for r in map_data.regions.size():
+		var region: Dictionary = map_data.regions[r]
+		var stripped: Array = region.rules.connections.filter(func(x: Dictionary) -> bool: return x.target_region != index)
+		if stripped.size() == region.rules.connections.size():
+			continue
+		
+		undo.add_do_method(apply_connections.bind(r, stripped))
+		undo.add_undo_method(apply_connections.bind(r, region.rules.connections))
+	
+	var stripped: Array = map_data.world_rules.connections.filter(func(x: Dictionary) -> bool: return x.target_region != index)
+	if stripped.size() == map_data.world_rules.connections.size():
+		undo.add_do_method(apply_connections.bind(-1, stripped))
+		undo.add_undo_method(apply_connections.bind(-1, map_data.world_rules.connections))
+	
+	# shuffle to end
+	for i in range(index, map_data.regions.size() - 1):
+		undo.add_do_method(swap_regions.bind(i, i + 1))
+	
+	# eliminate
+	undo.add_do_method(remove_last_region)
+	
+	undo.commit_action()
+	changes.emit()

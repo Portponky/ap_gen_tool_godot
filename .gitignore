@@ -23,6 +23,7 @@ wads/*.WAD
 # games and data
 games/*.game.json
 data/*.data.json
+data/*.data.json.back
 
 #output
 output/*.apworld

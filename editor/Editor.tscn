@@ -84,7 +84,9 @@ clip_contents = true
 layout_mode = 2
 
 [connection signal="id_pressed" from="MenuBar/FileMenu" to="." method="_execute_menu_choice"]
+[connection signal="id_pressed" from="MenuBar/EditMenu" to="." method="_execute_menu_choice"]
 [connection signal="id_pressed" from="MenuBar/MapMenu" to="." method="_execute_menu_choice"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/ItemsHeader" to="HSplitContainer/VBoxContainer/Items" method="set_visible"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/RegionsHeader" to="HSplitContainer/VBoxContainer/Regions" method="set_visible"]
+[connection signal="changes" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView" method="refresh"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/ConnectionsHeader" to="HSplitContainer/VBoxContainer/Connections" method="set_visible"]
