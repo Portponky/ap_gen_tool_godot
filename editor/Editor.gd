@@ -24,13 +24,6 @@ enum MenuChoice {
 	NextLevel,
 }
 
-enum Tool {
-	Sectors,
-	Rules,
-	Items,
-	Boxes
-}
-
 var world_stem : String
 var world: World
 var levels : Array[Dictionary]
@@ -243,12 +236,19 @@ func _execute_menu_choice(id: int) -> void:
 		MenuChoice.ToolSectors:
 			%ToolLabel.text = "Sectors"
 			%MapView.mode = MapView.Mode.SectorPaint
+			%MapView.refresh()
 		MenuChoice.ToolRules:
 			%ToolLabel.text = "Rules"
+			%MapView.mode = MapView.Mode.RuleModify
+			%MapView.refresh()
 		MenuChoice.ToolItems:
 			%ToolLabel.text = "Items"
+			%MapView.mode = MapView.Mode.ItemClassify
+			%MapView.refresh()
 		MenuChoice.ToolBoxes:
 			%ToolLabel.text = "Bounding boxes"
+			%MapView.mode = MapView.Mode.BoundingBox
+			%MapView.refresh()
 		
 		MenuChoice.PreviousLevel:
 			if current_level > 0:

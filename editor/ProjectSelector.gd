@@ -13,7 +13,6 @@ func _ready() -> void:
 	var root: TreeItem = %Tree.create_item()
 	%Tree.hide_root = true
 	for filename in dir.get_files():
-		print(filename)
 		if not filename.ends_with(".game.json"):
 			continue
 		var target: TreeItem = %Tree.create_item(root)

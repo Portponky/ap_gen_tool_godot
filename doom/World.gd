@@ -68,9 +68,14 @@ func populate_default_data() -> void:
 			i += 1
 	
 	# ensure region sectors are integers
+	# ensure target_regions are integers
 	for map: Dictionary in data.maps:
 		for region: Dictionary in map.regions:
 			region.sectors = region.sectors.map(func(x: float) -> int: return int(x))
+			for connection: Dictionary in region.rules.connections:
+				connection.target_region = int(connection.target_region)
+		for connection: Dictionary in map.world_rules.connections:
+			connection.target_region = int(connection.target_region)
 
 
 static func attempt_load_json(path: String) -> Dictionary:
