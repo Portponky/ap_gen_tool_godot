@@ -28,6 +28,11 @@ unique_name_in_owner = true
 title = "Edit"
 prefer_native_menu = true
 
+[node name="ToolMenu" type="PopupMenu" parent="MenuBar" unique_id=571591335]
+unique_name_in_owner = true
+title = "Tool"
+prefer_native_menu = true
+
 [node name="MapMenu" type="PopupMenu" parent="MenuBar" unique_id=431261792]
 unique_name_in_owner = true
 title = "Maps"
@@ -83,10 +88,21 @@ unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
 
+[node name="ToolLabel" type="Label" parent="HSplitContainer/MapView" unique_id=819270618]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "Tool name"
+
 [connection signal="id_pressed" from="MenuBar/FileMenu" to="." method="_execute_menu_choice"]
 [connection signal="id_pressed" from="MenuBar/EditMenu" to="." method="_execute_menu_choice"]
+[connection signal="id_pressed" from="MenuBar/ToolMenu" to="." method="_execute_menu_choice"]
 [connection signal="id_pressed" from="MenuBar/MapMenu" to="." method="_execute_menu_choice"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/ItemsHeader" to="HSplitContainer/VBoxContainer/Items" method="set_visible"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/RegionsHeader" to="HSplitContainer/VBoxContainer/Regions" method="set_visible"]
 [connection signal="changes" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView" method="refresh"]
+[connection signal="select_region" from="HSplitContainer/VBoxContainer/Regions" to="." method="_on_select_region"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/ConnectionsHeader" to="HSplitContainer/VBoxContainer/Connections" method="set_visible"]

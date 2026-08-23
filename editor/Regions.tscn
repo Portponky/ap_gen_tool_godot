@@ -68,6 +68,7 @@ size_flags_horizontal = 3
 text = "Accept"
 
 [connection signal="button_clicked" from="Tree" to="." method="_on_tree_button_clicked"]
+[connection signal="item_selected" from="Tree" to="." method="_on_tree_item_selected"]
 [connection signal="pressed" from="AddContainer/AddButton" to="." method="_on_add_button_pressed"]
 [connection signal="pressed" from="RemoveButton" to="." method="_on_remove_button_pressed"]
 [connection signal="close_requested" from="ColorPopup" to="." method="_on_color_popup_close_requested"]

@@ -1,5 +1,6 @@
 extends VBoxContainer
 
+signal select_region(index: int)
 signal changes
 
 var undo: UndoRedo
@@ -28,10 +29,25 @@ func set_map_data(next_map_data: Dictionary) -> void:
 	for r in map_data.regions.size():
 		var region: Dictionary = map_data.regions[r]
 		create_tree_item(r, region)
+	
+	select_region.emit(-1)
 
 
 func clear_world() -> void:
 	%Tree.clear()
+
+
+func _on_tree_item_selected() -> void:
+	var selected: TreeItem = %Tree.get_selected()
+	select_region.emit(selected.get_index() if selected else -1)
+
+
+func set_selected_region(index: int) -> void:
+	if index == -1:
+		%Tree.deselect_all()
+	else:
+		var root: TreeItem = %Tree.get_root()
+		%Tree.set_selected(root.get_child(index), 0)
 
 
 func add_region(region: Dictionary) -> void:
@@ -43,6 +59,9 @@ func remove_last_region() -> void:
 	var root: TreeItem = %Tree.get_root()
 	root.remove_child(root.get_child(-1))
 	map_data.regions.pop_back()
+	
+	# selection may have changed as a consequence
+	_on_tree_item_selected()
 
 
 func swap_regions(first: int, second: int) -> void:

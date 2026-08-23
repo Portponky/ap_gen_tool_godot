@@ -11,10 +11,24 @@ enum MenuChoice {
 	Close,
 	Generate,
 	Quit,
+	
 	Undo,
 	Redo,
+	
+	ToolSectors,
+	ToolRules,
+	ToolItems,
+	ToolBoxes,
+	
 	PreviousLevel,
 	NextLevel,
+}
+
+enum Tool {
+	Sectors,
+	Rules,
+	Items,
+	Boxes
 }
 
 var world_stem : String
@@ -25,9 +39,13 @@ var undo := UndoRedo.new()
 var current_level: int
 var modified := false
 
+var current_region := -1
+var current_location := -1
+
 func _ready() -> void:
 	%Items.undo = undo
 	%Regions.undo = undo
+	%MapView.undo = undo
 	undo.version_changed.connect(_on_modified)
 	
 	add_menu_shortcut(%FileMenu, "Open", MenuChoice.Open, KEY_O, true, false)
@@ -39,7 +57,13 @@ func _ready() -> void:
 	add_menu_shortcut(%EditMenu, "Undo", MenuChoice.Undo, KEY_Z, true, false)
 	add_menu_shortcut(%EditMenu, "Redo", MenuChoice.Redo, KEY_Z, true, true)
 	
+	add_menu_shortcut(%ToolMenu, "Region assignment", MenuChoice.ToolSectors, KEY_F1, false, false)
+	add_menu_shortcut(%ToolMenu, "Rules and connections", MenuChoice.ToolRules, KEY_F2, false, false)
+	add_menu_shortcut(%ToolMenu, "Items", MenuChoice.ToolItems, KEY_F3, false, false)
+	add_menu_shortcut(%ToolMenu, "Bounding boxes", MenuChoice.ToolBoxes, KEY_F4, false, false)
+	
 	enable_specific_menus(false)
+	_execute_menu_choice(MenuChoice.ToolSectors)
 
 
 func add_menu_shortcut(menu: PopupMenu, title: String, id: int, keycode: Key, ctrl: bool, shift: bool) -> void:
@@ -216,6 +240,16 @@ func _execute_menu_choice(id: int) -> void:
 			undo.redo()
 			%MapView.refresh()
 		
+		MenuChoice.ToolSectors:
+			%ToolLabel.text = "Sectors"
+			%MapView.mode = MapView.Mode.SectorPaint
+		MenuChoice.ToolRules:
+			%ToolLabel.text = "Rules"
+		MenuChoice.ToolItems:
+			%ToolLabel.text = "Items"
+		MenuChoice.ToolBoxes:
+			%ToolLabel.text = "Bounding boxes"
+		
 		MenuChoice.PreviousLevel:
 			if current_level > 0:
 				load_level(current_level - 1)
@@ -235,3 +269,9 @@ func load_level(id: int) -> void:
 	%MapView.set_map(world.maps[lump], world.data.maps[id])
 	%Regions.set_map_data(world.data.maps[id])
 	%Items.set_map(world.maps[lump], world.data.maps[id])
+
+
+func _on_select_region(index: int) -> void:
+	current_region = index
+	%Regions.set_selected_region(index)
+	%MapView.selected_region = index

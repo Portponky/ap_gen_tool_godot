@@ -1,3 +1,4 @@
+class_name MapView
 extends Control
 
 const RULE_SIZE := Vector2(1024, 400)
@@ -6,7 +7,7 @@ const RULE_CONNECTION_OFFSET := 64.0
 const RULE_ARROWHEAD := 32.0
 const RULE_REQUIREMENT_SIZE := 96.0
 
-enum Tool {
+enum Mode {
 	SectorPaint,
 	RuleModify,
 	ItemClassify,
@@ -14,13 +15,13 @@ enum Tool {
 }
 
 # Come up with correct list of states
-enum State {
+enum Action {
 	None,
-	Panning,
-	Moving,
-	Drawing,
-	Selected
+	PaintSector,
+	ClearSector,
 }
+
+var undo: UndoRedo
 
 var map : Map
 var map_data : Dictionary
@@ -28,12 +29,13 @@ var map_data : Dictionary
 var zoom := 1.0
 var offset := Vector2.ZERO
 
-var tool := Tool.SectorPaint
-var state := State.None
+var mode := Mode.SectorPaint
+var action := Action.None
 
 var mouse_dragging := false
 var mouse_position : Vector2
 
+var selected_region := -1
 var highlight_sector := -1
 
 var thing_cache := {}
@@ -88,6 +90,13 @@ func rebuild_rule_cache() -> void:
 func refresh() -> void:
 	rebuild_rule_cache()
 	queue_redraw()
+
+
+func doom_coordinate(screen_pos: Vector2) -> Vector2:
+	var offset_from_center := screen_pos - size / 2
+	var doom_coord := offset + offset_from_center / zoom
+	doom_coord.y = -doom_coord.y
+	return doom_coord
 
 
 # Return a new value for b which intersects the rectangle
@@ -213,42 +222,114 @@ func _gui_input(event: InputEvent) -> void:
 	
 	if event is InputEventMouseMotion:
 		if mouse_dragging:
-			var pos := get_global_mouse_position()
-			var diff : Vector2 = (pos - mouse_position) / zoom
-			offset.x -= diff.x
-			offset.y -= diff.y
-			queue_redraw()
-			mouse_position = pos
-		if not mouse_dragging:
+			do_mouse_pan_motion(event)
+		
+		if mode == Mode.SectorPaint:
 			var doom_coord := doom_coordinate(event.position)
-			highlight_sector = map.sector_for_point(doom_coord)
-			queue_redraw()
+			var sector := map.sector_for_point(doom_coord)
+			if sector != highlight_sector:
+				highlight_sector = sector
+				if action == Action.PaintSector:
+					paint_highlighted_sector()
+				elif action == Action.ClearSector:
+					clear_highlighted_sector()
+				queue_redraw()
 	
 	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_MIDDLE and event.pressed:
-			mouse_dragging = true
-			mouse_position = get_global_mouse_position()
-		if not event.pressed:
-			mouse_dragging = false
+		do_mouse_pan(event)
+		do_wheel_zoom(event)
 		
-		var zoom_factor := 1.0
-		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			zoom_factor = 1.0 / 0.9
-		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			zoom_factor = 0.9
-		
-		if zoom_factor != 1.0:
-			var pre_coord := doom_coordinate(event.position)
-			zoom *= zoom_factor
-			var post_coord := doom_coordinate(event.position)
-			offset.x += pre_coord.x - post_coord.x
-			offset.y -= pre_coord.y - post_coord.y
-		
+		if mode == Mode.SectorPaint:
+			if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				action = Action.PaintSector
+				paint_highlighted_sector()
+			elif event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+				action = Action.ClearSector
+				clear_highlighted_sector()
+			else:
+				action = Action.None
+
+
+func do_mouse_pan_motion(event: InputEventMouseMotion) -> void:
+	var pos := get_global_mouse_position()
+	var diff : Vector2 = (pos - mouse_position) / zoom
+	offset.x -= diff.x
+	offset.y -= diff.y
+	queue_redraw()
+	mouse_position = pos
+
+
+func do_mouse_pan(event: InputEventMouseButton) -> void:
+	if event.button_index != MOUSE_BUTTON_MIDDLE:
+		return
+	
+	if event.pressed:
+		mouse_dragging = true
+		mouse_position = get_global_mouse_position()
+	else:
+		mouse_dragging = false
+
+
+func do_wheel_zoom(event: InputEventMouseButton) -> void:
+	var zoom_factor := 1.0
+	if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+		zoom_factor = 1.0 / 0.9
+	elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		zoom_factor = 0.9
+	else:
+		return
+	
+	var pre_coord := doom_coordinate(event.position)
+	zoom *= zoom_factor
+	var post_coord := doom_coordinate(event.position)
+	offset.x += pre_coord.x - post_coord.x
+	offset.y -= pre_coord.y - post_coord.y
+	queue_redraw()
+
+
+func add_region_sector(region: int, sector: int) -> void:
+	var sectors: Array = map_data.regions[region].sectors
+	if not sectors.has(sector):
+		sectors.push_back(sector)
 		queue_redraw()
 
 
-func doom_coordinate(screen_pos: Vector2) -> Vector2:
-	var offset_from_center := screen_pos - size / 2
-	var doom_coord := offset + offset_from_center / zoom
-	doom_coord.y = -doom_coord.y
-	return doom_coord
+func clear_region_sector(region: int, sector: int) -> void:
+	var sectors: Array = map_data.regions[region].sectors
+	if sectors.has(sector):
+		sectors.erase(sector)
+		queue_redraw()
+
+
+func paint_highlighted_sector() -> void:
+	if highlight_sector == -1 or selected_region == -1:
+		return
+	
+	if map_data.regions[selected_region].sectors.has(highlight_sector):
+		return
+	
+	undo.create_action("Paint sector")
+	for r: int in map_data.regions.size():
+		if r == selected_region:
+			continue
+		var region: Dictionary = map_data.regions[r]
+		if region.sectors.has(highlight_sector):
+			undo.add_do_method(clear_region_sector.bind(r, highlight_sector))
+			undo.add_undo_method(add_region_sector.bind(r, highlight_sector))
+	
+	undo.add_do_method(add_region_sector.bind(selected_region, highlight_sector))
+	undo.add_undo_method(clear_region_sector.bind(selected_region, highlight_sector))
+	undo.commit_action()
+
+
+func clear_highlighted_sector() -> void:
+	if highlight_sector == -1 or selected_region == -1:
+		return
+	
+	if not map_data.regions[selected_region].sectors.has(highlight_sector):
+		return
+	
+	undo.create_action("Clear sector")
+	undo.add_do_method(clear_region_sector.bind(selected_region, highlight_sector))
+	undo.add_undo_method(add_region_sector.bind(selected_region, highlight_sector))
+	undo.commit_action()
