@@ -62,6 +62,6 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Button" type="Button" parent="." unique_id=1841552087]
+[node name="RemoveButton" type="Button" parent="." unique_id=1841552087]
 layout_mode = 2
 text = "Remove"

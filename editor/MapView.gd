@@ -1,6 +1,9 @@
 class_name MapView
 extends Control
 
+signal select_connection(rule: int, connection: int)
+signal clear_connection()
+
 const RULE_SIZE := Vector2(1024, 400)
 const RULE_BOUNDARY := RULE_SIZE + 128.0 * Vector2.ONE
 const RULE_CONNECTION_OFFSET := 64.0
@@ -21,8 +24,7 @@ enum Action {
 	PaintSector,
 	ClearSector,
 	DragRule,
-	DrawConnection,
-	SelectedConnection,
+	DrawConnection
 }
 
 var undo: UndoRedo
@@ -37,6 +39,7 @@ var mode := Mode.SectorPaint
 var action := Action.None
 
 var selected_region := -1
+var selected_connection := -1
 
 var mouse_position : Vector2
 var highlight_sector := -1
@@ -194,12 +197,18 @@ func _draw() -> void:
 			var b: Vector2 = _clip_line_end(a, to.pos + right * RULE_CONNECTION_OFFSET, to.pos, RULE_BOUNDARY)
 			a = _clip_line_end(b, a, from.pos, RULE_BOUNDARY)
 			
-			var color := Color.CYAN if line_cache.size() == highlight_connection else Color.WHITE
-			var thickness := 3 if line_cache.size() == highlight_connection else 1
+			var color := Color.WHITE
+			var thickness := 1
+			if line_cache.size() == selected_connection:
+				color = Color.RED
+				thickness = 2
+			if line_cache.size() == highlight_connection:
+				color = Color.CYAN
+				thickness = 3
 			
 			line_cache.push_back({
 				rule_index = r,
-				connection_index = c, # no it isn't
+				connection_index = c,
 				a = a,
 				b = b,
 				forward = forward
@@ -289,7 +298,7 @@ func _gui_input(event: InputEvent) -> void:
 					clear_highlighted_sector()
 				queue_redraw()
 		elif mode == Mode.RuleModify:
-			if action == Action.None or action == Action.SelectedConnection:
+			if action == Action.None:
 				do_select_rules_and_connections(event.position)
 			elif action == Action.DragRule:
 				rule_cache[highlight_rule].pos = map_coordinate(event.position)
@@ -320,9 +329,16 @@ func _gui_input(event: InputEvent) -> void:
 				if event.pressed and event.button_index == MOUSE_BUTTON_LEFT and highlight_rule != -1:
 					action = Action.DragRule
 					queue_redraw()
+				elif event.pressed and event.button_index == MOUSE_BUTTON_LEFT and highlight_connection != -1:
+					selected_connection = highlight_connection
+					var line: Dictionary = line_cache[selected_connection]
+					select_connection.emit(normalized_rule_index(line.rule_index), line.connection_index)
+					queue_redraw()
 				elif event.pressed and event.button_index == MOUSE_BUTTON_RIGHT and highlight_rule != -1 and highlight_rule != rule_cache.size() - 2:
 					action = Action.DrawConnection
 					mouse_position = event.position
+					selected_connection = -1
+					clear_connection.emit()
 					highlight_rule_target = -1
 					queue_redraw()
 			elif action == Action.DragRule and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

@@ -265,10 +265,13 @@ func _on_modified() -> void:
 func load_level(id: int) -> void:
 	current_level = id
 	var lump: String = levels[id].lump
+	var map: Map = world.maps[lump]
+	var map_data: Dictionary = world.data.maps[id]
 	%MapMenu.title = levels[id].name
-	%MapView.set_map(world.maps[lump], world.data.maps[id])
-	%Regions.set_map_data(world.data.maps[id])
-	%Items.set_map(world.maps[lump], world.data.maps[id])
+	%MapView.set_map(map, map_data)
+	%Regions.set_map_data(map_data)
+	%Items.set_map(map, map_data)
+	%Connections.set_map_data(map_data)
 
 
 func _on_select_region(index: int) -> void:

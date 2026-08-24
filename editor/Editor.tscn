@@ -106,3 +106,5 @@ text = "Tool name"
 [connection signal="changes" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView" method="refresh"]
 [connection signal="select_region" from="HSplitContainer/VBoxContainer/Regions" to="." method="_on_select_region"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/ConnectionsHeader" to="HSplitContainer/VBoxContainer/Connections" method="set_visible"]
+[connection signal="clear_connection" from="HSplitContainer/MapView" to="HSplitContainer/VBoxContainer/Connections" method="clear_connection"]
+[connection signal="select_connection" from="HSplitContainer/MapView" to="HSplitContainer/VBoxContainer/Connections" method="select_connection"]
