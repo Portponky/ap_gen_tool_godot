@@ -234,20 +234,20 @@ func _execute_menu_choice(id: int) -> void:
 			%MapView.refresh()
 		
 		MenuChoice.ToolSectors:
-			%ToolLabel.text = "Sectors"
-			%MapView.mode = MapView.Mode.SectorPaint
-			%MapView.refresh()
+			if %MapView.set_tool(%SectorPaintTool):
+				%ToolLabel.text = "Sectors"
+				%MapView.refresh()
 		MenuChoice.ToolRules:
-			%ToolLabel.text = "Rules"
-			%MapView.mode = MapView.Mode.RuleModify
-			%MapView.refresh()
+			if %MapView.set_tool(%ModifyRuleTool):
+				%ToolLabel.text = "Rules"
+				%MapView.refresh()
 		MenuChoice.ToolItems:
 			%ToolLabel.text = "Items"
-			%MapView.mode = MapView.Mode.ItemClassify
+			#%MapView.mode = MapView.Mode.ItemClassify
 			%MapView.refresh()
 		MenuChoice.ToolBoxes:
 			%ToolLabel.text = "Bounding boxes"
-			%MapView.mode = MapView.Mode.BoundingBox
+			#%MapView.mode = MapView.Mode.BoundingBox
 			%MapView.refresh()
 		
 		MenuChoice.PreviousLevel:
@@ -263,6 +263,10 @@ func _on_modified() -> void:
 
 
 func load_level(id: int) -> void:
+	var tool: MapTool = %MapView.tool
+	if not %MapView.set_tool(null):
+		return
+	
 	current_level = id
 	var lump: String = levels[id].lump
 	var map: Map = world.maps[lump]
@@ -272,6 +276,7 @@ func load_level(id: int) -> void:
 	%Regions.set_map_data(map_data)
 	%Items.set_map(map, map_data)
 	%Connections.set_map_data(map_data)
+	%MapView.set_tool(tool)
 
 
 func _on_select_region(index: int) -> void:
