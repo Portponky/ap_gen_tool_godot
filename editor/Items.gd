@@ -1,5 +1,7 @@
 extends VBoxContainer
 
+signal select_location(index: int)
+
 var unreachable_icon := load("res://assets/graphics/unreachable.png")
 var check_sanity_icon := load("res://assets/graphics/check-sanity.png")
 
@@ -56,10 +58,6 @@ func set_map(next_map: Map, next_map_data: Dictionary) -> void:
 	for l in map_data.locations.size():
 		var id: int = %ItemList.add_item("")
 		style_item_list(id)
-	
-	if %ItemList.item_count > 0:
-		%ItemList.select(0)
-		_on_item_list_item_selected(0)
 
 
 func refresh() -> void:
@@ -73,6 +71,17 @@ func _on_item_list_item_selected(index: int) -> void:
 	%Unreachable.set_pressed_no_signal(location.unreachable)
 	%DeathLogic.set_pressed_no_signal(location.death_logic)
 	%Name.text = location.name
+	select_location.emit(index)
+
+
+func _on_select_location(index: int) -> void:
+	%ItemList.select(index)
+	%ItemList.ensure_current_is_visible()
+	_on_item_list_item_selected(index)
+
+
+func _on_clear_location() -> void:
+	%ItemList.deselect_all()
 
 
 func selected_index() -> int:

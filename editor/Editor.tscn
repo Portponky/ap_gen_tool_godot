@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://cwk2wxfpseos2" path="res://editor/Connections.tscn" id="4_jp84s"]
 [ext_resource type="Script" uid="uid://5atf21ctymv5" path="res://editor/maptools/SectorPaintTool.gd" id="6_i0yaw"]
 [ext_resource type="Script" uid="uid://byvhff4g6cprm" path="res://editor/maptools/ModifyRuleTool.gd" id="7_85wto"]
+[ext_resource type="Script" uid="uid://dpkut3j5pmd00" path="res://editor/maptools/ItemTool.gd" id="8_x2y5v"]
 
 [node name="Editor" type="VBoxContainer" unique_id=1097679433]
 anchors_preset = 15
@@ -98,6 +99,10 @@ script = ExtResource("6_i0yaw")
 unique_name_in_owner = true
 script = ExtResource("7_85wto")
 
+[node name="ItemTool" type="Node" parent="HSplitContainer/MapView" unique_id=159622908]
+unique_name_in_owner = true
+script = ExtResource("8_x2y5v")
+
 [node name="ToolLabel" type="Label" parent="HSplitContainer/MapView" unique_id=819270618]
 unique_name_in_owner = true
 layout_mode = 1
@@ -112,6 +117,7 @@ text = "Tool name"
 [connection signal="id_pressed" from="MenuBar/ToolMenu" to="." method="_execute_menu_choice"]
 [connection signal="id_pressed" from="MenuBar/MapMenu" to="." method="_execute_menu_choice"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/ItemsHeader" to="HSplitContainer/VBoxContainer/Items" method="set_visible"]
+[connection signal="select_location" from="HSplitContainer/VBoxContainer/Items" to="HSplitContainer/MapView/ItemTool" method="_on_select_location"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/RegionsHeader" to="HSplitContainer/VBoxContainer/Regions" method="set_visible"]
 [connection signal="changes" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView" method="refresh"]
 [connection signal="select_region" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView/SectorPaintTool" method="_on_regions_select_region"]
@@ -119,3 +125,6 @@ text = "Tool name"
 [connection signal="connections_changed" from="HSplitContainer/VBoxContainer/Connections" to="HSplitContainer/MapView" method="refresh"]
 [connection signal="clear_connection" from="HSplitContainer/MapView/ModifyRuleTool" to="HSplitContainer/VBoxContainer/Connections" method="clear_connection"]
 [connection signal="select_connection" from="HSplitContainer/MapView/ModifyRuleTool" to="HSplitContainer/VBoxContainer/Connections" method="select_connection"]
+[connection signal="clear_location" from="HSplitContainer/MapView/ItemTool" to="HSplitContainer/VBoxContainer/Items" method="_on_clear_location"]
+[connection signal="request_redraw" from="HSplitContainer/MapView/ItemTool" to="HSplitContainer/MapView" method="queue_redraw"]
+[connection signal="select_location" from="HSplitContainer/MapView/ItemTool" to="HSplitContainer/VBoxContainer/Items" method="_on_select_location"]
