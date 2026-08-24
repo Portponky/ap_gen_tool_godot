@@ -38,6 +38,7 @@ var current_location := -1
 func _ready() -> void:
 	%Items.undo = undo
 	%Regions.undo = undo
+	%Connections.undo = undo
 	%MapView.undo = undo
 	undo.version_changed.connect(_on_modified)
 	
