@@ -64,16 +64,28 @@ func render_rules(view: MapView, to_map: Transform2D) -> void:
 		view.draw_set_transform_matrix(Transform2D.IDENTITY)
 
 
-func render_bounding_boxes(_view: MapView, _to_map: Transform2D) -> void:
-	pass
+func render_bounding_boxes(view: MapView, to_map: Transform2D) -> void:
+	view.draw_set_transform_matrix(Transform2D.IDENTITY)
+	
+	for bb: Array in view.map_data.bbs:
+		var from := to_map * Vector2(bb[0], -bb[1])
+		var to := to_map * Vector2(bb[2], -bb[3])
+		
+		var color := Color.AQUA
+		if bb[4] >= 0:
+			color = view.rule_cache[bb[4]].color
+		
+		var rect := Rect2(from, to - from).abs()
+		view.draw_rect(rect, color * Color(1.0, 1.0, 1.0, 0.2), true)
+		view.draw_rect(rect, color, false, 2)
 
 
 func handle_render(view: MapView, to_map: Transform2D) -> void:
 	render_sectors(view, to_map)
+	render_bounding_boxes(view, to_map)
 	render_things(view, to_map)
 	render_connections(view, to_map)
 	render_rules(view, to_map)
-	render_bounding_boxes(view, to_map)
 
 
 func handle_input(_view: MapView, _event: InputEvent) -> void:

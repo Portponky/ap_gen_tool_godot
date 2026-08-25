@@ -247,9 +247,9 @@ func _execute_menu_choice(id: int) -> void:
 				%ToolLabel.text = "Items"
 				%MapView.refresh()
 		MenuChoice.ToolBoxes:
-			%ToolLabel.text = "Bounding boxes"
-			#%MapView.mode = MapView.Mode.BoundingBox
-			%MapView.refresh()
+			if %MapView.set_tool(%BoundingBoxTool):
+				%ToolLabel.text = "Bounding boxes"
+				%MapView.refresh()
 		
 		MenuChoice.PreviousLevel:
 			if current_level > 0:

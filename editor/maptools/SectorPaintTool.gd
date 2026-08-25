@@ -49,7 +49,6 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 
 func stop() -> void:
 	highlight_sector = -1
-	selected_region = -1
 
 
 func can_change() -> bool:
