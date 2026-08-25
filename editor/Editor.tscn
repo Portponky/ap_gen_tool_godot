@@ -79,7 +79,7 @@ layout_mode = 2
 [node name="ConnectionsHeader" type="Button" parent="HSplitContainer/VBoxContainer" unique_id=1402016580]
 layout_mode = 2
 toggle_mode = true
-text = "Connection"
+text = "Connections"
 
 [node name="Connections" parent="HSplitContainer/VBoxContainer" unique_id=2127478461 instance=ExtResource("4_jp84s")]
 unique_name_in_owner = true

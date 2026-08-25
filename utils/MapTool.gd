@@ -102,3 +102,7 @@ func stop() -> void:
 
 func can_change() -> bool:
 	return true
+
+
+func delete(view: MapView) -> bool:
+	return false

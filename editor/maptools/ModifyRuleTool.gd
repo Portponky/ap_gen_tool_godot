@@ -157,6 +157,13 @@ func can_change() -> bool:
 	return not dragging_rule and not drawwing_connection
 
 
+func delete(view: MapView) -> bool:
+	if selected_connection != -1:
+		delete_selected_connection(view)
+		return true
+	return false
+
+
 func set_rule_position(view: MapView, rule: int, x: int, y: int) -> void:
 	# Don't get from rule cache, write directly
 	var target_rule := view.mapdata_rule_from_index(rule)
@@ -185,6 +192,18 @@ func remove_connection(view: MapView, from_rule: int, to_rule: int) -> void:
 	
 	var target_rule := view.mapdata_rule_from_index(from_rule)
 	target_rule.connections = target_rule.connections.filter(func(x: Dictionary) -> bool: return x.target_region != to_rule)
+	view.rebuild_connection_cache()
+	view.queue_redraw()
+
+
+func set_connection_requirements(view: MapView, from_rule: int, to_rule: int, ands: Array, ors: Array) -> void:
+	var target_rule := view.mapdata_rule_from_index(from_rule)
+	for connection: Dictionary in target_rule.connections:
+		if connection.target_region == to_rule:
+			connection.requirements_and = ands
+			connection.requirements_or = ors
+			break
+	
 	view.rebuild_connection_cache()
 	view.queue_redraw()
 
@@ -224,4 +243,21 @@ func draw_new_connection(view: MapView) -> void:
 	view.undo.create_action("Create connection")
 	view.undo.add_do_method(add_connection.bind(view, from_index, to_index))
 	view.undo.add_undo_method(remove_connection.bind(view, from_index, to_index))
+	view.undo.commit_action()
+
+
+func delete_selected_connection(view: MapView) -> void:
+	if selected_connection == -1:
+		return
+	
+	var connection: Dictionary = view.connection_cache[selected_connection]
+	var raw: Dictionary = connection.connection
+	
+	var from_index: int = connection.rule_index
+	var to_index: int = raw.target_region
+	
+	view.undo.create_action("Delete connection")
+	view.undo.add_do_method(remove_connection.bind(view, from_index, to_index))
+	view.undo.add_undo_method(add_connection.bind(view, from_index, to_index))
+	view.undo.add_undo_method(set_connection_requirements.bind(view, from_index, to_index, raw.requirements_and, raw.requirements_or))
 	view.undo.commit_action()

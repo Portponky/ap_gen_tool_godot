@@ -18,3 +18,5 @@ create key rules
 filter connection rules to available keys
 filter connection rules to available weapons (+ shotgun, chaingun)
 rule dragging from click position rather than centre
+delete connections and bboxes with delete rather than specific buttons
+removing region should delete associated bounding boxes

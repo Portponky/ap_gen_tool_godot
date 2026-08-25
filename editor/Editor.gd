@@ -14,6 +14,7 @@ enum MenuChoice {
 	
 	Undo,
 	Redo,
+	Delete,
 	
 	ToolSectors,
 	ToolRules,
@@ -50,6 +51,8 @@ func _ready() -> void:
 	
 	add_menu_shortcut(%EditMenu, "Undo", MenuChoice.Undo, KEY_Z, true, false)
 	add_menu_shortcut(%EditMenu, "Redo", MenuChoice.Redo, KEY_Z, true, true)
+	%EditMenu.add_separator()
+	add_menu_shortcut(%EditMenu, "Delete", MenuChoice.Delete, KEY_DELETE, false, false)
 	
 	add_menu_shortcut(%ToolMenu, "Region assignment", MenuChoice.ToolSectors, KEY_F1, false, false)
 	add_menu_shortcut(%ToolMenu, "Rules and connections", MenuChoice.ToolRules, KEY_F2, false, false)
@@ -233,6 +236,8 @@ func _execute_menu_choice(id: int) -> void:
 		MenuChoice.Redo:
 			undo.redo()
 			%MapView.refresh()
+		MenuChoice.Delete:
+			%MapView.handle_delete()
 		
 		MenuChoice.ToolSectors:
 			if %MapView.set_tool(%SectorPaintTool):

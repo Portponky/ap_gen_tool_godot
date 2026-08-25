@@ -164,6 +164,12 @@ func refresh() -> void:
 	queue_redraw()
 
 
+func handle_delete() -> bool:
+	if not tool:
+		return false
+	return tool.delete(self)
+
+
 func doom_coordinate(screen_pos: Vector2) -> Vector2:
 	var offset_from_center := screen_pos - size / 2
 	var doom_coord := offset + offset_from_center / zoom
