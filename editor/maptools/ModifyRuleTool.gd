@@ -30,17 +30,17 @@ func render_connections(view: MapView, to_map: Transform2D) -> void:
 	
 	view.draw_set_transform_matrix(Transform2D.IDENTITY)
 	
-	if highlight_connection >= 0:
-		var c: Dictionary = view.connection_cache[highlight_connection]
-		view.draw_line(to_map * c.a, to_map * c.b, Color.AQUA, 3)
-		view.draw_line(to_map * c.b, to_map * (c.b + view.RULE_ARROWHEAD * (c.right - c.forward)), Color.AQUA, 3)
-		view.draw_line(to_map * c.b, to_map * (c.b - view.RULE_ARROWHEAD * (c.right + c.forward)), Color.AQUA, 3)
-	
 	if selected_connection >= 0:
 		var c: Dictionary = view.connection_cache[selected_connection]
 		view.draw_line(to_map * c.a, to_map * c.b, Color.RED, 2)
 		view.draw_line(to_map * c.b, to_map * (c.b + view.RULE_ARROWHEAD * (c.right - c.forward)), Color.RED, 2)
 		view.draw_line(to_map * c.b, to_map * (c.b - view.RULE_ARROWHEAD * (c.right + c.forward)), Color.RED, 2)
+	
+	if highlight_connection >= 0 and highlight_connection != selected_connection:
+		var c: Dictionary = view.connection_cache[highlight_connection]
+		view.draw_line(to_map * c.a, to_map * c.b, Color.AQUA, 3)
+		view.draw_line(to_map * c.b, to_map * (c.b + view.RULE_ARROWHEAD * (c.right - c.forward)), Color.AQUA, 3)
+		view.draw_line(to_map * c.b, to_map * (c.b - view.RULE_ARROWHEAD * (c.right + c.forward)), Color.AQUA, 3)
 	
 	# draw arrow being drawn
 	if drawwing_connection:

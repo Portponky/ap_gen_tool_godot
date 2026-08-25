@@ -1,17 +1,24 @@
+Missing features
+----------------
 Lump renaming
 Heretic & custom world option code generation
 Heretic data is missing check sanity flag in location table
 Custom options might not generate correctly
 Consider removing locations json as it can be generated (check heretic)
 Behaves as? other similar map modifiers
+
+Things to add
+-------------
 World wizard
 option for showing named locations as AP mark
 zoom to item
 automatically mark colliding items as unreachable
 filter connection rules to available keys
 filter connection rules to available weapons (+ shotgun, chaingun)
+
+Things to fix
+-------------
 rule dragging from click position rather than centre
-delete connections and bboxes with delete rather than specific buttons
-removing region should delete associated bounding boxes
+select bbox so you can delete em with menu
 changelevel should be an undoable event
 drag and drop regions to reorder
