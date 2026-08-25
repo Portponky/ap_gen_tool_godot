@@ -16,6 +16,10 @@ func _on_regions_select_region(index: int) -> void:
 	selected_region = index
 
 
+func _on_regions_changes() -> void:
+	bb_cache_dirty = true
+
+
 func rebuild_bb_cache(view: MapView) -> void:
 	bb_cache.clear()
 	for bb: Array in view.map_data.bbs:

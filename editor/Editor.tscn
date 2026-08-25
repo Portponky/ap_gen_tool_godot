@@ -125,6 +125,7 @@ text = "Tool name"
 [connection signal="select_location" from="HSplitContainer/VBoxContainer/Items" to="HSplitContainer/MapView/ItemTool" method="_on_select_location"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/RegionsHeader" to="HSplitContainer/VBoxContainer/Regions" method="set_visible"]
 [connection signal="changes" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView" method="refresh"]
+[connection signal="changes" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView/BoundingBoxTool" method="_on_regions_changes"]
 [connection signal="select_region" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView/SectorPaintTool" method="_on_regions_select_region"]
 [connection signal="select_region" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView/BoundingBoxTool" method="_on_regions_select_region"]
 [connection signal="toggled" from="HSplitContainer/VBoxContainer/ConnectionsHeader" to="HSplitContainer/VBoxContainer/Connections" method="set_visible"]

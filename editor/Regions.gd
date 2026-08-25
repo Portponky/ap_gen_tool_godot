@@ -53,6 +53,7 @@ func set_selected_region(index: int) -> void:
 func add_region(region: Dictionary) -> void:
 	create_tree_item(map_data.regions.size(), region)
 	map_data.regions.push_back(region)
+	changes.emit()
 
 
 func remove_last_region() -> void:
@@ -62,6 +63,7 @@ func remove_last_region() -> void:
 	
 	# selection may have changed as a consequence
 	_on_tree_item_selected()
+	changes.emit()
 
 
 func swap_regions(first: int, second: int) -> void:
@@ -93,6 +95,7 @@ func swap_regions(first: int, second: int) -> void:
 		item.set_text(0, region.name)
 		var color := Color(region.tint[0], region.tint[1], region.tint[2], region.tint[3])
 		item.set_button_color(0, 0, color)
+	changes.emit()
 
 
 func apply_connections(index: int, connections: Array) -> void:
@@ -100,6 +103,12 @@ func apply_connections(index: int, connections: Array) -> void:
 		map_data.world_rules.connections = connections
 	else:
 		map_data.regions[index].rules.connections = connections
+	changes.emit()
+
+
+func apply_bounding_boxes(bbs: Array) -> void:
+	map_data.bbs = bbs
+	changes.emit()
 
 
 func _on_add_button_pressed() -> void:
@@ -124,7 +133,6 @@ func _on_add_button_pressed() -> void:
 	undo.add_do_method(add_region.bind(region))
 	undo.add_undo_method(remove_last_region)
 	undo.commit_action()
-	changes.emit()
 
 
 func _on_remove_button_pressed() -> void:
@@ -134,6 +142,15 @@ func _on_remove_button_pressed() -> void:
 	undo.create_action("Remove region")
 	
 	var target_region: Dictionary = map_data.regions[index]
+	
+	# fix up all bounding boxes
+	var cleared_bbs = map_data.bbs.duplicate(true).filter(func(x: Array) -> bool: return x[4] != index)
+	for bb: Array in cleared_bbs:
+		if bb[4] > index:
+			
+			bb[4] -= 1
+	if cleared_bbs != map_data.bbs:
+		undo.add_do_method(apply_bounding_boxes.bind(cleared_bbs))
 	
 	# undo: replace region
 	undo.add_undo_method(add_region.bind(target_region))
@@ -155,15 +172,15 @@ func _on_remove_button_pressed() -> void:
 		undo.add_do_method(apply_connections.bind(-1, world_stripped))
 		undo.add_undo_method(apply_connections.bind(-1, map_data.world_rules.connections))
 	
-	# shuffle to end
+	# shuffle to end and eliminate
 	for i in range(index, map_data.regions.size() - 1):
 		undo.add_do_method(swap_regions.bind(i, i + 1))
-	
-	# eliminate
 	undo.add_do_method(remove_last_region)
 	
+	if cleared_bbs != map_data.bbs:
+		undo.add_undo_method(apply_bounding_boxes.bind(map_data.bbs))
+	
 	undo.commit_action()
-	changes.emit()
 
 
 func set_region_color(index: int, color: Color) -> void:
@@ -176,19 +193,18 @@ func set_region_color(index: int, color: Color) -> void:
 
 	map_data.regions[index].tint = tint
 	%Tree.get_root().get_child(index).set_button_color(0, 0, color)
+	changes.emit()
 
 
 func _on_set_region_color(index: int) -> void:
 	var region: Dictionary = map_data.regions[index]
 	var old_color := Color(region.tint[0], region.tint[1], region.tint[2], region.tint[3])
+	%ColorPopup.hide()
 	
 	undo.create_action("Set region color")
 	undo.add_do_method(set_region_color.bind(index, %ColorPicker.color))
 	undo.add_undo_method(set_region_color.bind(index, old_color))
 	undo.commit_action()
-	
-	%ColorPopup.hide()
-	changes.emit()
 
 
 func _on_tree_button_clicked(_item: TreeItem, _column: int, id: int, mouse_button_index: int) -> void:
