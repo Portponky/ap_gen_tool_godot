@@ -70,6 +70,7 @@ func populate_default_data() -> void:
 	# ensure region sectors are integers
 	# ensure target_regions are integers
 	# ensure requirements are integers
+	# clear unassigned bboxes - not supported
 	var to_int := func(x: float) -> int: return int(x)
 	for map: Dictionary in data.maps:
 		for region: Dictionary in map.regions:
@@ -82,6 +83,8 @@ func populate_default_data() -> void:
 			connection.target_region = int(connection.target_region)
 			connection.requirements_and = connection.requirements_and.map(to_int)
 			connection.requirements_or = connection.requirements_or.map(to_int)
+		map.bbs = map.bbs.filter(func(x: Array) -> bool: return x[4] != -1)
+	
 
 
 static func attempt_load_json(path: String) -> Dictionary:

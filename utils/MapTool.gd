@@ -104,5 +104,5 @@ func can_change() -> bool:
 	return true
 
 
-func delete(view: MapView) -> bool:
+func delete(_view: MapView) -> bool:
 	return false

@@ -4,6 +4,7 @@ var bb_cache := []
 var bb_cache_dirty = true
 
 var selected_region := -1
+var highlight_bbox := -1
 
 var mouse_position: Vector2
 var dragging_box := -1
@@ -36,10 +37,10 @@ func render_bounding_boxes(view: MapView, to_map: Transform2D) -> void:
 	view.draw_set_transform_matrix(Transform2D.IDENTITY)
 	for b: int in bb_cache.size():
 		var bb: Dictionary = bb_cache[b]
-		var color: Color = Color.AQUA if dragging_box == b else bb.color
+		var color: Color = Color.AQUA if highlight_bbox == b else bb.color
 		var rect: Rect2 = to_map * bb.rect
-		view.draw_rect(rect, color * Color(1.0, 1.0, 1.0, 0.2), true)
-		view.draw_rect(rect, color, false, 4 if dragging_box == b else 2)
+		view.draw_rect(rect, bb.color * Color(1.0, 1.0, 1.0, 0.2), true)
+		view.draw_rect(rect, color, false, 4 if highlight_bbox == b else 2)
 	
 	if drawing_box:
 		var rect := Rect2(draw_origin, mouse_position - draw_origin).abs()
@@ -75,6 +76,11 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 		elif drawing_box:
 			mouse_position = event.position
 			view.queue_redraw()
+		else:
+			var box := bounding_box_at_position(view, event.position)
+			if box != highlight_bbox:
+				highlight_bbox = box
+				view.queue_redraw()
 	
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not drawing_box:
@@ -93,7 +99,7 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 			mouse_position = event.position
 			view.queue_redraw()
 		elif not event.pressed and event.button_index == MOUSE_BUTTON_RIGHT and drawing_box:
-			create_new_region(view)
+			create_new_bounding_box(view)
 			drawing_box = false
 
 
@@ -133,6 +139,13 @@ func can_change() -> bool:
 	return dragging_box == -1 and not drawing_box
 
 
+func delete(view: MapView) -> bool:
+	if highlight_bbox != -1:
+		delete_bounding_box(view)
+		return true
+	return false
+
+
 func set_bounding_box(view: MapView, index: int, x0: int, y0: int, x1: int, y1: int) -> void:
 	view.map_data.bbs[index][0] = x0
 	view.map_data.bbs[index][1] = y0
@@ -154,6 +167,16 @@ func remove_last_bounding_box(view: MapView) -> void:
 	view.queue_redraw()
 
 
+func swap_with_last_bounding_box(view: MapView, index: int) -> void:
+	var last: int = view.map_data.bbs.size() - 1
+	if index != last:
+		var temp = view.map_data.bbs[index]
+		view.map_data.bbs[index] = view.map_data.bbs[last]
+		view.map_data.bbs[last] = temp
+	bb_cache_dirty = true
+	view.queue_redraw()
+
+
 func apply_drag_box_position(view: MapView) -> void:
 	var box: Dictionary = bb_cache[dragging_box]
 	var rect: Rect2 = box.rect.abs()
@@ -165,7 +188,7 @@ func apply_drag_box_position(view: MapView) -> void:
 	view.undo.commit_action()
 
 
-func create_new_region(view: MapView) -> void:
+func create_new_bounding_box(view: MapView) -> void:
 	var a := view.doom_coordinate(draw_origin)
 	var b := view.doom_coordinate(mouse_position)
 	var rect := Rect2(a, b - a).abs()
@@ -174,4 +197,19 @@ func create_new_region(view: MapView) -> void:
 	view.undo.add_do_method(add_new_bounding_box.bind(view, selected_region))
 	view.undo.add_do_method(set_bounding_box.bind(view, view.map_data.bbs.size(), rect.position.x, rect.position.y, rect.end.x, rect.end.y))
 	view.undo.add_undo_method(remove_last_bounding_box.bind(view))
+	view.undo.commit_action()
+
+
+func delete_bounding_box(view: MapView) -> void:
+	if highlight_bbox == -1:
+		return
+	
+	var bb: Array = view.map_data.bbs[highlight_bbox]
+	
+	view.undo.create_action("Delete bounding box")
+	view.undo.add_do_method(swap_with_last_bounding_box.bind(view, highlight_bbox))
+	view.undo.add_do_method(remove_last_bounding_box.bind(view))
+	view.undo.add_undo_method(add_new_bounding_box.bind(view, bb[4]))
+	view.undo.add_undo_method(swap_with_last_bounding_box.bind(view, highlight_bbox))
+	view.undo.add_undo_method(set_bounding_box.bind(view, highlight_bbox, bb[0], bb[1], bb[2], bb[3]))
 	view.undo.commit_action()

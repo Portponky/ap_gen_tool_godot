@@ -5,18 +5,13 @@ Custom options might not generate correctly
 Consider removing locations json as it can be generated (check heretic)
 Behaves as? other similar map modifiers
 World wizard
-tools:
-	sector paint
-	rule edit
-	item edit
-	bounding boxes
 option for showing named locations as AP mark
-sync selected item between left panel and world
 zoom to item
 automatically mark colliding items as unreachable
-create key rules
 filter connection rules to available keys
 filter connection rules to available weapons (+ shotgun, chaingun)
 rule dragging from click position rather than centre
 delete connections and bboxes with delete rather than specific buttons
 removing region should delete associated bounding boxes
+changelevel should be an undoable event
+drag and drop regions to reorder
