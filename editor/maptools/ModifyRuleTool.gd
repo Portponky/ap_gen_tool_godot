@@ -64,7 +64,9 @@ func render_connections(view: MapView, to_map: Transform2D) -> void:
 func handle_input(view: MapView, event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		if dragging_rule:
-			view.rule_cache[highlight_rule].pos = view.map_coordinate(event.position)
+			var diff := view.map_coordinate(event.position) - view.map_coordinate(mouse_position) 
+			mouse_position = event.position
+			view.rule_cache[highlight_rule].pos += diff
 			view.rebuild_connection_cache()
 			view.queue_redraw()
 		elif drawwing_connection:
@@ -80,6 +82,7 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 		if not dragging_rule and not drawwing_connection:
 			do_select_rules_and_connections(view, event.position)
 			if event.pressed and event.button_index == MOUSE_BUTTON_LEFT and highlight_rule != -1:
+				mouse_position = event.position
 				dragging_rule = true
 				view.queue_redraw()
 			elif event.pressed and event.button_index == MOUSE_BUTTON_LEFT and highlight_connection != -1:
@@ -95,7 +98,7 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 				highlight_rule_target = -1
 				view.queue_redraw()
 		elif dragging_rule and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			move_rule(view, event.position)
+			move_rule(view, view.rule_cache[highlight_rule].pos)
 			dragging_rule = false
 			do_select_rules_and_connections(view, event.position)
 			view.queue_redraw()
@@ -208,8 +211,8 @@ func set_connection_requirements(view: MapView, from_rule: int, to_rule: int, an
 	view.queue_redraw()
 
 
-func move_rule(view: MapView, screen_pos: Vector2) -> void:
-	var doom_coord := view.doom_coordinate(screen_pos)
+func move_rule(view: MapView, map_pos: Vector2) -> void:
+	var doom_coord := Vector2(map_pos.x, -map_pos.y)
 	var target_rule := view.mapdata_rule_from_index(highlight_rule)
 	
 	view.undo.create_action("Move rule")

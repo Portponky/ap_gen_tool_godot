@@ -18,7 +18,5 @@ filter connection rules to available weapons (+ shotgun, chaingun)
 
 Things to fix
 -------------
-rule dragging from click position rather than centre
-select bbox so you can delete em with menu
 changelevel should be an undoable event
 drag and drop regions to reorder
