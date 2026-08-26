@@ -5,6 +5,7 @@ signal focus_on(doom_coord: Vector2)
 
 var unreachable_icon := load("res://assets/graphics/unreachable.png")
 var check_sanity_icon := load("res://assets/graphics/check-sanity.png")
+var ap_location_icon := load("res://assets/graphics/ap.png")
 
 var undo: UndoRedo
 
@@ -27,6 +28,19 @@ func clear_world() -> void:
 	thing_cache.clear()
 
 
+func is_in_region(pos: Vector2) -> bool:
+	for bb: Array in map_data.bbs:
+		if pos.x >= bb[0] and pos.y >= bb[1] and pos.x <= bb[2] and pos.y <= bb[3]:
+			return true
+	
+	var sector := map.sector_for_point(pos)
+	for region: Dictionary in map_data.regions:
+		if region.sectors.has(sector):
+			return true
+	
+	return false
+
+
 func style_item_list(index: int) -> void:
 	var location: Dictionary = map_data.locations[index]
 	if location.death_logic:
@@ -40,8 +54,12 @@ func style_item_list(index: int) -> void:
 		%ItemList.set_item_icon(index, check_sanity_icon)
 	else:
 		var map_index: int = location.index
-		var doom_type := map.things[map_index].type
-		%ItemList.set_item_icon(index, thing_cache[doom_type].icon.texture)
+		var thing := map.things[map_index]
+		if Settings.locations_as_aps and is_in_region(Vector2(thing.x, thing.y)) and not location.name.is_empty():
+			%ItemList.set_item_icon(index, ap_location_icon)
+		else:
+			var doom_type := thing.type
+			%ItemList.set_item_icon(index, thing_cache[doom_type].icon.texture)
 	
 	if location.name.is_empty():
 		var map_index: int = location.index

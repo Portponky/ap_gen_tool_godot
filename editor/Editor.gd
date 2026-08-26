@@ -18,6 +18,7 @@ enum MenuChoice {
 	
 	FilterKeys,
 	FilterGuns,
+	LocationAPs,
 	
 	ToolSectors,
 	ToolRules,
@@ -60,6 +61,7 @@ func _ready() -> void:
 	%EditMenu.add_separator()
 	%EditMenu.add_check_item("Filter connection keys", MenuChoice.FilterKeys)
 	%EditMenu.add_check_item("Filter connection weapons", MenuChoice.FilterGuns)
+	%EditMenu.add_check_item("Show complete locations as APs", MenuChoice.LocationAPs)
 	
 	add_menu_shortcut(%ToolMenu, "Region assignment", MenuChoice.ToolSectors, KEY_F1, false, false)
 	add_menu_shortcut(%ToolMenu, "Rules and connections", MenuChoice.ToolRules, KEY_F2, false, false)
@@ -68,6 +70,9 @@ func _ready() -> void:
 	
 	enable_specific_menus(false)
 	_execute_menu_choice(MenuChoice.ToolSectors)
+	
+	await get_tree().process_frame
+	update_menu_checks()
 
 
 func add_menu_shortcut(menu: PopupMenu, title: String, id: int, keycode: Key, ctrl: bool, shift: bool) -> void:
@@ -220,6 +225,18 @@ func enable_specific_menus(enabled: bool) -> void:
 	%EditMenu.set_item_disabled(%EditMenu.get_item_index(MenuChoice.Redo), not enabled)
 
 
+func update_menu_checks() -> void:
+	var items := {
+		MenuChoice.FilterKeys: Settings.filter_connection_keys,
+		MenuChoice.FilterGuns: Settings.filter_connection_guns,
+		MenuChoice.LocationAPs: Settings.locations_as_aps
+	}
+	
+	for choice: int in items:
+		var index: int = %EditMenu.get_item_index(choice)
+		%EditMenu.set_item_checked(index, items[choice])
+
+
 func _execute_menu_choice(id: int) -> void:
 	match id:
 		MenuChoice.Open:
@@ -247,14 +264,17 @@ func _execute_menu_choice(id: int) -> void:
 			%MapView.handle_delete()
 		MenuChoice.FilterKeys:
 			Settings.filter_connection_keys = not Settings.filter_connection_keys
-			var index: int = %EditMenu.get_item_index(MenuChoice.FilterKeys)
-			%EditMenu.set_item_checked(index, Settings.filter_connection_keys)
+			update_menu_checks()
 			%Connections.update_filters(current_map)
 		MenuChoice.FilterGuns:
 			Settings.filter_connection_guns = not Settings.filter_connection_guns
-			var index: int = %EditMenu.get_item_index(MenuChoice.FilterGuns)
-			%EditMenu.set_item_checked(index, Settings.filter_connection_guns)
+			update_menu_checks()
 			%Connections.update_filters(current_map)
+		MenuChoice.LocationAPs:
+			Settings.locations_as_aps = not Settings.locations_as_aps
+			update_menu_checks()
+			%Items.refresh()
+		
 		
 		MenuChoice.ToolSectors:
 			if %MapView.set_tool(%SectorPaintTool):

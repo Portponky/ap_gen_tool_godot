@@ -22,3 +22,4 @@ Disable item controls when no item
 Theme app
 Make panels have > and v arrows
 Make connection buttons much more visible
+Make region deleting a function of the mapview rather than the region dialog
