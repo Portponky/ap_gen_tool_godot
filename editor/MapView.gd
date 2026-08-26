@@ -6,6 +6,7 @@ const RULE_BOUNDARY := RULE_SIZE + 128.0 * Vector2.ONE
 const RULE_CONNECTION_OFFSET := 64.0
 const RULE_ARROWHEAD := 32.0
 const RULE_REQUIREMENT_SIZE := 96.0
+const RULE_REQUIREMENT_GAP := 192.0
 
 var tool: MapTool
 var undo: UndoRedo
@@ -131,18 +132,18 @@ func _add_to_connection_cache(r: int, c: int) -> void:
 		return
 	
 	var distance := a.distance_to(b)
-	var requirement_length := minf(RULE_REQUIREMENT_SIZE * (requirements_count - 1), distance)
-	var requirements_space := 0.5 * (distance - requirement_length)
+	var requirement_length := minf(RULE_REQUIREMENT_GAP * (requirements_count - 1), distance)
+	var requirements_margin := 0.5 * (distance - requirement_length)
+	var requirements_step := 0.0 if requirements_count == 1 else (requirement_length / (requirements_count - 1))
 	
 	a += right * RULE_REQUIREMENT_SIZE
 	b += right * RULE_REQUIREMENT_SIZE
-	var d := (b - a) / distance
 	var i := 0
 	for type: int in connection.requirements_or:
-		requirements.push_back(a + d * (requirements_space + i * RULE_REQUIREMENT_SIZE))
+		requirements.push_back(a + forward * (requirements_margin + i * requirements_step))
 		i += 1
 	for type: int in connection.requirements_and:
-		requirements.push_back(a + d * (requirements_space + i * RULE_REQUIREMENT_SIZE))
+		requirements.push_back(a + forward * (requirements_margin + i * requirements_step))
 		i += 1
 
 

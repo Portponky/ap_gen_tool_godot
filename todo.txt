@@ -13,3 +13,12 @@ Things to add
 World wizard
 option for showing named locations as AP mark
 automatically mark colliding items as unreachable
+Save settings
+
+Things to fix
+-------------
+Tidy up connection panel spacing
+Disable item controls when no item
+Theme app
+Make panels have > and v arrows
+Make connection buttons much more visible
