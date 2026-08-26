@@ -90,6 +90,10 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 				var connection: Dictionary = view.connection_cache[selected_connection]
 				select_connection.emit(connection.rule_index, connection.connection_index)
 				view.queue_redraw()
+			elif event.pressed and event.button_index == MOUSE_BUTTON_LEFT and selected_connection != -1:
+				selected_connection = -1
+				clear_connection.emit()
+				view.queue_redraw()
 			elif event.pressed and event.button_index == MOUSE_BUTTON_RIGHT and highlight_rule != -1 and highlight_rule != view.rule_cache.size() - 2:
 				drawing_connection = true
 				mouse_position = event.position

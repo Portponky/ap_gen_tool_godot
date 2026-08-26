@@ -17,7 +17,6 @@ OR requirements rendering differently
 
 Things to fix
 -------------
-Tidy up connection panel spacing
 Theme app
 	(theming) Make connection buttons much more visible
 Make panels have > and v arrows
