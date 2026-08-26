@@ -24,6 +24,7 @@ enum MenuChoice {
 	ToolRules,
 	ToolItems,
 	ToolBoxes,
+	BlockDuplicates,
 	
 	PreviousLevel,
 	NextLevel,
@@ -34,8 +35,9 @@ var world: World
 var levels : Array[Dictionary]
 
 var undo := UndoRedo.new()
-var current_level: int
+var current_level_index: int
 var current_map: Map
+var current_map_data: Dictionary
 var modified := false
 
 var current_region := -1
@@ -67,6 +69,8 @@ func _ready() -> void:
 	add_menu_shortcut(%ToolMenu, "Rules and connections", MenuChoice.ToolRules, KEY_F2, false, false)
 	add_menu_shortcut(%ToolMenu, "Items", MenuChoice.ToolItems, KEY_F3, false, false)
 	add_menu_shortcut(%ToolMenu, "Bounding boxes", MenuChoice.ToolBoxes, KEY_F4, false, false)
+	%ToolMenu.add_separator()
+	%ToolMenu.add_item("Mark colocated items as unreachable", MenuChoice.BlockDuplicates)
 	
 	enable_specific_menus(false)
 	_execute_menu_choice(MenuChoice.ToolSectors)
@@ -273,8 +277,7 @@ func _execute_menu_choice(id: int) -> void:
 		MenuChoice.LocationAPs:
 			Settings.locations_as_aps = not Settings.locations_as_aps
 			update_menu_checks()
-			%Items.refresh()
-			%MapView.refresh()
+			item_refresh()
 		
 		MenuChoice.ToolSectors:
 			if %MapView.set_tool(%SectorPaintTool):
@@ -292,13 +295,15 @@ func _execute_menu_choice(id: int) -> void:
 			if %MapView.set_tool(%BoundingBoxTool):
 				%ToolLabel.text = "Bounding boxes"
 				%MapView.refresh()
+		MenuChoice.BlockDuplicates:
+			block_duplicates()
 		
 		MenuChoice.PreviousLevel:
-			if current_level > 0:
-				load_level(current_level - 1)
+			if current_level_index > 0:
+				load_level(current_level_index - 1)
 		MenuChoice.NextLevel:
-			if current_level < levels.size() - 1:
-				load_level(current_level + 1)
+			if current_level_index < levels.size() - 1:
+				load_level(current_level_index + 1)
 
 
 func _on_modified() -> void:
@@ -310,15 +315,50 @@ func load_level(id: int) -> void:
 	if not %MapView.set_tool(null):
 		return
 	
-	current_level = id
+	current_level_index = id
 	var lump: String = levels[id].lump
 	current_map = world.maps[lump]
-	var map_data: Dictionary = world.data.maps[id]
+	current_map_data = world.data.maps[id]
 	%MapMenu.title = levels[id].name
-	%MapView.set_map(current_map, map_data)
-	%Regions.set_map_data(map_data)
-	%Items.set_map(current_map, map_data)
-	%Connections.set_map_data(map_data)
+	%MapView.set_map(current_map, current_map_data)
+	%Regions.set_map_data(current_map_data)
+	%Items.set_map(current_map, current_map_data)
+	%Connections.set_map_data(current_map_data)
 	%Connections.update_filters(current_map)
 	%MapView.set_tool(tool)
 	undo.clear_history()
+
+
+func set_unreachable(index: int, unreachable: bool) -> void:
+	current_map_data.locations[index].unreachable = unreachable
+
+
+func item_refresh() -> void:
+	%MapView.refresh()
+	%Items.refresh()
+
+
+func block_duplicates() -> void:
+	var coords := {}
+	var dupes := []
+	for l: int in current_map_data.locations.size():
+		var location: Dictionary = current_map_data.locations[l]
+		if location.unreachable:
+			continue
+		var t: int = location.index
+		var thing := current_map.things[t]
+		var pos := Vector2(thing.x, thing.y)
+		if coords.has(pos):
+			dupes.push_back(l)
+		coords[pos] = true
+	
+	if dupes.is_empty():
+		return
+	
+	undo.create_action("Block duplicate items")
+	for dupe: int in dupes:
+		undo.add_do_method(set_unreachable.bind(dupe, true))
+		undo.add_undo_method(set_unreachable.bind(dupe, false))
+		undo.add_do_method(item_refresh)
+		undo.add_undo_method(item_refresh)
+	undo.commit_action()

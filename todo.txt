@@ -11,7 +11,6 @@ drag and drop regions to reorder
 Things to add
 -------------
 World wizard
-automatically mark colliding items as unreachable
 Save settings
 
 Things to fix
@@ -20,6 +19,5 @@ Tidy up connection panel spacing
 Theme app
 	(theming) Make connection buttons much more visible
 Make panels have > and v arrows
-Item AP logos when assigning sectors or bounding boxes
 Door and switch linedef colors
 Sector linedef colors?

@@ -71,22 +71,32 @@ func set_map(next_map: Map, next_map_data: Dictionary) -> void:
 func refresh() -> void:
 	for i in map_data.locations.size():
 		style_item_list(i)
+	update_entry_for_selection()
 
 
-func enable_inputs(enabled: bool) -> void:
+func update_entry_for_selection() -> void:
+	var selection := selected_index()
+	var enabled = selection != -1
 	%CheckSanity.disabled = not enabled
 	%Unreachable.disabled = not enabled
 	%DeathLogic.disabled = not enabled
 	%Name.editable = enabled
+	
+	if selection != -1:
+		var location: Dictionary = map_data.locations[selection]
+		%CheckSanity.set_pressed_no_signal(location.check_sanity)
+		%Unreachable.set_pressed_no_signal(location.unreachable)
+		%DeathLogic.set_pressed_no_signal(location.death_logic)
+		%Name.text = location.name
+	else:
+		%CheckSanity.set_pressed_no_signal(false)
+		%Unreachable.set_pressed_no_signal(false)
+		%DeathLogic.set_pressed_no_signal(false)
+		%Name.text = ""
 
 
 func _on_item_list_item_selected(index: int) -> void:
-	enable_inputs(true)
-	var location: Dictionary = map_data.locations[index]
-	%CheckSanity.set_pressed_no_signal(location.check_sanity)
-	%Unreachable.set_pressed_no_signal(location.unreachable)
-	%DeathLogic.set_pressed_no_signal(location.death_logic)
-	%Name.text = location.name
+	update_entry_for_selection()
 	select_location.emit(index)
 
 
@@ -100,16 +110,12 @@ func _on_item_list_item_activated(index: int) -> void:
 func _on_select_location(index: int) -> void:
 	%ItemList.select(index)
 	%ItemList.ensure_current_is_visible()
-	_on_item_list_item_selected(index)
+	update_entry_for_selection()
 
 
 func _on_clear_location() -> void:
-	enable_inputs(false)
-	%CheckSanity.set_pressed_no_signal(false)
-	%Unreachable.set_pressed_no_signal(false)
-	%DeathLogic.set_pressed_no_signal(false)
-	%Name.text = ""
 	%ItemList.deselect_all()
+	update_entry_for_selection()
 
 
 func _on_location_dependencies_changed() -> void:
