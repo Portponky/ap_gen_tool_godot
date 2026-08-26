@@ -11,7 +11,7 @@ var highlight_connection := -1
 
 var mouse_position: Vector2
 var dragging_rule := false
-var drawwing_connection := false
+var drawing_connection := false
 
 func render_rules(view: MapView, to_map: Transform2D) -> void:
 	super(view, to_map)
@@ -43,7 +43,7 @@ func render_connections(view: MapView, to_map: Transform2D) -> void:
 		view.draw_line(to_map * c.b, to_map * (c.b - view.RULE_ARROWHEAD * (c.right + c.forward)), Color.AQUA, 3)
 	
 	# draw arrow being drawn
-	if drawwing_connection:
+	if drawing_connection:
 		var from: Dictionary = view.rule_cache[highlight_rule]
 		var a: Vector2 = from.pos
 		var b: Vector2 = view.map_coordinate(mouse_position)
@@ -69,7 +69,7 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 			view.rule_cache[highlight_rule].pos += diff
 			view.rebuild_connection_cache()
 			view.queue_redraw()
-		elif drawwing_connection:
+		elif drawing_connection:
 			mouse_position = event.position
 			var target = rule_for_position(view, mouse_position)
 			if target != highlight_rule:
@@ -79,7 +79,7 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 			do_select_rules_and_connections(view, event.position)
 	
 	if event is InputEventMouseButton:
-		if not dragging_rule and not drawwing_connection:
+		if not dragging_rule and not drawing_connection:
 			do_select_rules_and_connections(view, event.position)
 			if event.pressed and event.button_index == MOUSE_BUTTON_LEFT and highlight_rule != -1:
 				mouse_position = event.position
@@ -91,7 +91,7 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 				select_connection.emit(connection.rule_index, connection.connection_index)
 				view.queue_redraw()
 			elif event.pressed and event.button_index == MOUSE_BUTTON_RIGHT and highlight_rule != -1 and highlight_rule != view.rule_cache.size() - 2:
-				drawwing_connection = true
+				drawing_connection = true
 				mouse_position = event.position
 				selected_connection = -1
 				clear_connection.emit()
@@ -102,10 +102,10 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 			dragging_rule = false
 			do_select_rules_and_connections(view, event.position)
 			view.queue_redraw()
-		elif drawwing_connection and not event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		elif drawing_connection and not event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 			if highlight_rule != -1 and highlight_rule_target != -1:
 				draw_new_connection(view)
-			drawwing_connection = false
+			drawing_connection = false
 			do_select_rules_and_connections(view, event.position)
 			view.queue_redraw()
 
@@ -157,7 +157,7 @@ func stop() -> void:
 
 
 func can_change() -> bool:
-	return not dragging_rule and not drawwing_connection
+	return not dragging_rule and not drawing_connection
 
 
 func delete(view: MapView) -> bool:
