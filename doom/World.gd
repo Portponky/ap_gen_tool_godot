@@ -293,3 +293,17 @@ func load_graphic(lump_name: String) -> Dictionary:
 func get_item_name(doom_type: int) -> String:
 	var index : int = game.all_items.find_custom(func(x: Dictionary) -> bool: return x.doom_type == doom_type)
 	return "(no item)" if index == -1 else game.all_items[index].name
+
+
+# Not sure where to put this exactly
+static func is_in_region(map: Map, map_data: Dictionary, pos: Vector2) -> bool:
+	for bb: Array in map_data.bbs:
+		if pos.x >= bb[0] and pos.y >= bb[1] and pos.x <= bb[2] and pos.y <= bb[3]:
+			return true
+	
+	var sector := map.sector_for_point(pos)
+	for region: Dictionary in map_data.regions:
+		if region.sectors.has(sector):
+			return true
+	
+	return false

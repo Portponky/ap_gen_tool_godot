@@ -274,7 +274,7 @@ func _execute_menu_choice(id: int) -> void:
 			Settings.locations_as_aps = not Settings.locations_as_aps
 			update_menu_checks()
 			%Items.refresh()
-		
+			%MapView.refresh()
 		
 		MenuChoice.ToolSectors:
 			if %MapView.set_tool(%SectorPaintTool):

@@ -1,6 +1,9 @@
 class_name MapTool
 extends Node
 
+var unreachable_icon := load("res://assets/graphics/map-unreachable.png")
+var check_sanity_icon := load("res://assets/graphics/map-check-sanity.png")
+var ap_location_icon := load("res://assets/graphics/ap.png")
 
 func render_sectors(view: MapView, to_map: Transform2D) -> void:
 	view.draw_set_transform_matrix(to_map)
@@ -24,9 +27,24 @@ func render_things(view: MapView, to_map: Transform2D) -> void:
 	for location: Dictionary in view.map_data.locations:
 		var t: int = location.index
 		var thing := view.map.things[t]
-		if thing.type in view.thing_cache:
-			var pos := to_map * Vector2(thing.x, -thing.y)
+		var pos := to_map * Vector2(thing.x, -thing.y)
+		
+		if location.death_logic:
+			view.draw_circle(pos, 20, Color(1.0, 0.0, 0.0, 0.5))
+		
+		var draw_as_ap := not thing.type in view.thing_cache
+		if Settings.locations_as_aps:
+			draw_as_ap = not location.name.is_empty() and World.is_in_region(view.map, view.map_data, Vector2(thing.x, thing.y))
+		
+		if draw_as_ap:
+			view.draw_texture(ap_location_icon, pos - 0.5 * ap_location_icon.get_size())
+		else:
 			view.draw_texture(view.thing_cache[thing.type].texture, pos - Vector2(view.thing_cache[thing.type].center))
+		
+		if location.unreachable:
+			view.draw_texture(unreachable_icon, pos - 0.5 * unreachable_icon.get_size())
+		elif location.check_sanity:
+			view.draw_texture(check_sanity_icon, pos - 0.5 * check_sanity_icon.get_size())
 
 
 func render_connections(view: MapView, to_map: Transform2D) -> void:

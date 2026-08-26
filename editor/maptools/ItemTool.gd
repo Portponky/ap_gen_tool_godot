@@ -60,4 +60,3 @@ func _on_select_location(index: int) -> void:
 
 func _on_clear_location() -> void:
 	_on_select_location(-1)
-	

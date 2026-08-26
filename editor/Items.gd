@@ -2,6 +2,7 @@ extends VBoxContainer
 
 signal select_location(index: int)
 signal focus_on(doom_coord: Vector2)
+signal changes()
 
 var unreachable_icon := load("res://assets/graphics/unreachable.png")
 var check_sanity_icon := load("res://assets/graphics/check-sanity.png")
@@ -28,19 +29,6 @@ func clear_world() -> void:
 	thing_cache.clear()
 
 
-func is_in_region(pos: Vector2) -> bool:
-	for bb: Array in map_data.bbs:
-		if pos.x >= bb[0] and pos.y >= bb[1] and pos.x <= bb[2] and pos.y <= bb[3]:
-			return true
-	
-	var sector := map.sector_for_point(pos)
-	for region: Dictionary in map_data.regions:
-		if region.sectors.has(sector):
-			return true
-	
-	return false
-
-
 func style_item_list(index: int) -> void:
 	var location: Dictionary = map_data.locations[index]
 	if location.death_logic:
@@ -55,7 +43,7 @@ func style_item_list(index: int) -> void:
 	else:
 		var map_index: int = location.index
 		var thing := map.things[map_index]
-		if Settings.locations_as_aps and is_in_region(Vector2(thing.x, thing.y)) and not location.name.is_empty():
+		if Settings.locations_as_aps and World.is_in_region(map, map_data, Vector2(thing.x, thing.y)) and not location.name.is_empty():
 			%ItemList.set_item_icon(index, ap_location_icon)
 		else:
 			var doom_type := thing.type
@@ -73,6 +61,7 @@ func set_map(next_map: Map, next_map_data: Dictionary) -> void:
 	map = next_map
 	map_data = next_map_data
 	
+	select_location.emit(-1)
 	%ItemList.clear()
 	for l in map_data.locations.size():
 		var id: int = %ItemList.add_item("")
@@ -84,7 +73,15 @@ func refresh() -> void:
 		style_item_list(i)
 
 
+func enable_inputs(enabled: bool) -> void:
+	%CheckSanity.disabled = not enabled
+	%Unreachable.disabled = not enabled
+	%DeathLogic.disabled = not enabled
+	%Name.editable = enabled
+
+
 func _on_item_list_item_selected(index: int) -> void:
+	enable_inputs(true)
 	var location: Dictionary = map_data.locations[index]
 	%CheckSanity.set_pressed_no_signal(location.check_sanity)
 	%Unreachable.set_pressed_no_signal(location.unreachable)
@@ -107,7 +104,17 @@ func _on_select_location(index: int) -> void:
 
 
 func _on_clear_location() -> void:
+	enable_inputs(false)
+	%CheckSanity.set_pressed_no_signal(false)
+	%Unreachable.set_pressed_no_signal(false)
+	%DeathLogic.set_pressed_no_signal(false)
+	%Name.text = ""
 	%ItemList.deselect_all()
+
+
+func _on_location_dependencies_changed() -> void:
+	if Settings.locations_as_aps:
+		refresh()
 
 
 func selected_index() -> int:
@@ -127,6 +134,8 @@ func set_location_flags(index: int, check_sanity: bool, unreachable: bool, death
 		%CheckSanity.set_pressed_no_signal(check_sanity)
 		%Unreachable.set_pressed_no_signal(unreachable)
 		%DeathLogic.set_pressed_no_signal(death_logic)
+	
+	changes.emit()
 
 
 func _on_check_sanity_toggled(on: bool) -> void:
@@ -174,6 +183,8 @@ func set_location_name(index: int, location_name: String) -> void:
 	style_item_list(index)
 	if index == selected_index():
 		%Name.text = location_name
+	
+	changes.emit()
 
 
 func _on_name_text_submitted(new_text: String) -> void:

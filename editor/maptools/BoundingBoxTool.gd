@@ -1,5 +1,7 @@
 extends MapTool
 
+signal bounding_boxes_changed()
+
 var bb_cache := []
 var bb_cache_dirty = true
 
@@ -96,7 +98,7 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 	
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not drawing_box:
-			if highlight_bbox == selected_bbox:
+			if highlight_bbox == selected_bbox and selected_bbox != -1:
 				# modify existing box
 				dragging_box = true
 				resizing_axis = edge_index_for_box(view, event.position, selected_bbox)
@@ -170,6 +172,7 @@ func set_bounding_box(view: MapView, index: int, x0: int, y0: int, x1: int, y1: 
 	view.map_data.bbs[index][3] = y1
 	bb_cache_dirty = true
 	view.queue_redraw()
+	bounding_boxes_changed.emit()
 
 
 func add_new_bounding_box(view: MapView, region: int) -> void:
@@ -182,6 +185,7 @@ func remove_last_bounding_box(view: MapView) -> void:
 	view.map_data.bbs.pop_back()
 	bb_cache_dirty = true
 	view.queue_redraw()
+	bounding_boxes_changed.emit()
 
 
 func swap_with_last_bounding_box(view: MapView, index: int) -> void:

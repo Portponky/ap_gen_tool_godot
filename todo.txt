@@ -11,15 +11,15 @@ drag and drop regions to reorder
 Things to add
 -------------
 World wizard
-option for showing named locations as AP mark
 automatically mark colliding items as unreachable
 Save settings
 
 Things to fix
 -------------
 Tidy up connection panel spacing
-Disable item controls when no item
 Theme app
+	(theming) Make connection buttons much more visible
 Make panels have > and v arrows
-Make connection buttons much more visible
-Make region deleting a function of the mapview rather than the region dialog
+Item AP logos when assigning sectors or bounding boxes
+Door and switch linedef colors
+Sector linedef colors?

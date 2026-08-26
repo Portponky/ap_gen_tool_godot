@@ -1,5 +1,7 @@
 extends MapTool
 
+signal region_sectors_changed()
+
 var highlight_sector := -1
 var selected_region := -1
 
@@ -60,6 +62,7 @@ func add_region_sector(view: MapView, region: int, sector: int) -> void:
 	if not sectors.has(sector):
 		sectors.push_back(sector)
 		view.queue_redraw()
+		region_sectors_changed.emit()
 
 
 func clear_region_sector(view: MapView, region: int, sector: int) -> void:
@@ -67,6 +70,7 @@ func clear_region_sector(view: MapView, region: int, sector: int) -> void:
 	if sectors.has(sector):
 		sectors.erase(sector)
 		view.queue_redraw()
+		region_sectors_changed.emit()
 
 
 func paint_highlighted_sector(view: MapView) -> void:

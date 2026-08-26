@@ -147,7 +147,6 @@ func _on_remove_button_pressed() -> void:
 	var cleared_bbs = map_data.bbs.duplicate(true).filter(func(x: Array) -> bool: return x[4] != index)
 	for bb: Array in cleared_bbs:
 		if bb[4] > index:
-			
 			bb[4] -= 1
 	if cleared_bbs != map_data.bbs:
 		undo.add_do_method(apply_bounding_boxes.bind(cleared_bbs))
@@ -168,7 +167,7 @@ func _on_remove_button_pressed() -> void:
 		undo.add_undo_method(apply_connections.bind(r, region.rules.connections))
 	
 	var world_stripped: Array = map_data.world_rules.connections.filter(func(x: Dictionary) -> bool: return x.target_region != index)
-	if world_stripped.size() == map_data.world_rules.connections.size():
+	if world_stripped.size() != map_data.world_rules.connections.size():
 		undo.add_do_method(apply_connections.bind(-1, world_stripped))
 		undo.add_undo_method(apply_connections.bind(-1, map_data.world_rules.connections))
 	
