@@ -6,17 +6,12 @@ Heretic data is missing check sanity flag in location table
 Custom options might not generate correctly
 Consider removing locations json as it can be generated (check heretic)
 Behaves as? other similar map modifiers
+drag and drop regions to reorder
 
 Things to add
 -------------
 World wizard
 option for showing named locations as AP mark
-zoom to item
 automatically mark colliding items as unreachable
 filter connection rules to available keys
 filter connection rules to available weapons (+ shotgun, chaingun)
-
-Things to fix
--------------
-changelevel should be an undoable event
-drag and drop regions to reorder

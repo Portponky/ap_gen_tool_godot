@@ -255,3 +255,9 @@ func do_wheel_zoom(event: InputEventMouseButton) -> void:
 	offset.x += pre_coord.x - post_coord.x
 	offset.y += pre_coord.y - post_coord.y
 	queue_redraw()
+
+
+func _on_items_focus_on(doom_coord: Vector2) -> void:
+	var map_pos = Vector2(doom_coord.x, -doom_coord.y)
+	offset = map_pos
+	queue_redraw()

@@ -1,6 +1,7 @@
 extends VBoxContainer
 
 signal select_location(index: int)
+signal focus_on(doom_coord: Vector2)
 
 var unreachable_icon := load("res://assets/graphics/unreachable.png")
 var check_sanity_icon := load("res://assets/graphics/check-sanity.png")
@@ -72,6 +73,13 @@ func _on_item_list_item_selected(index: int) -> void:
 	%DeathLogic.set_pressed_no_signal(location.death_logic)
 	%Name.text = location.name
 	select_location.emit(index)
+
+
+func _on_item_list_item_activated(index: int) -> void:
+	var location: Dictionary = map_data.locations[index]
+	var t: int = location.index
+	var thing := map.things[t]
+	focus_on.emit(Vector2(thing.x, thing.y))
 
 
 func _on_select_location(index: int) -> void:

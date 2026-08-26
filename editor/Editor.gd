@@ -283,6 +283,7 @@ func load_level(id: int) -> void:
 	%Items.set_map(map, map_data)
 	%Connections.set_map_data(map_data)
 	%MapView.set_tool(tool)
+	undo.clear_history()
 
 
 func _on_select_region(index: int) -> void:
