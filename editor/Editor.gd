@@ -16,6 +16,9 @@ enum MenuChoice {
 	Redo,
 	Delete,
 	
+	FilterKeys,
+	FilterGuns,
+	
 	ToolSectors,
 	ToolRules,
 	ToolItems,
@@ -31,6 +34,7 @@ var levels : Array[Dictionary]
 
 var undo := UndoRedo.new()
 var current_level: int
+var current_map: Map
 var modified := false
 
 var current_region := -1
@@ -53,6 +57,9 @@ func _ready() -> void:
 	add_menu_shortcut(%EditMenu, "Redo", MenuChoice.Redo, KEY_Z, true, true)
 	%EditMenu.add_separator()
 	add_menu_shortcut(%EditMenu, "Delete", MenuChoice.Delete, KEY_DELETE, false, false)
+	%EditMenu.add_separator()
+	%EditMenu.add_check_item("Filter connection keys", MenuChoice.FilterKeys)
+	%EditMenu.add_check_item("Filter connection weapons", MenuChoice.FilterGuns)
 	
 	add_menu_shortcut(%ToolMenu, "Region assignment", MenuChoice.ToolSectors, KEY_F1, false, false)
 	add_menu_shortcut(%ToolMenu, "Rules and connections", MenuChoice.ToolRules, KEY_F2, false, false)
@@ -238,6 +245,16 @@ func _execute_menu_choice(id: int) -> void:
 			%MapView.refresh()
 		MenuChoice.Delete:
 			%MapView.handle_delete()
+		MenuChoice.FilterKeys:
+			Settings.filter_connection_keys = not Settings.filter_connection_keys
+			var index: int = %EditMenu.get_item_index(MenuChoice.FilterKeys)
+			%EditMenu.set_item_checked(index, Settings.filter_connection_keys)
+			%Connections.update_filters(current_map)
+		MenuChoice.FilterGuns:
+			Settings.filter_connection_guns = not Settings.filter_connection_guns
+			var index: int = %EditMenu.get_item_index(MenuChoice.FilterGuns)
+			%EditMenu.set_item_checked(index, Settings.filter_connection_guns)
+			%Connections.update_filters(current_map)
 		
 		MenuChoice.ToolSectors:
 			if %MapView.set_tool(%SectorPaintTool):
@@ -275,18 +292,13 @@ func load_level(id: int) -> void:
 	
 	current_level = id
 	var lump: String = levels[id].lump
-	var map: Map = world.maps[lump]
+	current_map = world.maps[lump]
 	var map_data: Dictionary = world.data.maps[id]
 	%MapMenu.title = levels[id].name
-	%MapView.set_map(map, map_data)
+	%MapView.set_map(current_map, map_data)
 	%Regions.set_map_data(map_data)
-	%Items.set_map(map, map_data)
+	%Items.set_map(current_map, map_data)
 	%Connections.set_map_data(map_data)
+	%Connections.update_filters(current_map)
 	%MapView.set_tool(tool)
 	undo.clear_history()
-
-
-func _on_select_region(index: int) -> void:
-	current_region = index
-	%Regions.set_selected_region(index)
-	%MapView.selected_region = index

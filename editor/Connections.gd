@@ -8,6 +8,10 @@ var map_data: Dictionary
 var ands := {}
 var ors := {}
 
+var key_types := []
+var gun_types := []
+var gun_proxies := {}
+
 var region_index: int
 var connection_index := -1
 
@@ -40,6 +44,16 @@ func set_world(world: World) -> void:
 			%Ors.add_child(or_button)
 			ors[doom_type] = or_button
 	
+	key_types = world.game.items.keys.map(func(x: Dictionary) -> int: return x.doom_type)
+	gun_types = world.game.items.progression.map(func(x: Dictionary) -> int: return x.doom_type)
+	
+	# Doom has shotgunners and chaingunners dropping weapons, so hack in an expectation of that
+	gun_proxies.clear()
+	if world.game.iwad != "HERETIC.WAD":
+		gun_proxies[9] = 2001
+		if world.game.iwad != "DOOM.WAD":
+			gun_proxies[65] = 2002
+	
 	clear_connection()
 
 
@@ -55,6 +69,28 @@ func clear_world() -> void:
 
 func set_map_data(next_map_data: Dictionary) -> void:
 	map_data = next_map_data
+
+
+func update_filters(map: Map) -> void:
+	for doom_type: int in key_types:
+		ands[doom_type].visible = not Settings.filter_connection_keys
+		ors[doom_type].visible = not Settings.filter_connection_keys
+	
+	for doom_type: int in gun_types:
+		ands[doom_type].visible = not Settings.filter_connection_guns
+		ors[doom_type].visible = not Settings.filter_connection_guns
+	
+	for thing: Map.Thing in map.things:
+		if thing.flags & Map.Thing.Flags.Multiplayer:
+			continue
+		var type := thing.type
+		if type in gun_proxies:
+			type = gun_proxies[type]
+		if type in key_types or type in gun_types:
+			ands[type].visible = true
+			ors[type].visible = true
+
+
 
 
 func select_connection(next_region_index: int, next_connection_index: int) -> void:

@@ -13,5 +13,3 @@ Things to add
 World wizard
 option for showing named locations as AP mark
 automatically mark colliding items as unreachable
-filter connection rules to available keys
-filter connection rules to available weapons (+ shotgun, chaingun)
