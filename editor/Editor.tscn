@@ -64,7 +64,6 @@ text = "Items"
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-size_flags_stretch_ratio = 2.0
 
 [node name="RegionsHeader" type="Button" parent="HSplitContainer/VBoxContainer" unique_id=200426779]
 layout_mode = 2
@@ -85,7 +84,6 @@ text = "Connections"
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-size_flags_stretch_ratio = 2.0
 
 [node name="MapView" parent="HSplitContainer" unique_id=2068846691 instance=ExtResource("2_i0blf")]
 unique_name_in_owner = true

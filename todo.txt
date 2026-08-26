@@ -12,6 +12,8 @@ Things to add
 -------------
 World wizard
 Save settings
+Thing ids
+OR requirements rendering differently
 
 Things to fix
 -------------

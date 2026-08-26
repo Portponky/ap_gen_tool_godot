@@ -15,6 +15,10 @@ var map: Map
 var map_data: Dictionary
 
 
+func _ready() -> void:
+	update_entry_for_selection()
+
+
 func set_world(world: World) -> void:
 	for doom_type: int in world.game.check_items:
 		var graphic := world.load_graphic(world.game.check_items[doom_type].sprite)
@@ -27,6 +31,7 @@ func set_world(world: World) -> void:
 func clear_world() -> void:
 	%ItemList.clear()
 	thing_cache.clear()
+	update_entry_for_selection()
 
 
 func style_item_list(index: int) -> void:

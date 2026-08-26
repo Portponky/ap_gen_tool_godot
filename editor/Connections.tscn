@@ -61,3 +61,4 @@ size_flags_vertical = 3
 [node name="Spacer" type="Control" parent="ScrollContainer/VBoxContainer" unique_id=1731780327]
 layout_mode = 2
 size_flags_vertical = 3
+size_flags_stretch_ratio = 20.0

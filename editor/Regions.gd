@@ -10,6 +10,8 @@ var map_data: Dictionary
 
 func _ready() -> void:
 	%ColorPopup.size = %ColorPopup.get_child(0).get_combined_minimum_size()
+	%AddButton.disabled = true
+	%RemoveButton.disabled = true
 
 
 func create_tree_item(index: int, region: Dictionary) -> void:
@@ -31,10 +33,15 @@ func set_map_data(next_map_data: Dictionary) -> void:
 		create_tree_item(r, region)
 	
 	select_region.emit(-1)
+	
+	%AddButton.disabled = false
+	%RemoveButton.disabled = false
 
 
 func clear_world() -> void:
 	%Tree.clear()
+	%AddButton.disabled = true
+	%RemoveButton.disabled = true
 
 
 func _on_tree_item_selected() -> void:
@@ -136,8 +143,11 @@ func _on_add_button_pressed() -> void:
 
 
 func _on_remove_button_pressed() -> void:
-	# make sure something selected, and selection is valid
-	var index: int = %Tree.get_selected().get_index()
+	var selection = %Tree.get_selected()
+	if not selection:
+		return
+	
+	var index: int = selection.get_index()
 	
 	undo.create_action("Remove region")
 	
