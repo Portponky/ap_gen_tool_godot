@@ -12,7 +12,6 @@ Things to add
 -------------
 World wizard
 Save settings
-OR requirements rendering differently
 
 Things to fix
 -------------

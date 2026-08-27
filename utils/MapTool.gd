@@ -4,6 +4,7 @@ extends Node
 var unreachable_icon := load("res://assets/graphics/map-unreachable.png")
 var check_sanity_icon := load("res://assets/graphics/map-check-sanity.png")
 var ap_location_icon := load("res://assets/graphics/ap.png")
+var or_requirement_icon := load("res://assets/graphics/plus.png")
 
 func render_sectors(view: MapView, to_map: Transform2D) -> void:
 	view.draw_set_transform_matrix(to_map)
@@ -56,13 +57,14 @@ func render_connections(view: MapView, to_map: Transform2D) -> void:
 		view.draw_line(to_map * c.b, to_map * (c.b - view.RULE_ARROWHEAD * (c.right + c.forward)), Color.WHITE, 1)
 		
 		var i := 0
-		for type: int in c.connection.requirements_or:
-			if type in view.thing_cache:
-				view.draw_texture(view.thing_cache[type].texture, to_map * c.requirements[i] - Vector2(view.thing_cache[type].center))
-			i += 1
 		for type: int in c.connection.requirements_and:
 			if type in view.thing_cache:
 				view.draw_texture(view.thing_cache[type].texture, to_map * c.requirements[i] - Vector2(view.thing_cache[type].center))
+			i += 1
+		for type: int in c.connection.requirements_or:
+			if type in view.thing_cache:
+				view.draw_texture(view.thing_cache[type].texture, to_map * c.requirements[i] - Vector2(view.thing_cache[type].center))
+				view.draw_texture(or_requirement_icon, to_map * c.requirements[i] + Vector2(view.thing_cache[type].center) - or_requirement_icon.get_size())
 			i += 1
 
 
