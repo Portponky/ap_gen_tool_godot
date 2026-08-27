@@ -22,6 +22,11 @@ func render_things(view: MapView, to_map: Transform2D) -> void:
 	const rect_size := 48.0 * Vector2.ONE
 	var rect := Rect2(pos - 0.5 * rect_size, rect_size)
 	view.draw_rect(rect, Color.AQUA, false, 3.0)
+	
+	var font := ThemeDB.fallback_font
+	const size := 16
+	var thing_id_pos := Vector2(rect.position.x, rect.end.y + font.get_ascent(size))
+	view.draw_string(font, thing_id_pos, str(t), HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, size, Color.AQUA)
 
 
 func handle_input(view: MapView, event: InputEvent) -> void:
