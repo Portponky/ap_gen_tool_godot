@@ -181,7 +181,7 @@ static func load(gamename: String) -> World:
 	for episode: Dictionary in world.game.episodes:
 		for map: Dictionary in episode.maps:
 			Status.set_task("Loading map for lump %s" % map.lump)
-			world.maps[map.lump] = Map.load(world, map.lump)
+			world.maps[map.lump] = Map.load(world, map.lump, world.game.iwad == "HERETIC.WAD")
 	
 	for lump: String in world.game.get("map_tweaks", {}):
 		Status.set_task("Applying map tweaks for %s" % lump)

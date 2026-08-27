@@ -105,7 +105,7 @@ static func load_things(map: Map, things_lump: PackedByteArray) -> void:
 		map.things.push_back(thing)
 
 
-static func load_linedefs(map: Map, linedefs_lump: PackedByteArray) -> void:
+static func load_linedefs(map: Map, linedefs_lump: PackedByteArray, heretic_specials: bool) -> void:
 	for i in range(0, linedefs_lump.size(), 14):
 		var linedef := Linedef.new()
 		linedef.start_vertex = linedefs_lump.decode_s16(i + 0)
@@ -119,6 +119,25 @@ static func load_linedefs(map: Map, linedefs_lump: PackedByteArray) -> void:
 		# Pick color
 		if linedef.flags & (Linedef.Flags.Blocking | Linedef.Flags.TwoSided) == Linedef.Flags.TwoSided:
 			linedef.color = Color.DIM_GRAY
+		
+		if heretic_specials:
+			if linedef.special_type in [26, 32]:
+				linedef.color = Color.BLUE
+			elif linedef.special_type in [28, 33]:
+				linedef.color = Color.GREEN
+			elif linedef.special_type in [27, 34]:
+				linedef.color = Color.YELLOW
+			elif linedef.special_type in [11, 51, 52, 105]:
+				linedef.color = Color.MAGENTA
+		else:
+			if linedef.special_type in [26, 32, 99, 133]:
+				linedef.color = Color.BLUE
+			elif linedef.special_type in [28, 33, 134, 135]:
+				linedef.color = Color.RED
+			elif linedef.special_type in [27, 34, 136, 137]:
+				linedef.color = Color.YELLOW
+			elif linedef.special_type in [11, 51, 52, 124]:
+				linedef.color = Color.MAGENTA
 		
 		map.linedefs.push_back(linedef)
 
@@ -272,7 +291,7 @@ static func build_mesh(sector: Sector) -> void:
 	sector.mesh = array_mesh
 
 
-static func load(world: World, map_lump: String) -> Map:
+static func load(world: World, map_lump: String, heretic_specials: bool) -> Map:
 	var load_wad := world.wad_for_lump(map_lump)
 	if not load_wad:
 		Status.add_error("Unable to find lump %s" % map_lump)
@@ -280,7 +299,7 @@ static func load(world: World, map_lump: String) -> Map:
 	
 	var map := Map.new()
 	load_things(map, load_wad.load_lump("THINGS", map_lump))
-	load_linedefs(map, load_wad.load_lump("LINEDEFS", map_lump))
+	load_linedefs(map, load_wad.load_lump("LINEDEFS", map_lump), heretic_specials)
 	load_sidedefs(map, load_wad.load_lump("SIDEDEFS", map_lump))
 	load_vertices(map, load_wad.load_lump("VERTEXES", map_lump))
 	load_sectors(map, load_wad.load_lump("SECTORS", map_lump))

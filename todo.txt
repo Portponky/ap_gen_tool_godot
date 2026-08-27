@@ -19,5 +19,3 @@ Things to fix
 Theme app
 	(theming) Make connection buttons much more visible
 Make panels have > and v arrows
-Door and switch linedef colors
-Sector linedef colors?
