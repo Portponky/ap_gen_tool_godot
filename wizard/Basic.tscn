@@ -1,0 +1,159 @@
+[gd_scene format=3 uid="uid://do3np5djt56ap"]
+
+[ext_resource type="Script" uid="uid://mmx33m6l7de1" path="res://wizard/Basic.gd" id="1_kmpq1"]
+
+[node name="Basic" type="VBoxContainer" unique_id=504335635]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_kmpq1")
+metadata/_edit_lock_ = true
+
+[node name="TopContainer" type="HBoxContainer" parent="." unique_id=209560146]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+alignment = 1
+
+[node name="CenterContainer" type="MarginContainer" parent="TopContainer" unique_id=57112934]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_right = 40
+
+[node name="Label" type="Label" parent="TopContainer/CenterContainer" unique_id=498792711]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "This wizard can produce a basic .game.json to get started with designing the logic for custom wads. The json file will need additional editing with a text editor outside of this tool."
+horizontal_alignment = 3
+autowrap_mode = 3
+
+[node name="DetailsContainer" type="VBoxContainer" parent="TopContainer" unique_id=2117776852]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Label" type="Label" parent="TopContainer/DetailsContainer" unique_id=1127014340]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Basic detals"
+
+[node name="GridContainer" type="GridContainer" parent="TopContainer/DetailsContainer" unique_id=160009780]
+layout_mode = 2
+columns = 2
+
+[node name="LabelIwad" type="Label" parent="TopContainer/DetailsContainer/GridContainer" unique_id=1491373611]
+layout_mode = 2
+text = "iwad"
+
+[node name="OptionIwad" type="OptionButton" parent="TopContainer/DetailsContainer/GridContainer" unique_id=178319908]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 5
+popup/item_0/text = "Doom"
+popup/item_0/id = 0
+popup/item_1/text = "Doom 2"
+popup/item_1/id = 1
+popup/item_2/text = "TNT"
+popup/item_2/id = 2
+popup/item_3/text = "Plutonia"
+popup/item_3/id = 3
+popup/item_4/text = "Heretic"
+popup/item_4/id = 4
+
+[node name="LabelFullName" type="Label" parent="TopContainer/DetailsContainer/GridContainer" unique_id=1553927176]
+layout_mode = 2
+text = "Full name"
+
+[node name="LineEditFullName" type="LineEdit" parent="TopContainer/DetailsContainer/GridContainer" unique_id=1090139619]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Custom Wad"
+
+[node name="LabelShortName" type="Label" parent="TopContainer/DetailsContainer/GridContainer" unique_id=129354954]
+layout_mode = 2
+text = "Short name"
+
+[node name="LineEditShortName" type="LineEdit" parent="TopContainer/DetailsContainer/GridContainer" unique_id=870080473]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "cw"
+
+[node name="BottomContainer" type="HBoxContainer" parent="." unique_id=153697955]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+theme_override_constants/separation = 20
+
+[node name="RequiredContainer" type="VBoxContainer" parent="BottomContainer" unique_id=859193460]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LabelRequired" type="Label" parent="BottomContainer/RequiredContainer" unique_id=1304505304]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Required wads"
+
+[node name="LabelRequiredDesc" type="Label" parent="BottomContainer/RequiredContainer" unique_id=1517332742]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Wads (or other files) that are required to play this game."
+horizontal_alignment = 3
+autowrap_mode = 3
+
+[node name="TextEditRequired" type="TextEdit" parent="BottomContainer/RequiredContainer" unique_id=652966490]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "custwad.wad
+custwad2.wad
+custwad.deh"
+
+[node name="OptionalContainer" type="VBoxContainer" parent="BottomContainer" unique_id=812493641]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LabelOptional" type="Label" parent="BottomContainer/OptionalContainer" unique_id=1904849348]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Optional wads"
+
+[node name="LabelOptionalDesc" type="Label" parent="BottomContainer/OptionalContainer" unique_id=981010829]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Wads that can also be loaded, but are not necessary. For example, music packs."
+horizontal_alignment = 3
+autowrap_mode = 3
+
+[node name="TextEditOptional" type="TextEdit" parent="BottomContainer/OptionalContainer" unique_id=2023228009]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "custmidi.wad"
+
+[node name="IncludedContainer" type="VBoxContainer" parent="BottomContainer" unique_id=1063919789]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LabelIncluded" type="Label" parent="BottomContainer/IncludedContainer" unique_id=1567799121]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Included wads"
+
+[node name="LabelIncludedDesc" type="Label" parent="BottomContainer/IncludedContainer" unique_id=1885318694]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Wads to be contained within the apworld file. For example, wads with special graphics required for the hub menu."
+horizontal_alignment = 3
+autowrap_mode = 3
+
+[node name="TextEditIncluded" type="TextEdit" parent="BottomContainer/IncludedContainer" unique_id=1352240136]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "CustAp.wad"
