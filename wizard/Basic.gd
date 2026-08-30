@@ -28,17 +28,20 @@ const IWAD_DETAILS = [
 	}
 ]
 
+var short_name_check := RegEx.create_from_string("[^a-z0-9]")
 
-func assign_wad_list(game: Dictionary, key: String, list: String) -> void:
-	var wads: Array = list.split("\n")
-	for i: int in wads.size():
-		wads[i].remove_chars("\t\r ")
-	wads = wads.filter(func(x: String) -> bool: return not x.is_empty())
-	
-	if wads.size() == 1:
-		game[key] = wads[0]
-	elif wads.size() > 1:
-		game[key] = wads
+
+
+func verify(_game: Dictionary) -> String:
+	if %OptionIwad.get_selected_id() == -1:
+		return "No IWAD selected"
+	if %LineEditFullName.text.is_empty():
+		return "Enter a full name"
+	if %LineEditShortName.text.is_empty():
+		return "Enter a short name"
+	if short_name_check.search_all(%LineEditShortName.text).size() > 0:
+		return "Short name should be lower case character, numbers, or underscores"
+	return ""
 
 
 func populate(game: Dictionary) -> void:
@@ -50,8 +53,3 @@ func populate(game: Dictionary) -> void:
 	game.ap_name = "%s - %s" % [iwad.name, game.full_name]
 	game.ap_world_name = "%s_%s" % [iwad.world_name, game.short_name]
 	game.iwad = iwad.filename
-	assign_wad_list(game, "required_wads", %TextEditRequired.text)
-	assign_wad_list(game, "optional_wads", %TextEditOptional.text)
-	assign_wad_list(game, "included_wads", %TextEditIncluded.text)
-
-	print(game)

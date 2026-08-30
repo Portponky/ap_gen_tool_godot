@@ -1,44 +1,59 @@
 [gd_scene format=3 uid="uid://c17ap2syc1kn6"]
 
 [ext_resource type="Script" uid="uid://blwgedyuf35r3" path="res://wizard/Wizard.gd" id="1_cci1r"]
-[ext_resource type="PackedScene" uid="uid://do3np5djt56ap" path="res://wizard/Basic.tscn" id="2_mcsqd"]
 
-[node name="Wizard" type="VBoxContainer" unique_id=504335635]
+[node name="Window" type="Window" unique_id=1624004730]
+oversampling_override = 1.0
+title = "World Wizard"
+position = Vector2i(0, 36)
+size = Vector2i(600, 600)
+script = ExtResource("1_cci1r")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1967328138]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_cci1r")
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer" unique_id=504335635]
+layout_mode = 2
 metadata/_edit_lock_ = true
 
-[node name="Header" type="Label" parent="." unique_id=2055557321]
-layout_mode = 2
-theme_override_font_sizes/font_size = 30
-text = "World Wizard"
-horizontal_alignment = 1
-
-[node name="TabContainer" type="TabContainer" parent="." unique_id=1385089215]
-layout_mode = 2
-size_flags_vertical = 3
-current_tab = 0
-tabs_visible = false
-
-[node name="Basic" parent="TabContainer" unique_id=1258856119 instance=ExtResource("2_mcsqd")]
+[node name="Page" type="MarginContainer" parent="MarginContainer/VBox" unique_id=505564338]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-metadata/_tab_index = 0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
 
-[node name="ButtonContainer" type="HBoxContainer" parent="." unique_id=286149360]
+[node name="Error" type="Label" parent="MarginContainer/VBox" unique_id=731584104]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+text = "Error text goes here"
+horizontal_alignment = 1
+
+[node name="ButtonContainer" type="HBoxContainer" parent="MarginContainer/VBox" unique_id=286149360]
 layout_mode = 2
 
-[node name="QuitButton" type="Button" parent="ButtonContainer" unique_id=43909366]
+[node name="QuitButton" type="Button" parent="MarginContainer/VBox/ButtonContainer" unique_id=43909366]
+custom_minimum_size = Vector2(200, 50)
 layout_mode = 2
 text = "Quit"
 
-[node name="NextButton" type="Button" parent="ButtonContainer" unique_id=524645]
+[node name="Spacer" type="Control" parent="MarginContainer/VBox/ButtonContainer" unique_id=2040027391]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NextButton" type="Button" parent="MarginContainer/VBox/ButtonContainer" unique_id=524645]
+custom_minimum_size = Vector2(200, 50)
 layout_mode = 2
 text = "Next"
 
-[connection signal="pressed" from="ButtonContainer/NextButton" to="." method="_on_next_button_pressed"]
+[connection signal="pressed" from="MarginContainer/VBox/ButtonContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="MarginContainer/VBox/ButtonContainer/NextButton" to="." method="_on_next_button_pressed"]

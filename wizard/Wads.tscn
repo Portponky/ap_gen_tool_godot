@@ -1,0 +1,96 @@
+[gd_scene format=3 uid="uid://cxivvnbgdbkw8"]
+
+[ext_resource type="Script" uid="uid://dtsfpa8cs6c6u" path="res://wizard/Wads.gd" id="1_4stmr"]
+
+[node name="Wads" type="VBoxContainer" unique_id=1991297517]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_4stmr")
+metadata/_edit_lock_ = true
+
+[node name="Title" type="Label" parent="." unique_id=1910654614]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "WAD files"
+horizontal_alignment = 1
+
+[node name="Instructions" type="Label" parent="." unique_id=1567799121]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Enter the WAD files that are used for this apworld. Enter each WAD file on a separate line, and make sure to match the case of the filename exactly. You can also list DEH files here if necessary. The WAD files that are in the required or optional section must be copied to the 'wads' folder."
+horizontal_alignment = 3
+autowrap_mode = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=217445444]
+layout_mode = 2
+alignment = 1
+
+[node name="WadFolderButton" type="Button" parent="HBoxContainer" unique_id=1414594914]
+custom_minimum_size = Vector2(250, 40)
+layout_mode = 2
+text = "Open wads folder"
+
+[node name="TabContainer" type="TabContainer" parent="." unique_id=1428856336]
+layout_mode = 2
+size_flags_vertical = 3
+current_tab = 0
+
+[node name="Required" type="VBoxContainer" parent="TabContainer" unique_id=859193460]
+layout_mode = 2
+size_flags_horizontal = 3
+metadata/_tab_index = 0
+
+[node name="RequiredLabel" type="Label" parent="TabContainer/Required" unique_id=594693045]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "These are the WAD files that are directly required for the apworld file to run."
+autowrap_mode = 3
+
+[node name="TextEditRequired" type="TextEdit" parent="TabContainer/Required" unique_id=652966490]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "custwad.wad
+custwad2.wad
+custwad.deh"
+
+[node name="Optional" type="VBoxContainer" parent="TabContainer" unique_id=812493641]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+metadata/_tab_index = 1
+
+[node name="OptionalLabel" type="Label" parent="TabContainer/Optional" unique_id=921770061]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "These are any WADs that can be used, but are not required. For example, midi packs which may or may not be present."
+autowrap_mode = 3
+
+[node name="TextEditOptional" type="TextEdit" parent="TabContainer/Optional" unique_id=2023228009]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "custmidi.wad"
+
+[node name="Included" type="VBoxContainer" parent="TabContainer" unique_id=1063919789]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+metadata/_tab_index = 2
+
+[node name="IncludedLabel" type="Label" parent="TabContainer/Included" unique_id=529693443]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Any WAD files listed here will be copied into the apworld file. This is used for any special graphics or content specific to the apworld, for example a WAD with backgrounds for the level select."
+autowrap_mode = 3
+
+[node name="TextEditIncluded" type="TextEdit" parent="TabContainer/Included" unique_id=1352240136]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+placeholder_text = "CustAp.wad"
+
+[connection signal="pressed" from="HBoxContainer/WadFolderButton" to="." method="_on_wad_folder_button_pressed"]
