@@ -7,6 +7,7 @@ Custom options might not generate correctly
 Consider removing locations json as it can be generated (check heretic)
 Behaves as? other similar map modifiers
 drag and drop regions to reorder
+World wizard lump renaming
 
 Things to add
 -------------

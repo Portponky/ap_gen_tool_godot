@@ -2,13 +2,12 @@ extends Window
 
 signal task_complete
 
-const BASIC := preload("res://wizard/Basic.tscn")
-const WADS := preload("res://wizard/Wads.tscn")
+var map_regex := RegEx.create_from_string("^(MAP\\d\\d)|(E\\dM\\d)$")
 
 var current_step := -1
-var current_page : Control
 var game_json := {}
 var wads: Array
+var maps: Array
 
 func _ready() -> void:
 	%Error.text = ""
@@ -17,33 +16,28 @@ func _ready() -> void:
 
 func start_next_step() -> void:
 	current_step += 1
-	clear_page()
 	
 	match current_step:
 		0:
-			load_page(BASIC)
+			%Basic.show()
 		1:
-			load_page(WADS)
+			%Wads.show()
 		2:
-			if await load_wads():
-				pass
-			else:
-				pass
+			if not await load_wads():
+				wads.clear()
+				current_step = 1
+				return
+			
+			find_all_maps()
+			%Episodes.set_map_list(maps)
+			%Episodes.show()
 
-
-func clear_page() -> void:
-	if current_page:
-		current_page.queue_free()
-
-
-func load_page(page_scene: PackedScene) -> void:
-	current_page = page_scene.instantiate()
-	%Page.add_child(current_page)
 
 
 func _on_next_button_pressed() -> void:
 	# Let's see if the page works
 	%Error.text = ""
+	var current_page: Control = %Pages.get_current_tab_control()
 	var error: String = current_page.verify(game_json)
 	
 	if not error.is_empty():
@@ -93,3 +87,13 @@ func load_wads() -> bool:
 	
 	await task_complete
 	return thread.wait_to_finish()
+
+
+func find_all_maps() -> void:
+	var matcher := func(x: String) -> bool:
+		return map_regex.search(x) != null
+	
+	for wad in wads:
+		maps.append_array(wad.matching_lumps(matcher))
+	
+	print(maps)

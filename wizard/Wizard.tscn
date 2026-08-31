@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://c17ap2syc1kn6"]
 
 [ext_resource type="Script" uid="uid://blwgedyuf35r3" path="res://wizard/Wizard.gd" id="1_cci1r"]
+[ext_resource type="PackedScene" uid="uid://do3np5djt56ap" path="res://wizard/Basic.tscn" id="2_mt8hf"]
+[ext_resource type="PackedScene" uid="uid://cxivvnbgdbkw8" path="res://wizard/Wads.tscn" id="3_2m37o"]
+[ext_resource type="PackedScene" uid="uid://cq6pii6yxvrxt" path="res://wizard/Episodes.tscn" id="4_lqg24"]
 
 [node name="Window" type="Window" unique_id=1624004730]
 oversampling_override = 1.0
@@ -24,12 +27,34 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 metadata/_edit_lock_ = true
 
-[node name="Page" type="MarginContainer" parent="MarginContainer/VBox" unique_id=505564338]
-unique_name_in_owner = true
+[node name="Margin" type="MarginContainer" parent="MarginContainer/VBox" unique_id=505564338]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_right = 20
+
+[node name="Pages" type="TabContainer" parent="MarginContainer/VBox/Margin" unique_id=388904611]
+unique_name_in_owner = true
+layout_mode = 2
+current_tab = 0
+tabs_visible = false
+
+[node name="Basic" parent="MarginContainer/VBox/Margin/Pages" unique_id=858250943 instance=ExtResource("2_mt8hf")]
+unique_name_in_owner = true
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="Wads" parent="MarginContainer/VBox/Margin/Pages" unique_id=1991297517 instance=ExtResource("3_2m37o")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="Episodes" parent="MarginContainer/VBox/Margin/Pages" unique_id=872581844 instance=ExtResource("4_lqg24")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
 
 [node name="Error" type="Label" parent="MarginContainer/VBox" unique_id=731584104]
 unique_name_in_owner = true

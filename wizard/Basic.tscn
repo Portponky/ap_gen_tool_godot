@@ -21,7 +21,6 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 18
 text = "This wizard can produce a basic .game.json to get started with designing the logic for custom wads. The json file will need additional editing with a text editor outside of this tool."
 horizontal_alignment = 3
 autowrap_mode = 3

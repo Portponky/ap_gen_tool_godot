@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://cq6pii6yxvrxt"]
+
+[ext_resource type="Script" uid="uid://dl8l8taqru4if" path="res://wizard/Episodes.gd" id="1_vecka"]
+
+[node name="Episodes" type="VBoxContainer" unique_id=872581844]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+script = ExtResource("1_vecka")
+
+[node name="Description" type="Label" parent="." unique_id=47928582]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Input the number of episodes and how many maps are in each episode."
+autowrap_mode = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=202180842]
+layout_mode = 2
+alignment = 1
+
+[node name="LabelEpisode" type="Label" parent="HBoxContainer" unique_id=1999976364]
+layout_mode = 2
+text = "Number of episodes:"
+
+[node name="SpinBoxEpisode" type="SpinBox" parent="HBoxContainer" unique_id=1494111701]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 8.0
+value = 1.0
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="." unique_id=1243056098]
+layout_mode = 2
+alignment = 1
+
+[node name="EpisodeContainer" type="GridContainer" parent="HBoxContainer2" unique_id=880642544]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 8
+columns = 2
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="." unique_id=1709728481]
+layout_mode = 2
+alignment = 1
+
+[node name="CheckCredits" type="CheckBox" parent="HBoxContainer3" unique_id=1225377779]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Skip credits map"
+
+[node name="LabelTotal" type="Label" parent="." unique_id=163427310]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Total ? / ?"
+horizontal_alignment = 1
+
+[connection signal="value_changed" from="HBoxContainer/SpinBoxEpisode" to="." method="_on_spin_box_episode_value_changed"]
+[connection signal="toggled" from="HBoxContainer3/CheckCredits" to="." method="_on_check_credits_toggled"]

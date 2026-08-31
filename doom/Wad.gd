@@ -50,6 +50,10 @@ func has_lump(name: String) -> bool:
 	return lump_names.has(name)
 
 
+func matching_lumps(functor: Callable) -> Array:
+	return lump_names.keys().filter(functor)
+
+
 func load_lump(name: String, category := "") -> PackedByteArray:
 	var i := 0
 	if not category.is_empty():
