@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://do3np5djt56ap" path="res://wizard/Basic.tscn" id="2_mt8hf"]
 [ext_resource type="PackedScene" uid="uid://cxivvnbgdbkw8" path="res://wizard/Wads.tscn" id="3_2m37o"]
 [ext_resource type="PackedScene" uid="uid://cq6pii6yxvrxt" path="res://wizard/Episodes.tscn" id="4_lqg24"]
+[ext_resource type="PackedScene" uid="uid://v0r5443ux1hl" path="res://wizard/Maps.tscn" id="5_2m37o"]
 
 [node name="Window" type="Window" unique_id=1624004730]
 oversampling_override = 1.0
@@ -55,6 +56,12 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 metadata/_tab_index = 2
+
+[node name="Maps" parent="MarginContainer/VBox/Margin/Pages" unique_id=1681600159 instance=ExtResource("5_2m37o")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+metadata/_tab_index = 3
 
 [node name="Error" type="Label" parent="MarginContainer/VBox" unique_id=731584104]
 unique_name_in_owner = true

@@ -1,0 +1,67 @@
+[gd_scene format=3 uid="uid://v0r5443ux1hl"]
+
+[ext_resource type="Script" uid="uid://cbx6fwnrsrl7h" path="res://wizard/Maps.gd" id="1_ndml1"]
+
+[node name="Maps" type="VBoxContainer" unique_id=125543526]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+script = ExtResource("1_ndml1")
+
+[node name="Description" type="Label" parent="." unique_id=1592864032]
+layout_mode = 2
+text = "Assign map names to each map and other details."
+
+[node name="Episode" type="ScrollContainer" parent="." unique_id=1172455391]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Layout" type="VBoxContainer" parent="Episode" unique_id=196000587]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="EpisodeContainer" type="HBoxContainer" parent="Episode/Layout" unique_id=314489051]
+layout_mode = 2
+
+[node name="LabelEpisode" type="Label" parent="Episode/Layout/EpisodeContainer" unique_id=392364436]
+layout_mode = 2
+text = "Episode name (optional):"
+
+[node name="EpisodeName" type="LineEdit" parent="Episode/Layout/EpisodeContainer" unique_id=1388516520]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DetailsContainer" type="HBoxContainer" parent="Episode/Layout" unique_id=702069011]
+layout_mode = 2
+
+[node name="CheckMinor" type="CheckBox" parent="Episode/Layout/DetailsContainer" unique_id=392454247]
+layout_mode = 2
+text = "Minor episode"
+
+[node name="CheckDefault" type="CheckBox" parent="Episode/Layout/DetailsContainer" unique_id=422811437]
+layout_mode = 2
+button_pressed = true
+text = "Played by default"
+
+[node name="MapContainer" type="HBoxContainer" parent="." unique_id=1189887103]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LumpName" type="LineEdit" parent="MapContainer" unique_id=528139682]
+layout_mode = 2
+placeholder_text = "LUMP"
+
+[node name="HumanName" type="LineEdit" parent="MapContainer" unique_id=175388959]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Map name"
+
+[node name="Tabs" type="TabContainer" parent="." unique_id=1956196675]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3

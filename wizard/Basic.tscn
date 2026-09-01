@@ -67,3 +67,20 @@ unique_name_in_owner = true
 layout_mode = 2
 placeholder_text = "cw"
 max_length = 10
+
+[node name="LabelAuthor" type="Label" parent="GridContainer" unique_id=363528897]
+layout_mode = 2
+text = "Author"
+
+[node name="LineEditAuthor" type="LineEdit" parent="GridContainer" unique_id=1628890763]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LabelDescription" type="Label" parent="GridContainer" unique_id=1865856873]
+layout_mode = 2
+text = "Description"
+
+[node name="TextEditDescription" type="TextEdit" parent="GridContainer" unique_id=738431957]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2

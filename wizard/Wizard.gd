@@ -16,6 +16,7 @@ func _ready() -> void:
 
 func start_next_step() -> void:
 	current_step += 1
+	print(game_json)
 	
 	match current_step:
 		0:
@@ -31,7 +32,16 @@ func start_next_step() -> void:
 			find_all_maps()
 			%Episodes.set_map_list(maps)
 			%Episodes.show()
-
+		3:
+			%Maps.set_map_list(maps, game_json)
+			%Maps.show()
+		4:
+			var path := ProjectSettings.globalize_path("res://games/") if OS.has_feature("editor") else "%s/games" % OS.get_executable_path().get_base_dir()
+			var target := "%s/%s.game.json" % [path, game_json.short_name]
+			var output := JSON.stringify(game_json, "  ")
+			var file = FileAccess.open(target, FileAccess.WRITE)
+			file.store_string(output)
+			print("Output game.json file")
 
 
 func _on_next_button_pressed() -> void:
@@ -95,5 +105,3 @@ func find_all_maps() -> void:
 	
 	for wad in wads:
 		maps.append_array(wad.matching_lumps(matcher))
-	
-	print(maps)

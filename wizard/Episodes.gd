@@ -92,5 +92,5 @@ func _on_level_value_changed(_value := 0.0) -> void:
 	%LabelTotal.text = "Total: %d / %d" % [current_total, required_total]
 
 
-func _on_check_credits_toggled(toggled_on: bool) -> void:
+func _on_check_credits_toggled(_toggled_on: bool) -> void:
 	_on_level_value_changed()
