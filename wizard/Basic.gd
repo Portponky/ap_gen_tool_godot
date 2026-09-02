@@ -55,7 +55,12 @@ func populate(game: Dictionary) -> void:
 	game.iwad = IWAD_DETAILS[iwad_id]
 	game.short_name = %LineEditShortName.text
 	game.full_name = %LineEditFullName.text
-	game.authors = Array(%LineEditAuthor.text.split(",")).map(func(x: String) -> String: return x.strip_edges())
+	
+	var authors: String = %LineEditAuthor.text
+	if authors.is_empty():
+		game.authors = []
+	else:
+		game.authors = Array(authors.split(",")).map(func(x: String) -> String: return x.strip_edges())
 	
 	var description: String = %TextEditDescription.text
 	if description.is_empty():

@@ -105,9 +105,10 @@ func write_nice_json() -> void:
 		'  "iwad": "%s",' % game_json.iwad.filename
 	]
 	
-	strings.append_array(write_nice_wad_json("required_wads"))
-	strings.append_array(write_nice_wad_json("included_wads"))
-	strings.append_array(write_nice_wad_json("optional_wads"))
+	strings.append_array(write_nice_array_json("authors"))
+	strings.append_array(write_nice_array_json("required_wads"))
+	strings.append_array(write_nice_array_json("included_wads"))
+	strings.append_array(write_nice_array_json("optional_wads"))
 	
 	strings.append_array([
 		'',
@@ -168,9 +169,6 @@ func write_nice_json() -> void:
 		'',
 		'  "map_tweaks": {',
 		'  },',
-		'',
-		'  "level_select": {',
-		'  }',
 		'}'
 	])
 	
@@ -181,7 +179,7 @@ func write_nice_json() -> void:
 	print("Output game.json file")
 
 
-func write_nice_wad_json(key: String) -> Array:
+func write_nice_array_json(key: String) -> Array:
 	match game_json[key].size():
 		0:
 			return []
