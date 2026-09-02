@@ -303,7 +303,7 @@ func _execute_menu_choice(id: int) -> void:
 			block_duplicates()
 		MenuChoice.WorldWizard:
 			var world_wizard = WORLD_WIZARD.instantiate()
-			world_wizard.popup_exclusive_centered(self)
+			world_wizard.popup_exclusive_centered(get_tree().root)
 		
 		MenuChoice.PreviousLevel:
 			if current_level_index > 0:

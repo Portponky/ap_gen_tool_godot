@@ -15,7 +15,6 @@ func _ready() -> void:
 
 func start_next_step() -> void:
 	current_step += 1
-	print(game_json)
 	
 	match current_step:
 		0:
@@ -36,6 +35,8 @@ func start_next_step() -> void:
 			%Maps.show()
 		4:
 			write_nice_json()
+			%Done.show()
+			%NextButton.disabled = true
 
 
 func _on_next_button_pressed() -> void:
@@ -49,10 +50,6 @@ func _on_next_button_pressed() -> void:
 	else:
 		current_page.populate(game_json)
 		start_next_step()
-
-
-func _on_quit_button_pressed() -> void:
-	pass # Replace with function body.
 
 
 func load_wads() -> bool:
@@ -176,7 +173,6 @@ func write_nice_json() -> void:
 	var target := "%s/%s.game.json" % [path, game_json.short_name]
 	var file = FileAccess.open(target, FileAccess.WRITE)
 	file.store_string("\n".join(strings))
-	print("Output game.json file")
 
 
 func write_nice_array_json(key: String) -> Array:
@@ -196,3 +192,7 @@ func write_nice_array_json(key: String) -> Array:
 
 func ending_comma(n: int, length: int) -> String:
 	return "" if n == length - 1 else ","
+
+
+func _on_close_requested() -> void:
+	queue_free()

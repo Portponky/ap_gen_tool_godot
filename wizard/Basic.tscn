@@ -70,11 +70,12 @@ max_length = 10
 
 [node name="LabelAuthor" type="Label" parent="GridContainer" unique_id=363528897]
 layout_mode = 2
-text = "Author"
+text = "Author(s)"
 
 [node name="LineEditAuthor" type="LineEdit" parent="GridContainer" unique_id=1628890763]
 unique_name_in_owner = true
 layout_mode = 2
+placeholder_text = "apworld author 1, apworld author 2"
 
 [node name="LabelDescription" type="Label" parent="GridContainer" unique_id=1865856873]
 layout_mode = 2
@@ -84,3 +85,4 @@ text = "Description"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
+tab_input_mode = false
