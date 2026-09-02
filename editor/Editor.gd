@@ -74,7 +74,7 @@ func _ready() -> void:
 	add_menu_shortcut(%ToolMenu, "Bounding boxes", MenuChoice.ToolBoxes, KEY_F4, false, false)
 	%ToolMenu.add_separator()
 	%ToolMenu.add_item("Mark colocated items as unreachable", MenuChoice.BlockDuplicates)
-	#%ToolMenu.add_item("World wizard...", MenuChoice.WorldWizard)
+	%ToolMenu.add_item("World wizard...", MenuChoice.WorldWizard)
 	
 	enable_specific_menus(false)
 	_execute_menu_choice(MenuChoice.ToolSectors)

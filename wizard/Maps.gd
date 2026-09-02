@@ -1,16 +1,10 @@
 extends VBoxContainer
 
-var lumps : Array
 var controls : Array
 
-func set_map_list(next_lumps: Array, game: Dictionary) -> void:
-	lumps = next_lumps
-	lumps.sort()
-	
+func set_map_list(game: Dictionary) -> void:
 	var i := 0
 	for e: int in game.episodes.size():
-		var episode: Dictionary = game.episodes[e]
-		
 		var data := {
 			episode = %Episode.duplicate(),
 			maps = []
@@ -18,12 +12,14 @@ func set_map_list(next_lumps: Array, game: Dictionary) -> void:
 		data.episode.name = str(e + 1)
 		%Tabs.add_child(data.episode)
 		
-		if episode.maps.size() < 5:
+		var map_count: int = game.episodes[e]
+		
+		if map_count < 5:
 			data.episode.get_node("Layout/DetailsContainer/CheckMinor").button_pressed = true
 		
-		for m: int in episode.maps.size():
+		for m: int in map_count:
 			var map_control := %MapContainer.duplicate()
-			map_control.get_node("LumpName").text = lumps[i]
+			map_control.get_node("LumpName").text = game.maps[i]
 			data.episode.get_node("Layout").add_child(map_control)
 			data.maps.push_back(map_control)
 			i += 1
@@ -34,7 +30,7 @@ func set_map_list(next_lumps: Array, game: Dictionary) -> void:
 	%MapContainer.queue_free()
 
 
-func verify(_game: Dictionary) -> String:
+func verify(game: Dictionary) -> String:
 	var found_lumps := []
 	
 	for c: Dictionary in controls:
@@ -43,7 +39,7 @@ func verify(_game: Dictionary) -> String:
 			var human_name: String = m.get_node("HumanName").text
 			if  lump_name.is_empty():
 				return "Missing lump name"
-			if not lump_name in lumps:
+			if not lump_name in game.maps:
 				return "Unknown lump: %s" % lump_name
 			if lump_name in found_lumps:
 				return "Duplicate lump %s" % lump_name
@@ -55,24 +51,21 @@ func verify(_game: Dictionary) -> String:
 
 
 func populate(game: Dictionary) -> void:
+	game.episode_details = []
 	for e: int in controls.size():
 		var control: Dictionary = controls[e]
-		var episode: Dictionary = game.episodes[e]
 		
-		var episode_name: String = control.episode.get_node("Layout/EpisodeContainer/EpisodeName").text
-		if not episode_name.is_empty():
-			episode.name = episode_name
-		
-		var is_minor: bool = control.episode.get_node("Layout/DetailsContainer/CheckMinor").button_pressed
-		if is_minor:
-			episode.minor = is_minor
-		
-		var is_default: bool = control.episode.get_node("Layout/DetailsContainer/CheckDefault").button_pressed
-		if not is_default:
-			episode.default = is_default
+		var details := {
+			name = control.episode.get_node("Layout/EpisodeContainer/EpisodeName").text,
+			is_minor = control.episode.get_node("Layout/DetailsContainer/CheckMinor").button_pressed,
+			is_default = control.episode.get_node("Layout/DetailsContainer/CheckDefault").button_pressed,
+			maps = []
+		}
 		
 		for m: int in control.maps.size():
-			var lump_name: String = control.maps[m].get_node("LumpName").text
-			var human_name: String = control.maps[m].get_node("HumanName").text
-			episode.maps[m].lump = lump_name
-			episode.maps[m].name  = human_name
+			details.maps.push_back({
+				lump = control.maps[m].get_node("LumpName").text,
+				name = control.maps[m].get_node("HumanName").text,
+			})
+		
+		game.episode_details.push_back(details)

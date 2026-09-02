@@ -54,6 +54,7 @@ layout_mode = 2
 
 [node name="LumpName" type="LineEdit" parent="MapContainer" unique_id=528139682]
 layout_mode = 2
+focus_mode = 1
 placeholder_text = "LUMP"
 
 [node name="HumanName" type="LineEdit" parent="MapContainer" unique_id=175388959]

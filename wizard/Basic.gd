@@ -3,33 +3,32 @@ extends VBoxContainer
 const IWAD_DETAILS = [
 	{
 		name = "DOOM",
-		world_name = "doom",
+		world = "doom",
 		filename = "DOOM.WAD"
 	},
 	{
 		name = "DOOM II",
-		world_name = "doom2",
+		world = "doom2",
 		filename = "DOOM2.WAD"
 	},
 	{
 		name = "TNT",
-		world_name = "tnt",
+		world = "tnt",
 		filename = "TNT.WAD"
 	},
 	{
 		name = "Plutonia",
-		world_name = "plutonia",
+		world = "plutonia",
 		filename = "PLUTONIA.WAD"
 	},
 	{
 		name = "Heretic",
-		world_name = "heretic",
+		world = "heretic",
 		filename = "HERETIC.WAD"
 	}
 ]
 
 var short_name_check := RegEx.create_from_string("[^a-z0-9]")
-
 
 
 func verify(_game: Dictionary) -> String:
@@ -52,32 +51,15 @@ func verify(_game: Dictionary) -> String:
 
 func populate(game: Dictionary) -> void:
 	var iwad_id: int = %OptionIwad.get_selected_id()
-	var iwad: Dictionary = IWAD_DETAILS[iwad_id]
 	
+	game.iwad = IWAD_DETAILS[iwad_id]
 	game.short_name = %LineEditShortName.text
 	game.full_name = %LineEditFullName.text
-	game.ap_name = "%s - %s" % [iwad.name, game.full_name]
-	game.ap_world_name = "%s_%s" % [iwad.world_name, game.short_name]
-	game.iwad = iwad.filename
+	game.authors = Array(%LineEditAuthor.text.split(",")).map(func(x: String) -> String: return x.strip_edges())
 	
-	var author: String = %LineEditAuthor.text
-	if not author.is_empty():
-		game.authors = Array(author.split(",")).map(func(x: String) -> String: return x.strip_edges())
-	
-	game.world_info = {
-		world_options = [
-			{name = "Difficulty", preset = "Doom"},
-			{name = "Start with Maps"},
-			{name = "Invis as Trap"},
-			{name = "Capacity Upgrades"},
-			{name = "Custom Ammo Capacity"}
-		]
-	}
-	
-	var description = %TextEditDescription.text
-	if not description.is_empty():
-		game.world_info.description = description.split("\n")
-	
-	game.settings = { extended_names = true }
-	game.map_tweaks = {}
+	var description: String = %TextEditDescription.text
+	if description.is_empty():
+		game.description = []
+	else:
+		game.description = description.split("\n")
 	

@@ -36,11 +36,11 @@ func episode_for_map(map: String) -> int:
 	return 1
 
 
-func set_map_list(maps: Array) -> void:
-	required_total = maps.size()
+func set_map_list(game: Dictionary) -> void:
+	required_total = game.maps.size()
 	
 	var episodes := {}
-	for map: String in maps:
+	for map: String in game.maps:
 		var episode := episode_for_map(map)
 		episodes.get_or_add(episode, 0)
 		episodes[episode] += 1
@@ -54,7 +54,6 @@ func set_map_list(maps: Array) -> void:
 	%SpinBoxEpisode.value = numeric_episodes.size()
 
 
-
 func verify(_game: Dictionary) -> String:
 	if required_total != current_total:
 		return "Levels numbers do not match"
@@ -64,11 +63,7 @@ func verify(_game: Dictionary) -> String:
 func populate(game: Dictionary) -> void:
 	game.episodes = []
 	for i: int in int(%SpinBoxEpisode.value):
-		game.episodes.push_back({
-			maps = []
-		})
-		for j: int in int(episode_spinners[i].value):
-			game.episodes[i].maps.push_back({})
+		game.episodes.push_back(int(episode_spinners[i].value))
 
 
 func _on_spin_box_episode_value_changed(value: float) -> void:

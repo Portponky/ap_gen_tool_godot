@@ -14,15 +14,6 @@ func clean_list_from_text(text: String) -> Array:
 	return wads
 
 
-func assign_wad_list(game: Dictionary, key: String, text: String) -> void:
-	var wads := clean_list_from_text(text)
-	
-	if wads.size() == 1:
-		game[key] = wads[0]
-	elif wads.size() > 1:
-		game[key] = wads
-
-
 func verify(_game: Dictionary) -> String:
 	var required := clean_list_from_text(%TextEditRequired.text)
 	if required.is_empty():
@@ -40,6 +31,6 @@ func verify(_game: Dictionary) -> String:
 
 
 func populate(game: Dictionary) -> void:
-	assign_wad_list(game, "required_wads", %TextEditRequired.text)
-	assign_wad_list(game, "optional_wads", %TextEditOptional.text)
-	assign_wad_list(game, "included_wads", %TextEditIncluded.text)
+	game.required_wads = clean_list_from_text(%TextEditRequired.text)
+	game.optional_wads = clean_list_from_text(%TextEditOptional.text)
+	game.included_wads = clean_list_from_text(%TextEditIncluded.text)
