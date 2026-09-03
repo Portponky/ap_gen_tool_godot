@@ -124,7 +124,8 @@ static func build_locations(world: World, levels: Array) -> Array:
 			idx = level.idx,
 			name = "%s - Exit" % level.name,
 			level_name = level.name,
-			id = get_location_id_base(level.idx)
+			id = get_location_id_base(level.idx),
+			check_sanity = false
 		})
 	
 	return locations
@@ -368,7 +369,7 @@ static func generate_location_table(world: World, locations: Array) -> Dictionar
 			exmx = [location.idx.ep + 1, location.idx.map + 1],
 			region = region_name
 		}
-		if world.game.check_sanity and location.check_sanity:
+		if world.game.settings.get("check_sanity", false) and location.check_sanity:
 			result[id].check_sanity = true
 	
 	return result

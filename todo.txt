@@ -1,10 +1,9 @@
 Missing features
 ----------------
 Heretic & custom world option code generation
-Heretic data is missing check sanity flag in location table
+Heretic location requirements are not quite right
 Custom options might not generate correctly
 Consider removing locations json as it can be generated (check heretic)
-Behaves as? other similar map modifiers
 drag and drop regions to reorder
 
 Things to add

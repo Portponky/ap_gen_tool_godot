@@ -367,7 +367,7 @@ func add_default_options(world: World, levels: Array, py_options: Array) -> void
 	
 	# Check sanity
 	
-	if world.game.check_sanity:
+	if world.game.settings.get("check_sanity", false):
 		py_options.push_back(PyOptions.create("check_sanity", "", PyOptions.OptionType.CheckSanity))
 
 

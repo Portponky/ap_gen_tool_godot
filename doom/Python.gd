@@ -187,7 +187,7 @@ static func generate_options(world: World, levels: Array, options: Array) -> Pac
 	option_groups["Goal Options"].push_back("id1Options.Goal")
 	option_groups["Randomizer Options"].push_back("BaseOptions.ProgressionBalancing")
 	option_groups["Randomizer Options"].push_back("BaseOptions.Accessibility")
-	if world.game.check_sanity:
+	if world.game.settings.get("check_sanity", false):
 		option_groups["Randomizer Options"].push_back("id1Options.CheckSanity")
 	option_groups["Randomizer Options"].push_back("id1Options.RandomMonsters")
 	option_groups["Randomizer Options"].push_back("id1Options.RandomPickups")

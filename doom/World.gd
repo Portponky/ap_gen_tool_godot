@@ -240,8 +240,6 @@ static func load(gamename: String) -> World:
 	world.game.get_or_add("full_name", world.game.ap_name)
 	world.game.get_or_add("settings", {})
 	
-	world.game.get_or_add("check_sanity", false)
-	
 	world.populate_default_data()
 	
 	return world
