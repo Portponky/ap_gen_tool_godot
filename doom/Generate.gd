@@ -257,7 +257,10 @@ static func make_connection(world: World, connection: Dictionary, level_name: St
 	var rules := {}
 	
 	for doom_type: int in connection.requirements_and:
-		rules.get_or_add("and", []).push_back(get_requirement_name(world, level_name, doom_type))
+		if doom_type < 0:
+			requires.push_back(get_requirement_name(world, "", doom_type))
+		else:
+			rules.get_or_add("and", []).push_back(get_requirement_name(world, level_name, doom_type))
 	
 	for doom_type: int in connection.requirements_or:
 		rules.get_or_add("or", []).push_back(get_requirement_name(world, level_name, doom_type))
