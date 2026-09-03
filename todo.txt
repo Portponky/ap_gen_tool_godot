@@ -1,17 +1,14 @@
 Missing features
 ----------------
-Lump renaming
 Heretic & custom world option code generation
 Heretic data is missing check sanity flag in location table
 Custom options might not generate correctly
 Consider removing locations json as it can be generated (check heretic)
 Behaves as? other similar map modifiers
 drag and drop regions to reorder
-World wizard lump renaming
 
 Things to add
 -------------
-World wizard
 Save settings
 
 Things to fix

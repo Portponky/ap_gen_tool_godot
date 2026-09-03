@@ -173,6 +173,8 @@ static func load(gamename: String) -> World:
 		if not wad:
 			Status.add_error("Unable to load wad %s" % wadname)
 			return null
+		if world.game.has("rename_lumps") and world.game.rename_lumps.has(wadname):
+			wad.rename_lumps(world.game.rename_lumps[wadname])
 		world.wads.push_front(wad)
 	
 	if not load_palette(world):

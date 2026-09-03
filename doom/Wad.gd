@@ -46,6 +46,15 @@ static func load(wad_path: String) -> Wad:
 	return wad
 
 
+func rename_lumps(table: Dictionary) -> void:
+	lump_names.clear()
+	
+	for lump: Lump in lumps:
+		if lump.name in table:
+			lump.name = table[lump.name]
+		lump_names[lump.name] = true
+
+
 func has_lump(name: String) -> bool:
 	return lump_names.has(name)
 
