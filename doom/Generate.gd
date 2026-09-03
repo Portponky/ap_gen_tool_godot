@@ -636,9 +636,9 @@ static func generate(world: World) -> void:
 	var zip := ZIPPacker.new()
 	zip.compression_level = ZIPPacker.COMPRESSION_BEST
 	
-	var path := "res://output/" if OS.has_feature("editor") else "%s/output" % OS.get_executable_path().get_base_dir()
+	var path := "res://" if OS.has_feature("editor") else OS.get_executable_path().get_base_dir()
 
-	var output_file_name := "%s/%s.apworld" % [path, world.game.ap_world_name]
+	var output_file_name := "%s/output/%s.apworld" % [path, world.game.ap_world_name]
 	zip.open(output_file_name)
 	
 	zip.start_file("%s/%s.data.json" % [world.game.ap_world_name, world.game.short_name])
