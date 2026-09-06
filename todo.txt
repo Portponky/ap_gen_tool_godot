@@ -1,8 +1,6 @@
 Missing features
 ----------------
-Heretic & custom world option code generation
-Heretic location requirements are not quite right
-Custom options might not generate correctly
+Custom world option code generation
 Consider removing locations json as it can be generated (check heretic)
 drag and drop regions to reorder
 

@@ -79,6 +79,9 @@ func _ready() -> void:
 	enable_specific_menus(false)
 	_execute_menu_choice(MenuChoice.ToolSectors)
 	
+	for c: FoldableContainer in [%ItemsContainer, %RegionsContainer, %ConnectionsContainer]:
+		c.folding_changed.connect(_on_foldable_container_change.bind(c))
+	
 	await get_tree().process_frame
 	update_menu_checks()
 
@@ -311,6 +314,13 @@ func _execute_menu_choice(id: int) -> void:
 		MenuChoice.NextLevel:
 			if current_level_index < levels.size() - 1:
 				load_level(current_level_index + 1)
+
+
+func _on_foldable_container_change(folded: bool, fc: FoldableContainer) -> void:
+	if folded:
+		fc.size_flags_vertical &= ~SIZE_EXPAND
+	else:
+		fc.size_flags_vertical |= SIZE_EXPAND
 
 
 func _on_modified() -> void:

@@ -29,6 +29,10 @@ gdscript/warnings/integer_division=0
 
 window/stretch/aspect="expand"
 
+[gui]
+
+theme/custom="uid://d2uen4pce28rt"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

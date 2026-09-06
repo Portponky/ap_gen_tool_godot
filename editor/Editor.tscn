@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://runubioujofn"]
 
 [ext_resource type="Script" uid="uid://cks82c7y3n0kc" path="res://editor/Editor.gd" id="1_3cn80"]
+[ext_resource type="Theme" uid="uid://d2uen4pce28rt" path="res://theme.tres" id="1_dcsty"]
 [ext_resource type="PackedScene" uid="uid://btohn4x1ysend" path="res://editor/MapView.tscn" id="2_i0blf"]
 [ext_resource type="PackedScene" uid="uid://dwcqav3eqjvh7" path="res://editor/Items.tscn" id="3_52o2w"]
 [ext_resource type="PackedScene" uid="uid://cdb0rqt435vab" path="res://editor/Regions.tscn" id="3_i1ssp"]
@@ -16,28 +17,32 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_dcsty")
 script = ExtResource("1_3cn80")
 
-[node name="MenuBar" type="MenuBar" parent="." unique_id=950123147]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=2141430141]
 layout_mode = 2
 
-[node name="FileMenu" type="PopupMenu" parent="MenuBar" unique_id=1378325486]
+[node name="MenuBar" type="MenuBar" parent="PanelContainer" unique_id=950123147]
+layout_mode = 2
+
+[node name="FileMenu" type="PopupMenu" parent="PanelContainer/MenuBar" unique_id=1378325486]
 unique_name_in_owner = true
 oversampling_override = 1.0
 title = "File"
 prefer_native_menu = true
 
-[node name="EditMenu" type="PopupMenu" parent="MenuBar" unique_id=2087451213]
+[node name="EditMenu" type="PopupMenu" parent="PanelContainer/MenuBar" unique_id=2087451213]
 unique_name_in_owner = true
 title = "Edit"
 prefer_native_menu = true
 
-[node name="ToolMenu" type="PopupMenu" parent="MenuBar" unique_id=571591335]
+[node name="ToolMenu" type="PopupMenu" parent="PanelContainer/MenuBar" unique_id=571591335]
 unique_name_in_owner = true
 title = "Tool"
 prefer_native_menu = true
 
-[node name="MapMenu" type="PopupMenu" parent="MenuBar" unique_id=431261792]
+[node name="MapMenu" type="PopupMenu" parent="PanelContainer/MenuBar" unique_id=431261792]
 unique_name_in_owner = true
 title = "Maps"
 prefer_native_menu = true
@@ -55,35 +60,43 @@ split_offset = 200
 [node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer" unique_id=1152324661]
 layout_mode = 2
 
-[node name="ItemsHeader" type="Button" parent="HSplitContainer/VBoxContainer" unique_id=216740397]
+[node name="ItemsContainer" type="FoldableContainer" parent="HSplitContainer/VBoxContainer" unique_id=1075498150]
+unique_name_in_owner = true
 layout_mode = 2
-toggle_mode = true
-text = "Items"
+folded = true
+title = "Items"
 
-[node name="Items" parent="HSplitContainer/VBoxContainer" unique_id=675127406 instance=ExtResource("3_52o2w")]
+[node name="Items" parent="HSplitContainer/VBoxContainer/ItemsContainer" unique_id=675127406 instance=ExtResource("3_52o2w")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="RegionsHeader" type="Button" parent="HSplitContainer/VBoxContainer" unique_id=200426779]
+[node name="RegionsContainer" type="FoldableContainer" parent="HSplitContainer/VBoxContainer" unique_id=1547345800]
+unique_name_in_owner = true
 layout_mode = 2
-toggle_mode = true
-text = "Regions"
+folded = true
+title = "Regions"
 
-[node name="Regions" parent="HSplitContainer/VBoxContainer" unique_id=1395992853 instance=ExtResource("3_i1ssp")]
+[node name="Regions" parent="HSplitContainer/VBoxContainer/RegionsContainer" unique_id=1395992853 instance=ExtResource("3_i1ssp")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="ConnectionsHeader" type="Button" parent="HSplitContainer/VBoxContainer" unique_id=1402016580]
+[node name="ConnectionsContainer" type="FoldableContainer" parent="HSplitContainer/VBoxContainer" unique_id=586261782]
+unique_name_in_owner = true
 layout_mode = 2
-toggle_mode = true
-text = "Connections"
+folded = true
+title = "Connections"
 
-[node name="Connections" parent="HSplitContainer/VBoxContainer" unique_id=2127478461 instance=ExtResource("4_jp84s")]
+[node name="Connections" parent="HSplitContainer/VBoxContainer/ConnectionsContainer" unique_id=2127478461 instance=ExtResource("4_jp84s")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+
+[node name="Control" type="Control" parent="HSplitContainer/VBoxContainer" unique_id=669230700]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.0
 
 [node name="MapView" parent="HSplitContainer" unique_id=2068846691 instance=ExtResource("2_i0blf")]
 unique_name_in_owner = true
@@ -115,26 +128,23 @@ offset_bottom = 23.0
 grow_horizontal = 2
 text = "Tool name"
 
-[connection signal="id_pressed" from="MenuBar/FileMenu" to="." method="_execute_menu_choice"]
-[connection signal="id_pressed" from="MenuBar/EditMenu" to="." method="_execute_menu_choice"]
-[connection signal="id_pressed" from="MenuBar/ToolMenu" to="." method="_execute_menu_choice"]
-[connection signal="id_pressed" from="MenuBar/MapMenu" to="." method="_execute_menu_choice"]
-[connection signal="toggled" from="HSplitContainer/VBoxContainer/ItemsHeader" to="HSplitContainer/VBoxContainer/Items" method="set_visible"]
-[connection signal="changes" from="HSplitContainer/VBoxContainer/Items" to="HSplitContainer/MapView" method="refresh"]
-[connection signal="focus_on" from="HSplitContainer/VBoxContainer/Items" to="HSplitContainer/MapView" method="_on_items_focus_on"]
-[connection signal="select_location" from="HSplitContainer/VBoxContainer/Items" to="HSplitContainer/MapView/ItemTool" method="_on_select_location"]
-[connection signal="toggled" from="HSplitContainer/VBoxContainer/RegionsHeader" to="HSplitContainer/VBoxContainer/Regions" method="set_visible"]
-[connection signal="changes" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/VBoxContainer/Items" method="_on_location_dependencies_changed"]
-[connection signal="changes" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView" method="refresh"]
-[connection signal="changes" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView/BoundingBoxTool" method="_on_regions_changes"]
-[connection signal="select_region" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView/SectorPaintTool" method="_on_regions_select_region"]
-[connection signal="select_region" from="HSplitContainer/VBoxContainer/Regions" to="HSplitContainer/MapView/BoundingBoxTool" method="_on_regions_select_region"]
-[connection signal="toggled" from="HSplitContainer/VBoxContainer/ConnectionsHeader" to="HSplitContainer/VBoxContainer/Connections" method="set_visible"]
-[connection signal="connections_changed" from="HSplitContainer/VBoxContainer/Connections" to="HSplitContainer/MapView" method="refresh"]
-[connection signal="region_sectors_changed" from="HSplitContainer/MapView/SectorPaintTool" to="HSplitContainer/VBoxContainer/Items" method="_on_location_dependencies_changed"]
-[connection signal="clear_connection" from="HSplitContainer/MapView/ModifyRuleTool" to="HSplitContainer/VBoxContainer/Connections" method="clear_connection"]
-[connection signal="select_connection" from="HSplitContainer/MapView/ModifyRuleTool" to="HSplitContainer/VBoxContainer/Connections" method="select_connection"]
-[connection signal="clear_location" from="HSplitContainer/MapView/ItemTool" to="HSplitContainer/VBoxContainer/Items" method="_on_clear_location"]
+[connection signal="id_pressed" from="PanelContainer/MenuBar/FileMenu" to="." method="_execute_menu_choice"]
+[connection signal="id_pressed" from="PanelContainer/MenuBar/EditMenu" to="." method="_execute_menu_choice"]
+[connection signal="id_pressed" from="PanelContainer/MenuBar/ToolMenu" to="." method="_execute_menu_choice"]
+[connection signal="id_pressed" from="PanelContainer/MenuBar/MapMenu" to="." method="_execute_menu_choice"]
+[connection signal="changes" from="HSplitContainer/VBoxContainer/ItemsContainer/Items" to="HSplitContainer/MapView" method="refresh"]
+[connection signal="focus_on" from="HSplitContainer/VBoxContainer/ItemsContainer/Items" to="HSplitContainer/MapView" method="_on_items_focus_on"]
+[connection signal="select_location" from="HSplitContainer/VBoxContainer/ItemsContainer/Items" to="HSplitContainer/MapView/ItemTool" method="_on_select_location"]
+[connection signal="changes" from="HSplitContainer/VBoxContainer/RegionsContainer/Regions" to="HSplitContainer/VBoxContainer/ItemsContainer/Items" method="_on_location_dependencies_changed"]
+[connection signal="changes" from="HSplitContainer/VBoxContainer/RegionsContainer/Regions" to="HSplitContainer/MapView" method="refresh"]
+[connection signal="changes" from="HSplitContainer/VBoxContainer/RegionsContainer/Regions" to="HSplitContainer/MapView/BoundingBoxTool" method="_on_regions_changes"]
+[connection signal="select_region" from="HSplitContainer/VBoxContainer/RegionsContainer/Regions" to="HSplitContainer/MapView/SectorPaintTool" method="_on_regions_select_region"]
+[connection signal="select_region" from="HSplitContainer/VBoxContainer/RegionsContainer/Regions" to="HSplitContainer/MapView/BoundingBoxTool" method="_on_regions_select_region"]
+[connection signal="connections_changed" from="HSplitContainer/VBoxContainer/ConnectionsContainer/Connections" to="HSplitContainer/MapView" method="refresh"]
+[connection signal="region_sectors_changed" from="HSplitContainer/MapView/SectorPaintTool" to="HSplitContainer/VBoxContainer/ItemsContainer/Items" method="_on_location_dependencies_changed"]
+[connection signal="clear_connection" from="HSplitContainer/MapView/ModifyRuleTool" to="HSplitContainer/VBoxContainer/ConnectionsContainer/Connections" method="clear_connection"]
+[connection signal="select_connection" from="HSplitContainer/MapView/ModifyRuleTool" to="HSplitContainer/VBoxContainer/ConnectionsContainer/Connections" method="select_connection"]
+[connection signal="clear_location" from="HSplitContainer/MapView/ItemTool" to="HSplitContainer/VBoxContainer/ItemsContainer/Items" method="_on_clear_location"]
 [connection signal="request_redraw" from="HSplitContainer/MapView/ItemTool" to="HSplitContainer/MapView" method="queue_redraw"]
-[connection signal="select_location" from="HSplitContainer/MapView/ItemTool" to="HSplitContainer/VBoxContainer/Items" method="_on_select_location"]
-[connection signal="bounding_boxes_changed" from="HSplitContainer/MapView/BoundingBoxTool" to="HSplitContainer/VBoxContainer/Items" method="_on_location_dependencies_changed"]
+[connection signal="select_location" from="HSplitContainer/MapView/ItemTool" to="HSplitContainer/VBoxContainer/ItemsContainer/Items" method="_on_select_location"]
+[connection signal="bounding_boxes_changed" from="HSplitContainer/MapView/BoundingBoxTool" to="HSplitContainer/VBoxContainer/ItemsContainer/Items" method="_on_location_dependencies_changed"]
