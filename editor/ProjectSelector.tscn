@@ -4,7 +4,7 @@
 
 [node name="ProjectSelector" type="Window" unique_id=1077488847]
 oversampling_override = 1.0
-position = Vector2i(0, 36)
+title = "Select game..."
 size = Vector2i(500, 400)
 visible = false
 exclusive = true
@@ -31,6 +31,7 @@ size_flags_vertical = 3
 layout_mode = 2
 
 [node name="Folder" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=230615905]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 text = "Open games directory"
 
@@ -40,12 +41,15 @@ size_flags_horizontal = 3
 
 [node name="Cancel" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=1256809411]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 50)
 layout_mode = 2
 text = "Cancel"
 
 [node name="Accept" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=173651499]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 50)
 layout_mode = 2
+shortcut_in_tooltip = false
 text = "Open"
 
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/Folder" to="." method="_on_folder_pressed"]
