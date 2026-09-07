@@ -128,7 +128,7 @@ static func enforce_array(world_game: Dictionary, key: String) -> void:
 
 static func load_and_merge(world_game: Dictionary, host: String, all_defaults: Dictionary) -> void:
 	if not world_game.iwad in all_defaults:
-		print("Unable to load defaults into %s for iwad %s", host, world_game.iwad)
+		Status.add_error("Unable to load defaults into %s for iwad %s" % [host, world_game.iwad])
 		return
 	
 	var iwad_defaults := all_defaults[world_game.iwad] as Dictionary
@@ -178,12 +178,17 @@ static func load(gamename: String) -> World:
 		world.wads.push_front(wad)
 	
 	if not load_palette(world):
+		Status.add_error("No palette (PLAYPAL) lump found")
 		return null
 	
 	for episode: Dictionary in world.game.episodes:
 		for map: Dictionary in episode.maps:
 			Status.set_task("Loading map for lump %s" % map.lump)
-			world.maps[map.lump] = Map.load(world, map.lump, world.game.iwad == "HERETIC.WAD")
+			var map_data := Map.load(world, map.lump, world.game.iwad == "HERETIC.WAD")
+			if not map_data:
+				Status.add_error("Unable to load map %s" % map.lump)
+				return null
+			world.maps[map.lump] = map_data
 	
 	for lump: String in world.game.get("map_tweaks", {}):
 		Status.set_task("Applying map tweaks for %s" % lump)

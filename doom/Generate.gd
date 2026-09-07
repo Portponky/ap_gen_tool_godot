@@ -76,7 +76,7 @@ static func build_locations(world: World, levels: Array) -> Array:
 			if location.unreachable:
 				continue
 			if next_location > 999:
-				print("Max locations error")
+				Status.add_error("Too many locations (1000+) in map %s" % level.group_name)
 				break
 			
 			var extension := ""
@@ -116,7 +116,8 @@ static func build_locations(world: World, levels: Array) -> Array:
 				break
 		
 		if not exit_found:
-			print("%s has no region that connects to the exit" % level.name)
+			Status.add_error("%s has no region that connects to the exit" % level.group_name)
+		
 		locations.push_back({
 			region_name = exit_location_name,
 			doom_type = DOOM_TYPE_LEVEL_COMPLETE,
@@ -147,7 +148,7 @@ static func make_item(def: Dictionary, type: int, level: Dictionary, key := fals
 	elif base_item_id == DOOM_TYPE_LEVEL_COMPLETE:
 		base_item_id = 99999
 	elif base_item_id < 0:
-		print("Unknown special doom type error")
+		Status.add_error("Unknown special doom type error %d" % base_item_id)
 	
 	if level:
 		item.name = level.name if def.get("name", "").is_empty() else "%s - %s" % [level.name, def.name]
@@ -245,6 +246,7 @@ static func get_requirement_name(world: World, level_name: String, doom_type: in
 				return "%s - %s" % [level_name, item.name]
 		return item.name
 	
+	Status.add_error("Unknown requirement %d in %s" % [doom_type, level_name])
 	return "ERROR"
 
 
@@ -359,11 +361,14 @@ static func generate_location_table(world: World, locations: Array) -> Dictionar
 	Status.set_task("Generating location table")
 	var result := {}
 	
+	var unreachable_count := {}
+	
 	for location: Dictionary in locations:
 		var id := str(location.id)
 		var region_name := location.get("region_name", "") as String
 		if region_name.is_empty():
-			print("Unreachable thing warning")
+			unreachable_count.get_or_add(location.level_name, 0)
+			unreachable_count[location.level_name] += 1
 			region_name = "Hub @ Entrance to " + location.level_name
 		
 		result[id] = {
@@ -374,6 +379,10 @@ static func generate_location_table(world: World, locations: Array) -> Dictionar
 		}
 		if world.game.settings.get("check_sanity", false) and location.check_sanity:
 			result[id].check_sanity = true
+	
+	for map: String in unreachable_count:
+		Status.add_error("%s has %d unreachable things" % [map, unreachable_count[map]])
+
 	
 	return result
 
@@ -572,20 +581,20 @@ static func patch_zip_file(filename: String) -> void:
 	
 	# check header, assuming no comment
 	if bytes.decode_u32(bytes.size() - 22) != 0x06054b50:
-		print("Invalid central header")
+		Status.add_error("Invalid central header in zip file, not patched")
 		return
 	
 	var num_entries := bytes.decode_u16(bytes.size() - 14)
 	var dir_offset := bytes.decode_u32(bytes.size() - 6)
 	for n in num_entries:
 		if bytes.decode_u32(dir_offset) != 0x02014b50:
-			print("Invalid directory header")
+			Status.add_error("Invalid directory header in zip file, not patched")
 			return
 		
 		var local_offset := bytes.decode_u32(dir_offset + 42)
 		
 		if bytes.decode_u32(local_offset) != 0x04034b50:
-			print("Invalid local header")
+			Status.add_error("Invalid local header in zip file, not patched")
 			return
 		
 		var flags := bytes.decode_u16(local_offset + 6)
@@ -601,7 +610,6 @@ static func patch_zip_file(filename: String) -> void:
 	var rewrite := FileAccess.open(filename, FileAccess.WRITE)
 	rewrite.store_buffer(bytes)
 	rewrite.close()
-	print("Patch complete")
 
 
 static func generate(world: World) -> void:

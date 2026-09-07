@@ -358,7 +358,7 @@ func apply_map_tweaks(tweaks: Dictionary) -> void:
 	for id: String in tweaks.things:
 		var i := id.to_int()
 		if i < 0 or i >= things.size():
-			print("Out of bounds map tweak thing error")
+			Status.add_error("Invalid thing map_tweak for thing no. %d" % i)
 			continue
 		var tweak : Dictionary = tweaks.things[id]
 		var target := things[i]

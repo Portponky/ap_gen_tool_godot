@@ -209,11 +209,15 @@ func custom_option_py_options(_world: World, option: Dictionary, py_options: Arr
 		"Range": type = PyOptions.OptionType.Range
 		"BoundedRandomRange": type = PyOptions.OptionType.BoundedRandomRange
 		# Option set
-		_: push_error("Unknown custom option error goes here")
+		_:
+			if option.has("type"):
+				Status.add_error("Unsupported custom option type %s" % option.type)
+			else:
+				Status.add_error("Custom option has no type")
 	
 	var public_name := option.get("display_name", "") as String
 	if public_name.is_empty():
-		push_error("Missing display name for custom option error goes here")
+		Status.add_error("Custom option has no display_name set")
 	
 	var private_name := option.get("option_name", "") as String
 	if private_name.is_empty():
@@ -264,7 +268,7 @@ func build_options(world: World) -> Array:
 	for option: Dictionary in world.game.world_info.get("world_options", []):
 		# name, some other params
 		if not option.name in option_definitions:
-			print("Unknown option warning goes here")
+			Status.add_error("Unknown option type %s" % option.name)
 			continue
 		
 		var build := {}.merged(option).merged(option_definitions[option.name])
@@ -280,8 +284,12 @@ func build_options(world: World) -> Array:
 func add_hook(world: World, hook: String, options: Array) -> Array:
 	var content := []
 	
-	if hook == "generate_early" and "warnings" == "bad":
-		print("Warning thing goes here")
+	if hook == "generate_early" and Status.warnings.size() + Status.errors.size() > 0:
+		content.push_back("######## World generation warnings begin here ########")
+		content.push_back("self.warning(\"The logic for this game (%s) is likely incomplete.\\n\"" % world.game.ap_name)
+		content.push_back("             \"Use with caution.\")")
+		content.push_back("######## World generation warnings end here ########")
+		content.push_back("")
 	
 	if world.game.world_info.has("hooks") and world.game.world_info.hooks.has(hook):
 		content.push_back("######## Custom code for this world begins here ########")

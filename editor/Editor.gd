@@ -197,12 +197,8 @@ func generate() -> void:
 	await task_complete
 	thread.wait_to_finish()
 	
-	if not world:
-		Status.set_task("Failed to generate")
-		progress.show_close_button()
-		return
-	
-	progress.queue_free()
+	Status.set_task("Generation complete")
+	progress.show_close_button()
 
 
 func close() -> void:
