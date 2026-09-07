@@ -2,6 +2,12 @@
 
 [ext_resource type="Script" uid="uid://dkhp4tc336whl" path="res://editor/ProjectSelector.gd" id="1_v43hf"]
 
+[sub_resource type="InputEventAction" id="InputEventAction_mbmmi"]
+action = &"ui_cancel"
+
+[sub_resource type="Shortcut" id="Shortcut_p4gpb"]
+events = [SubResource("InputEventAction_mbmmi")]
+
 [node name="ProjectSelector" type="Window" unique_id=1077488847]
 oversampling_override = 1.0
 title = "Select game..."
@@ -43,6 +49,8 @@ size_flags_horizontal = 3
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 50)
 layout_mode = 2
+shortcut = SubResource("Shortcut_p4gpb")
+shortcut_in_tooltip = false
 text = "Cancel"
 
 [node name="Accept" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=173651499]
@@ -52,5 +60,6 @@ layout_mode = 2
 shortcut_in_tooltip = false
 text = "Open"
 
+[connection signal="item_activated" from="VBoxContainer/Tree" to="." method="_on_accept_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/Folder" to="." method="_on_folder_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/Accept" to="." method="_on_accept_pressed"]
