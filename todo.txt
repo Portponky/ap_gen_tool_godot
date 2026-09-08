@@ -1,15 +1,13 @@
 Missing features
 ----------------
 Custom world option code generation
-Consider removing locations json as it can be generated (check heretic)
 drag and drop regions to reorder
 
 Things to add
 -------------
 Save settings
+Trigger investigation tool
+Map tweak helper
 
 Things to fix
 -------------
-Theme app
-	(theming) Make connection buttons much more visible
-Make panels have > and v arrows

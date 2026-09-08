@@ -217,28 +217,29 @@ static func load_segs(map: Map, segs_lump: PackedByteArray) -> void:
 		seg.offset = segs_lump.decode_s16(i + 10)
 		map.segs.push_back(seg)
 
+
 static func cut_convex_polygon(polygon: PackedVector2Array, pos: Vector2, cut: Vector2) -> PackedVector2Array:
 	var result: PackedVector2Array = []
-	var delta := cut.normalized()
+	var delta := Vector2(cut.y, -cut.x).normalized()
 	
-	const epsilon = 0.01
+	const epsilon = 0.001
 	for j in polygon.size():
 		var a := polygon[j - 1]
 		var b := polygon[j]
-		var a_on_line := pos + delta * (a - pos).dot(delta)
-		var b_on_line := pos + delta * (b - pos).dot(delta)
-		if a_on_line.distance_to(a) < epsilon and b_on_line.distance_to(b) < epsilon:
-			result.push_back(a)
-			continue
 		
-		var a_side := cut.cross(a - pos) > 0.0
-		var b_side := cut.cross(b - pos) > 0.0
-		if a_side:
-			result.push_back(a);
-		if a_side != b_side:
-			var d :=  b - a
-			var t := (pos - a).cross(cut) / d.cross(cut)
-			result.push_back(a + d * t)
+		var a_off := delta.dot(pos - a)
+		var b_off := delta.dot(pos - b)
+		var a_outside := a_off < -epsilon
+		var b_outside := b_off < -epsilon
+		
+		if a_outside != b_outside:
+			var d := b - a
+			var t := a_off / (a_off - b_off)
+			if not is_zero_approx(t) and not is_zero_approx(1.0 - t):
+				result.push_back(a + d * t)
+		
+		if not b_outside:
+			result.push_back(b)
 	
 	return result
 
@@ -256,7 +257,7 @@ static func triangulate_subsector(map: Map, subsector_id: int, polygon: PackedVe
 	for i in clip.size():
 		clip[i].y = -clip[i].y
 	
-	if polygon.size() >= 3:
+	if clip.size() >= 3:
 		var sector := map.sectors[subsector.sector]
 		sector.polygons.push_back(clip)
 
@@ -275,6 +276,15 @@ static func build_mesh(sector: Sector) -> void:
 	var verts := PackedVector3Array()
 	for polygon in sector.polygons:
 		var indices := Geometry2D.triangulate_polygon(polygon)
+		
+		if indices.is_empty():
+			# Godot's triangulation sometimes fails for awkward polygons,
+			# but everything should be convex so we can fall back to a fan
+			for i in range(2, polygon.size()):
+				verts.push_back(Vector3(polygon[0].x, polygon[0].y, 0.0))
+				verts.push_back(Vector3(polygon[i - 1].x, polygon[i - 1].y, 0.0))
+				verts.push_back(Vector3(polygon[i].x, polygon[i].y, 0.0))
+		
 		for i in indices:
 			verts.push_back(Vector3(polygon[i].x, polygon[i].y, 0.0))
 	
