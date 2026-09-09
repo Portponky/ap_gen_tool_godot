@@ -71,7 +71,7 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 			view.queue_redraw()
 		elif drawing_connection:
 			mouse_position = event.position
-			var target = rule_for_position(view, mouse_position)
+			var target := rule_for_position(view, mouse_position)
 			if target != highlight_rule:
 				highlight_rule_target = target
 			view.queue_redraw()

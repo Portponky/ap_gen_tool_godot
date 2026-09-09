@@ -12,7 +12,7 @@ func render_sectors(view: MapView, to_map: Transform2D) -> void:
 	# Draw all sectors
 	for i: int in view.map_data.regions.size():
 		for s: int in view.map_data.regions[i].sectors:
-			var sector = view.map.sectors[s]
+			var sector := view.map.sectors[s]
 			if sector.mesh:
 				view.draw_mesh(sector.mesh, null, Transform2D.IDENTITY, view.rule_cache[i].dim_color)
 	

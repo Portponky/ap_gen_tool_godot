@@ -104,20 +104,20 @@ func select_connection(next_region_index: int, next_connection_index: int) -> vo
 	var connection: Dictionary = rule.connections[connection_index]
 	
 	# if target_region is -2 it should have no options
-	for doom_type in ands:
+	for doom_type: int in ands:
 		ands[doom_type].disabled = connection.target_region == -2
 		ands[doom_type].set_pressed_no_signal(connection.requirements_and.has(doom_type))
-	for doom_type in ors:
+	for doom_type: int in ors:
 		ors[doom_type].disabled = connection.target_region == -2
 		ors[doom_type].set_pressed_no_signal(connection.requirements_or.has(doom_type))
 
 
 func clear_connection() -> void:
 	connection_index = -1
-	for doom_type in ands:
+	for doom_type: int in ands:
 		ands[doom_type].disabled = true
 		ands[doom_type].set_pressed_no_signal(false)
-	for doom_type in ors:
+	for doom_type: int in ors:
 		ors[doom_type].disabled = true
 		ors[doom_type].set_pressed_no_signal(false)
 

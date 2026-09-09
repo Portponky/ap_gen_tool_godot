@@ -28,7 +28,7 @@ func set_map_data(next_map_data: Dictionary) -> void:
 	
 	%Tree.clear()
 	%Tree.create_item()
-	for r in map_data.regions.size():
+	for r: int in map_data.regions.size():
 		var region: Dictionary = map_data.regions[r]
 		create_tree_item(r, region)
 	
@@ -103,7 +103,7 @@ func swap_regions(first: int, second: int) -> void:
 	
 	# update tree items
 	var root: TreeItem = %Tree.get_root()
-	for i in [first, second]:
+	for i: int in [first, second]:
 		var item: TreeItem = root.get_child(i)
 		var region: Dictionary = map_data.regions[i]
 		item.set_text(0, region.name)
@@ -153,7 +153,7 @@ func _on_add_button_pressed() -> void:
 
 
 func _on_remove_button_pressed() -> void:
-	var selection = %Tree.get_selected()
+	var selection: TreeItem = %Tree.get_selected()
 	if not selection:
 		return
 	
@@ -164,7 +164,7 @@ func _on_remove_button_pressed() -> void:
 	var target_region: Dictionary = map_data.regions[index]
 	
 	# fix up all bounding boxes
-	var cleared_bbs = map_data.bbs.duplicate(true).filter(func(x: Array) -> bool: return x[4] != index)
+	var cleared_bbs: Array = map_data.bbs.duplicate(true).filter(func(x: Array) -> bool: return x[4] != index)
 	if cleared_bbs != map_data.bbs:
 		undo.add_do_method(apply_bounding_boxes.bind(cleared_bbs))
 	
@@ -174,7 +174,7 @@ func _on_remove_button_pressed() -> void:
 		undo.add_undo_method(swap_regions.bind(i - 1, i))
 	
 	# modify all connections
-	for r in map_data.regions.size():
+	for r: int in map_data.regions.size():
 		var region: Dictionary = map_data.regions[r]
 		var stripped: Array = region.rules.connections.filter(func(x: Dictionary) -> bool: return x.target_region != index)
 		if stripped.size() == region.rules.connections.size():

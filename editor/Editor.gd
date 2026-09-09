@@ -193,7 +193,7 @@ func generate() -> void:
 	var progress := PROGRESS.instantiate()
 	progress.popup_exclusive_centered(self)
 
-	var thread = Thread.new()
+	var thread := Thread.new()
 	thread.start(func() -> void:
 		Generate.generate(world)
 		task_complete.emit.call_deferred()

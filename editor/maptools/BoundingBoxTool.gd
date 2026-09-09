@@ -3,7 +3,7 @@ extends MapTool
 signal bounding_boxes_changed()
 
 var bb_cache := []
-var bb_cache_dirty = true
+var bb_cache_dirty := true
 
 var selected_region := -1
 var selected_bbox := -1
@@ -191,7 +191,7 @@ func remove_last_bounding_box(view: MapView) -> void:
 func swap_with_last_bounding_box(view: MapView, index: int) -> void:
 	var last: int = view.map_data.bbs.size() - 1
 	if index != last:
-		var temp = view.map_data.bbs[index]
+		var temp: Array = view.map_data.bbs[index]
 		view.map_data.bbs[index] = view.map_data.bbs[last]
 		view.map_data.bbs[last] = temp
 	bb_cache_dirty = true

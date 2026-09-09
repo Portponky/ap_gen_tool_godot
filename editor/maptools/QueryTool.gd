@@ -13,7 +13,7 @@ func render_sectors(view: MapView, to_map: Transform2D) -> void:
 	if highlight_sector < 0:
 		return
 	
-	for linedef in view.map.linedefs.filter(func(x): return x.front_sector == highlight_sector or x.back_sector == highlight_sector):
+	for linedef: Map.Linedef in view.map.linedefs.filter(func(x: Map.Linedef) -> bool: return x.front_sector == highlight_sector or x.back_sector == highlight_sector):
 		var v1 := Vector2(view.map.vertices[linedef.start_vertex])
 		var v2 := Vector2(view.map.vertices[linedef.end_vertex])
 		view.draw_line(Vector2(v1.x, -v1.y), Vector2(v2.x, -v2.y), Color.AQUA)
@@ -122,7 +122,7 @@ func generate_arrow(view: MapView, line_index: int, sector_index: int) -> Dictio
 	var line := view.map.linedefs[line_index]
 	var v1 := view.map.vertices[line.start_vertex]
 	var v2 := view.map.vertices[line.end_vertex]
-	var midpoint = 0.5 * Vector2(v1.x + v2.x, -v1.y - v2.y) 
+	var midpoint := 0.5 * Vector2(v1.x + v2.x, -v1.y - v2.y)
 	var normal := (bbox.get_center() - midpoint).normalized()
 	
 	return {

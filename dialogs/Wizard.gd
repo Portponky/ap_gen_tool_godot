@@ -85,7 +85,7 @@ func find_all_maps() -> void:
 	var matcher := func(x: String) -> bool:
 		return map_regex.search(x) != null
 	
-	for wad in wads:
+	for wad: Wad in wads:
 		game_json.maps.append_array(wad.matching_lumps(matcher))
 	
 	game_json.maps.sort()
@@ -171,7 +171,7 @@ func write_nice_json() -> void:
 	
 	var path := ProjectSettings.globalize_path("res://games/") if OS.has_feature("editor") else "%s/games" % OS.get_executable_path().get_base_dir()
 	var target := "%s/%s.game.json" % [path, game_json.short_name]
-	var file = FileAccess.open(target, FileAccess.WRITE)
+	var file := FileAccess.open(target, FileAccess.WRITE)
 	file.store_string("\n".join(strings))
 
 

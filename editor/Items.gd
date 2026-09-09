@@ -68,20 +68,20 @@ func set_map(next_map: Map, next_map_data: Dictionary) -> void:
 	
 	select_location.emit(-1)
 	%ItemList.clear()
-	for l in map_data.locations.size():
+	for l: int in map_data.locations.size():
 		var id: int = %ItemList.add_item("")
 		style_item_list(id)
 
 
 func refresh() -> void:
-	for i in map_data.locations.size():
+	for i: int in map_data.locations.size():
 		style_item_list(i)
 	update_entry_for_selection()
 
 
 func update_entry_for_selection() -> void:
 	var selection := selected_index()
-	var enabled = selection != -1
+	var enabled := selection != -1
 	%CheckSanity.disabled = not enabled
 	%Unreachable.disabled = not enabled
 	%DeathLogic.disabled = not enabled

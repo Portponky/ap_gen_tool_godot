@@ -42,7 +42,7 @@ func populate_default_data() -> void:
 			target.map = m
 			
 			var locations_by_thing := {}
-			for location in target.locations:
+			for location: Dictionary in target.locations:
 				locations_by_thing[int(location.index)] = location
 			
 			target.locations.clear()
