@@ -6,6 +6,7 @@ signal task_complete
 const PROJECT_SELECTOR := preload("res://dialogs/ProjectSelector.tscn")
 const PROGRESS := preload("res://dialogs/Progress.tscn")
 const WORLD_WIZARD := preload("res://dialogs/Wizard.tscn")
+const MAP_TWEAK_HELPER := preload("res://dialogs/MapTweaks.tscn")
 
 enum MenuChoice {
 	Open,
@@ -29,6 +30,7 @@ enum MenuChoice {
 	ToolQuery,
 	BlockDuplicates,
 	WorldWizard,
+	MapTweakHelper,
 	
 	PreviousLevel,
 	NextLevel,
@@ -77,6 +79,7 @@ func _ready() -> void:
 	%ToolMenu.add_separator()
 	%ToolMenu.add_item("Mark colocated items as unreachable", MenuChoice.BlockDuplicates)
 	%ToolMenu.add_item("World wizard...", MenuChoice.WorldWizard)
+	%ToolMenu.add_item("Map tweak helper...", MenuChoice.MapTweakHelper)
 	
 	enable_specific_menus(false)
 	_execute_menu_choice(MenuChoice.ToolSectors)
@@ -307,8 +310,13 @@ func _execute_menu_choice(id: int) -> void:
 		MenuChoice.BlockDuplicates:
 			block_duplicates()
 		MenuChoice.WorldWizard:
-			var world_wizard = WORLD_WIZARD.instantiate()
+			var world_wizard := WORLD_WIZARD.instantiate()
 			world_wizard.popup_exclusive_centered(get_tree().root)
+		MenuChoice.MapTweakHelper:
+			var tweak_helper := MAP_TWEAK_HELPER.instantiate()
+			if current_map:
+				tweak_helper.lump_name = levels[current_level_index].lump
+			tweak_helper.popup_exclusive_centered(get_tree().root)
 		
 		MenuChoice.PreviousLevel:
 			if current_level_index > 0:

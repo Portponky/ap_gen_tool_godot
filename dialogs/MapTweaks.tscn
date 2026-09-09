@@ -1,0 +1,83 @@
+[gd_scene format=3 uid="uid://v7u7xhn1gtfn"]
+
+[ext_resource type="Script" uid="uid://ennu7ruufqte" path="res://dialogs/MapTweaks.gd" id="1_r3umw"]
+
+[node name="MapTweaks" type="Window" unique_id=1116807583]
+oversampling_override = 1.0
+title = "Map Tweak Helper"
+size = Vector2i(600, 500)
+visible = false
+exclusive = true
+popup_window = true
+minimize_disabled = true
+maximize_disabled = true
+force_native = true
+script = ExtResource("1_r3umw")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1058211920]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer" unique_id=94093266]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+
+[node name="CheckMeta" type="CheckBox" parent="HBoxContainer/VBoxContainer" unique_id=424220925]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Meta"
+
+[node name="CheckHub" type="CheckBox" parent="HBoxContainer/VBoxContainer" unique_id=290929975]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Hub"
+
+[node name="LabelThings" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=1672552287]
+layout_mode = 2
+text = "Things"
+
+[node name="SpinThings" type="SpinBox" parent="HBoxContainer/VBoxContainer" unique_id=1503413416]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LabelSectors" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=378616969]
+layout_mode = 2
+text = "Sectors"
+
+[node name="SpinSectors" type="SpinBox" parent="HBoxContainer/VBoxContainer" unique_id=1920043555]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LabelLinedefs" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=25818305]
+layout_mode = 2
+text = "Linedefs"
+
+[node name="SpinLinedefs" type="SpinBox" parent="HBoxContainer/VBoxContainer" unique_id=1085013881]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LabelSidedefs" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=47809610]
+layout_mode = 2
+text = "Sidedefs"
+
+[node name="SpinSidedefs" type="SpinBox" parent="HBoxContainer/VBoxContainer" unique_id=744478116]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TweakEdit" type="TextEdit" parent="HBoxContainer" unique_id=190816814]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+editable = false
+draw_spaces = true
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="toggled" from="HBoxContainer/VBoxContainer/CheckMeta" to="." method="_on_toggled"]
+[connection signal="toggled" from="HBoxContainer/VBoxContainer/CheckHub" to="." method="_on_toggled"]
+[connection signal="value_changed" from="HBoxContainer/VBoxContainer/SpinThings" to="." method="_on_value_changed"]
+[connection signal="value_changed" from="HBoxContainer/VBoxContainer/SpinSectors" to="." method="_on_value_changed"]
+[connection signal="value_changed" from="HBoxContainer/VBoxContainer/SpinLinedefs" to="." method="_on_value_changed"]
+[connection signal="value_changed" from="HBoxContainer/VBoxContainer/SpinSidedefs" to="." method="_on_value_changed"]

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ye51nwned2xx"]
 
-[ext_resource type="Script" uid="uid://dkhp4tc336whl" path="res://dialogs/ProjectSelector.gd" id="1_v43hf"]
+[ext_resource type="Script" uid="uid://dkhp4tc336whl" path="res://dialogs/ProjectSelector.gd" id="1_whgin"]
 
 [sub_resource type="InputEventAction" id="InputEventAction_mbmmi"]
 action = &"ui_cancel"
@@ -15,11 +15,10 @@ size = Vector2i(500, 400)
 visible = false
 exclusive = true
 popup_window = true
-popup_wm_hint = true
 minimize_disabled = true
 maximize_disabled = true
 force_native = true
-script = ExtResource("1_v43hf")
+script = ExtResource("1_whgin")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=756306480]
 anchors_preset = 15
