@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cdb0rqt435vab"]
 
 [ext_resource type="Script" uid="uid://wcjtxg5q1l6l" path="res://editor/Regions.gd" id="1_8o857"]
+[ext_resource type="Script" uid="uid://dfluh5iu01b7x" path="res://editor/TreeDrag.gd" id="2_ychw4"]
 
 [node name="Regions" type="VBoxContainer" unique_id=1395992853]
 anchors_preset = 15
@@ -17,6 +18,7 @@ layout_mode = 2
 size_flags_vertical = 3
 hide_folding = true
 hide_root = true
+script = ExtResource("2_ychw4")
 
 [node name="AddContainer" type="HBoxContainer" parent="." unique_id=1213808792]
 layout_mode = 2
@@ -71,6 +73,7 @@ text = "Accept"
 
 [connection signal="button_clicked" from="Tree" to="." method="_on_tree_button_clicked"]
 [connection signal="item_selected" from="Tree" to="." method="_on_tree_item_selected"]
+[connection signal="move_item" from="Tree" to="." method="_on_tree_move_item"]
 [connection signal="pressed" from="AddContainer/AddButton" to="." method="_on_add_button_pressed"]
 [connection signal="pressed" from="RemoveButton" to="." method="_on_remove_button_pressed"]
 [connection signal="close_requested" from="ColorPopup" to="." method="_on_color_popup_close_requested"]

@@ -94,6 +94,13 @@ func swap_regions(first: int, second: int) -> void:
 	map_data.regions[first] = map_data.regions[second]
 	map_data.regions[second] = temp
 	
+	# rewire bbs
+	for bb: Array in map_data.bbs:
+		if bb[4] == first:
+			bb[4] = second
+		elif bb[4] == second:
+			bb[4] = first
+	
 	# update tree items
 	var root: TreeItem = %Tree.get_root()
 	for i in [first, second]:
@@ -158,9 +165,6 @@ func _on_remove_button_pressed() -> void:
 	
 	# fix up all bounding boxes
 	var cleared_bbs = map_data.bbs.duplicate(true).filter(func(x: Array) -> bool: return x[4] != index)
-	for bb: Array in cleared_bbs:
-		if bb[4] > index:
-			bb[4] -= 1
 	if cleared_bbs != map_data.bbs:
 		undo.add_do_method(apply_bounding_boxes.bind(cleared_bbs))
 	
@@ -236,3 +240,16 @@ func _on_color_popup_close_requested() -> void:
 	%ColorPopup.hide()
 	for c: Dictionary in %AcceptButton.pressed.get_connections():
 		%AcceptButton.pressed.disconnect(c.callable)
+
+
+func _on_tree_move_item(from: int, to: int) -> void:
+	undo.create_action("Rearrange regions")
+	
+	var dir := -1 if to < from else 1
+	
+	for n: int in range(from, to, dir):
+		undo.add_do_method(swap_regions.bind(n, n + dir))
+	for n: int in range(to, from, -dir):
+		undo.add_undo_method(swap_regions.bind(n, n - dir))
+	
+	undo.commit_action()
