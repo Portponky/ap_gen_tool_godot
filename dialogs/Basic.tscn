@@ -1,9 +1,8 @@
 [gd_scene format=3 uid="uid://do3np5djt56ap"]
 
-[ext_resource type="Script" uid="uid://mmx33m6l7de1" path="res://wizard/Basic.gd" id="1_kmpq1"]
+[ext_resource type="Script" uid="uid://mmx33m6l7de1" path="res://dialogs/Basic.gd" id="1_kmpq1"]
 
 [node name="Basic" type="VBoxContainer" unique_id=504335635]
-anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2

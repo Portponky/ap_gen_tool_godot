@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://c17ap2syc1kn6"]
 
-[ext_resource type="Script" uid="uid://blwgedyuf35r3" path="res://wizard/Wizard.gd" id="1_cci1r"]
-[ext_resource type="PackedScene" uid="uid://do3np5djt56ap" path="res://wizard/Basic.tscn" id="2_mt8hf"]
-[ext_resource type="PackedScene" uid="uid://cxivvnbgdbkw8" path="res://wizard/Wads.tscn" id="3_2m37o"]
-[ext_resource type="PackedScene" uid="uid://cq6pii6yxvrxt" path="res://wizard/Episodes.tscn" id="4_lqg24"]
-[ext_resource type="PackedScene" uid="uid://v0r5443ux1hl" path="res://wizard/Maps.tscn" id="5_2m37o"]
-[ext_resource type="PackedScene" uid="uid://nroanntactad" path="res://wizard/Done.tscn" id="6_lqg24"]
+[ext_resource type="Script" uid="uid://blwgedyuf35r3" path="res://dialogs/Wizard.gd" id="1_cci1r"]
+[ext_resource type="PackedScene" uid="uid://do3np5djt56ap" path="res://dialogs/Basic.tscn" id="2_mt8hf"]
+[ext_resource type="PackedScene" uid="uid://cxivvnbgdbkw8" path="res://dialogs/Wads.tscn" id="3_2m37o"]
+[ext_resource type="PackedScene" uid="uid://cq6pii6yxvrxt" path="res://dialogs/Episodes.tscn" id="4_lqg24"]
+[ext_resource type="PackedScene" uid="uid://v0r5443ux1hl" path="res://dialogs/Maps.tscn" id="5_2m37o"]
+[ext_resource type="PackedScene" uid="uid://nroanntactad" path="res://dialogs/Done.tscn" id="6_lqg24"]
 
 [node name="Window" type="Window" unique_id=1624004730]
 oversampling_override = 1.0

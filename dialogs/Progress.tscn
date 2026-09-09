@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://yi6n1h7vsjr7"]
 
-[ext_resource type="Script" uid="uid://dcggd1gwsiyro" path="res://editor/Progress.gd" id="1_ararm"]
+[ext_resource type="Script" uid="uid://dcggd1gwsiyro" path="res://dialogs/Progress.gd" id="1_ararm"]
 
 [node name="Progress" type="Window" unique_id=1013805312]
 oversampling_override = 1.0

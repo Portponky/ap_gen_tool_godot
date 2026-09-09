@@ -1,9 +1,8 @@
 [gd_scene format=3 uid="uid://cq6pii6yxvrxt"]
 
-[ext_resource type="Script" uid="uid://dl8l8taqru4if" path="res://wizard/Episodes.gd" id="1_vecka"]
+[ext_resource type="Script" uid="uid://dl8l8taqru4if" path="res://dialogs/Episodes.gd" id="1_vecka"]
 
 [node name="Episodes" type="VBoxContainer" unique_id=872581844]
-anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2

@@ -3,9 +3,9 @@ extends VBoxContainer
 signal task_complete
 
 
-const PROJECT_SELECTOR := preload("res://editor/ProjectSelector.tscn")
-const PROGRESS := preload("res://editor/Progress.tscn")
-const WORLD_WIZARD := preload("res://wizard/Wizard.tscn")
+const PROJECT_SELECTOR := preload("res://dialogs/ProjectSelector.tscn")
+const PROGRESS := preload("res://dialogs/Progress.tscn")
+const WORLD_WIZARD := preload("res://dialogs/Wizard.tscn")
 
 enum MenuChoice {
 	Open,

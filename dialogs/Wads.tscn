@@ -1,9 +1,8 @@
 [gd_scene format=3 uid="uid://cxivvnbgdbkw8"]
 
-[ext_resource type="Script" uid="uid://dtsfpa8cs6c6u" path="res://wizard/Wads.gd" id="1_4stmr"]
+[ext_resource type="Script" uid="uid://dtsfpa8cs6c6u" path="res://dialogs/Wads.gd" id="1_4stmr"]
 
 [node name="Wads" type="VBoxContainer" unique_id=1991297517]
-anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2

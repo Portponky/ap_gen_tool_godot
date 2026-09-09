@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ye51nwned2xx"]
 
-[ext_resource type="Script" uid="uid://dkhp4tc336whl" path="res://editor/ProjectSelector.gd" id="1_v43hf"]
+[ext_resource type="Script" uid="uid://dkhp4tc336whl" path="res://dialogs/ProjectSelector.gd" id="1_v43hf"]
 
 [sub_resource type="InputEventAction" id="InputEventAction_mbmmi"]
 action = &"ui_cancel"
