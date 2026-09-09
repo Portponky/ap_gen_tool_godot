@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://byvhff4g6cprm" path="res://editor/maptools/ModifyRuleTool.gd" id="7_85wto"]
 [ext_resource type="Script" uid="uid://dpkut3j5pmd00" path="res://editor/maptools/ItemTool.gd" id="8_x2y5v"]
 [ext_resource type="Script" uid="uid://focn7ebfmpj2" path="res://editor/maptools/BoundingBoxTool.gd" id="9_4x3xt"]
+[ext_resource type="Script" uid="uid://xiqubqw5hi7c" path="res://editor/maptools/QueryTool.gd" id="11_2m1gq"]
 
 [node name="Editor" type="VBoxContainer" unique_id=1097679433]
 anchors_preset = 15
@@ -118,6 +119,10 @@ script = ExtResource("8_x2y5v")
 [node name="BoundingBoxTool" type="Node" parent="HSplitContainer/MapView" unique_id=711806931]
 unique_name_in_owner = true
 script = ExtResource("9_4x3xt")
+
+[node name="QueryTool" type="Node" parent="HSplitContainer/MapView" unique_id=1898582599]
+unique_name_in_owner = true
+script = ExtResource("11_2m1gq")
 
 [node name="ToolLabel" type="Label" parent="HSplitContainer/MapView" unique_id=819270618]
 unique_name_in_owner = true

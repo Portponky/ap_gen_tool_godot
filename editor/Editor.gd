@@ -26,6 +26,7 @@ enum MenuChoice {
 	ToolRules,
 	ToolItems,
 	ToolBoxes,
+	ToolQuery,
 	BlockDuplicates,
 	WorldWizard,
 	
@@ -72,6 +73,7 @@ func _ready() -> void:
 	add_menu_shortcut(%ToolMenu, "Rules and connections", MenuChoice.ToolRules, KEY_F2, false, false)
 	add_menu_shortcut(%ToolMenu, "Items", MenuChoice.ToolItems, KEY_F3, false, false)
 	add_menu_shortcut(%ToolMenu, "Bounding boxes", MenuChoice.ToolBoxes, KEY_F4, false, false)
+	add_menu_shortcut(%ToolMenu, "Query", MenuChoice.ToolQuery, KEY_F5, false, false)
 	%ToolMenu.add_separator()
 	%ToolMenu.add_item("Mark colocated items as unreachable", MenuChoice.BlockDuplicates)
 	%ToolMenu.add_item("World wizard...", MenuChoice.WorldWizard)
@@ -297,6 +299,10 @@ func _execute_menu_choice(id: int) -> void:
 		MenuChoice.ToolBoxes:
 			if %MapView.set_tool(%BoundingBoxTool):
 				%ToolLabel.text = "Bounding boxes"
+				%MapView.refresh()
+		MenuChoice.ToolQuery:
+			if %MapView.set_tool(%QueryTool):
+				%ToolLabel.text = "Query"
 				%MapView.refresh()
 		MenuChoice.BlockDuplicates:
 			block_duplicates()

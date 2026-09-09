@@ -6,7 +6,6 @@ drag and drop regions to reorder
 Things to add
 -------------
 Save settings
-Trigger investigation tool
 Map tweak helper
 
 Things to fix

@@ -59,6 +59,7 @@ class Sector:
 	var type: int
 	var tag: int
 	
+	var center: Vector2i
 	var polygons: Array[PackedVector2Array]
 	var mesh: Mesh
 
