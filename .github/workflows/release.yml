@@ -1,4 +1,5 @@
 name: Create release
+on: [workflow_run]
 
 env:
   GAME_NAME: ap_gen_tool
