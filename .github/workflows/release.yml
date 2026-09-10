@@ -13,7 +13,9 @@ jobs:
 
     steps:
       - name: Checkout code
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          ref: master
 
       - name: Build tool for linux
         uses: appsinacup/action_export_godot_game@master
