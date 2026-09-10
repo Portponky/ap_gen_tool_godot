@@ -1,9 +1,16 @@
 name: Create release
-run-name: Release build
+run-name: Release build ${{ inputs.version-number }}
 on: [workflow_dispatch]
 
 env:
   GAME_NAME: ap_gen_tool
+
+inputs:
+  version-number:
+    description: Version number
+    required: true
+    type: string
+    default: v1.0
 
 jobs:
   build:
@@ -45,4 +52,27 @@ jobs:
           name: ap-gen-tool-${{ matrix.platform.os }}.zip
           archive: false
           path: ./export/${{ matrix.platform.os }}/ap-gen-tool-${{ matrix.platform.os }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Create release
+        uses: softprops/action-gh-release@v8
+        with:
+          name: Release ${{ inputs.version-number }}
+          files: |
+            dist/ap_gen_tool_windows.zip
+            dist/ap_gen_tool_linux.zip
 
