@@ -12,8 +12,8 @@ jobs:
       fail-fast: true
       matrix:
         platform: [
-          { name: "Windows Desktop", script: "package-windows.sh", result: "ap-gen-tool-windows.zip" },
-          { name: "Linux", script: "package-linux.sh", result: "ap-gen-tool-linux.zip" }
+          { os: "windows", target: "Windows Desktop" },
+          { os: "linux", target: "Linux" }
         ]
 
     steps:
@@ -25,13 +25,16 @@ jobs:
         with:
           godot-version: 4.7.2-stable
           game-name: ${{ env.GAME_NAME }}
-          platform-name: ${{ matrix.platform.name }}
+          platform-name: ${{ matrix.platform.target }}
 
       - name: Run zip script
-        run: bash export/${{ matrix.platform.script }}
+        working-directory: /export
+        run: bash package-${{ matrix.platform.os }}.sh
       
       - name: Upload zip
         uses: actions/upload-artifact@v7
         with:
-          path: export/${{ matrix.platform.result }}
+          name: ap-gen-tool-${{ matrix.platform.os }}.zip
+          archive: false
+          path: export/ap-gen-tool-${{ matrix.platform.os }}.zip
 
