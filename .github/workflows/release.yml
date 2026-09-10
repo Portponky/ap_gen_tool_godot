@@ -12,8 +12,8 @@ jobs:
       fail-fast: true
       matrix:
         platform: [
-          { os: "windows", target: "Windows Desktop" },
-          { os: "linux", target: "Linux" }
+          { os: "windows", target: "Windows Desktop" ext: "exe },
+          { os: "linux", target: "Linux", ext: "x86_64" }
         ]
 
     steps:
@@ -26,6 +26,11 @@ jobs:
           godot-version: 4.7.2-stable
           game-name: ${{ env.GAME_NAME }}
           platform-name: ${{ matrix.platform.target }}
+      
+      - name: Move built files
+        run: |
+          mv build/${{ env.GAME_NAME }} export/${{ matrix.platform.os }}/${{ env.GAME_NAME }}.${{ matrix.platform.ext }}
+          mv build/${{ env.GAME_NAME }}.pck export/${{ matrix.platform.os }}/${{ env.GAME_NAME }}.pck
       
       - name: Check tree
         run: tree -a .
