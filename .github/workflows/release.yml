@@ -82,6 +82,6 @@ jobs:
           tag_name: ${{ inputs.version-number }}
           working_directory: dist
           files: |
-            ap_gen_tool_windows.zip
-            ap_gen_tool_linux.zip
+            ap-gen-tool-windows.zip
+            ap-gen-tool-linux.zip
 
