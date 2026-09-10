@@ -39,9 +39,6 @@ jobs:
           mv build/${{ env.GAME_NAME }} export/${{ matrix.platform.os }}/${{ env.GAME_NAME }}.${{ matrix.platform.ext }}
           mv build/${{ env.GAME_NAME }}.pck export/${{ matrix.platform.os }}/${{ env.GAME_NAME }}.pck
       
-      - name: Check tree
-        run: tree -a .
-
       - name: Run zip script
         working-directory: ./export
         run: ./package-${{ matrix.platform.os }}.sh
@@ -74,6 +71,9 @@ jobs:
           path: dist
           merge-multiple: true
           skip-decompress: true
+      
+      - name: Check tree
+        run: tree -a .
 
       - name: Create release
         uses: softprops/action-gh-release@v3
