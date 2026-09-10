@@ -26,6 +26,9 @@ jobs:
           godot-version: 4.7.2-stable
           game-name: ${{ env.GAME_NAME }}
           platform-name: ${{ matrix.platform.target }}
+      
+      - name: Check tree
+        run: tree -a .
 
       - name: Run zip script
         working-directory: ./export
