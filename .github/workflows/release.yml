@@ -10,7 +10,6 @@ on:
         default: v1.0
 
 env:
-  REPO_NAME: ap_gen_tool_godot
   GAME_NAME: ap_gen_tool
 
 jobs:
@@ -73,13 +72,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: dist
+          merge-multiple: true
 
       - name: Create release
         uses: softprops/action-gh-release@v3
         with:
           name: Release ${{ inputs.version-number }}
           tag_name: ${{ inputs.version-number }}
-          working_directory: work/${{ env.REPO_NAME }}/${{ env.REPO_NAME }}/dist
+          working_directory: dist
           files: |
             ap_gen_tool_windows.zip
             ap_gen_tool_linux.zip
