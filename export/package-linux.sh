@@ -1,3 +1,4 @@
+cd "${0%/*}"
 rm -f ap-gen-tool-linux.zip
 cd linux
 mkdir -p games

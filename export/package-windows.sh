@@ -1,3 +1,4 @@
+cd "${0%/*}"
 rm -f ap-gen-tool-windows.zip
 cd windows
 mkdir -p games
