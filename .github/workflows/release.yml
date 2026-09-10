@@ -29,12 +29,12 @@ jobs:
 
       - name: Run zip script
         working-directory: ./export
-        run: bash package-${{ matrix.platform.os }}.sh
+        run: ./package-${{ matrix.platform.os }}.sh
       
       - name: Upload zip
         uses: actions/upload-artifact@v7
         with:
           name: ap-gen-tool-${{ matrix.platform.os }}.zip
           archive: false
-          path: ./export/ap-gen-tool-${{ matrix.platform.os }}.zip
+          path: ./export/${{ matrix.platform.os }}/ap-gen-tool-${{ matrix.platform.os }}.zip
 
