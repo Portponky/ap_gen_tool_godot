@@ -25,7 +25,7 @@ jobs:
         with:
           godot-version: 4.7.2-stable
           game-name: ${{ env.GAME_NAME }}
-          platform-name: ${{ matrix.platform }}
+          platform-name: ${{ matrix.platform.name }}
 
       - name: Run zip script
         run: bash export/package.sh
