@@ -10,24 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
+      matrix:
+        platform: [
+          { name: "Windows Desktop" },
+          { name: "Linux" }
+        ]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Build tool for linux
+      - name: Export tools
         uses: appsinacup/action_export_godot_game@main
         with:
           godot-version: 4.7.2-stable
           game-name: ${{ env.GAME_NAME }}
-          platform-name: "Linux"
-
-      - name: Build tool for window
-        uses: appsinacup/action_export_godot_game@main
-        with:
-          godot-version: 4.7.2-stable
-          game-name: ${{ env.GAME_NAME }}
-          platform-name: "Windows Desktop"
+          platform-name: ${{ matrix.platform }}
 
       - name: Run zip script
         run: bash export/package.sh
