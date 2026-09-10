@@ -1,0 +1,42 @@
+name: Create release
+
+env:
+  GAME_NAME: ap_gen_tool
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+
+    steps:
+      - name: Checkout code
+      - uses: actions/checkout@v4
+
+      - name: Build tool for linux
+        uses: appsinacup/action_export_godot_game@master
+        with:
+          godot-version: 4.7.2-stable
+          game-name: ${{ env.GAME_NAME }}
+          platform-name: "Linux x86_64"
+
+      - name: Build tool for window
+        uses: appsinacup/action_export_godot_game@master
+        with:
+          godot-version: 4.7.2-stable
+          game-name: ${{ env.GAME_NAME }}
+          platform-name: "Windows Desktop x86_64"
+
+      - name: Run zip script
+        run: bash export/package.sh
+      
+      - name: Upload linux zip
+        uses: actions/upload-artifact@v7
+        with:
+          path: export/linux/ap-gen-tool-linux.zip
+       
+      - name: Upload windows zip
+        uses: actions/upload-artifact@v7
+        with:
+          path: export/windows/ap-gen-tool-windows.zip
+
