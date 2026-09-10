@@ -1,11 +1,10 @@
 Missing features
 ----------------
 Custom world option code generation
-drag and drop regions to reorder
+Save changes confirmation
 
 Things to add
 -------------
-Save settings
 
 Things to fix
 -------------

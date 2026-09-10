@@ -13,6 +13,9 @@ enum MenuChoice {
 	Save,
 	Close,
 	Generate,
+	FolderGames,
+	FolderWads,
+	FolderOutput,
 	Quit,
 	
 	Undo,
@@ -60,6 +63,11 @@ func _ready() -> void:
 	add_menu_shortcut(%FileMenu, "Save", MenuChoice.Save, KEY_S, true, false)
 	add_menu_shortcut(%FileMenu, "Generate APWorld", MenuChoice.Generate, KEY_G, true, false)
 	add_menu_shortcut(%FileMenu, "Close", MenuChoice.Close, KEY_W, true, false)
+	%FileMenu.add_separator()
+	%FileMenu.add_item("Open games folder", MenuChoice.FolderGames)
+	%FileMenu.add_item("Open wads folder", MenuChoice.FolderWads)
+	%FileMenu.add_item("Open output folder", MenuChoice.FolderOutput)
+	%FileMenu.add_separator()
 	add_menu_shortcut(%FileMenu, "Quit", MenuChoice.Quit, KEY_Q, true, false)
 	
 	add_menu_shortcut(%EditMenu, "Undo", MenuChoice.Undo, KEY_Z, true, false)
@@ -228,6 +236,11 @@ func close() -> void:
 	modified = false
 
 
+func open_folder(dir: String) -> void:
+	var path := ProjectSettings.globalize_path("res://%s/" % dir) if OS.has_feature("editor") else "%s/%s" % [OS.get_executable_path().get_base_dir(), dir]
+	OS.shell_open(path)
+
+
 func enable_specific_menus(enabled: bool) -> void:
 	%FileMenu.set_item_disabled(%FileMenu.get_item_index(MenuChoice.Save), not enabled)
 	%FileMenu.set_item_disabled(%FileMenu.get_item_index(MenuChoice.Generate), not enabled)
@@ -262,6 +275,12 @@ func _execute_menu_choice(id: int) -> void:
 			close()
 		MenuChoice.Generate:
 			generate()
+		MenuChoice.FolderGames:
+			open_folder("games")
+		MenuChoice.FolderWads:
+			open_folder("wads")
+		MenuChoice.FolderOutput:
+			open_folder("output")
 		MenuChoice.Quit:
 			# ask to save changes
 			get_tree().quit()
