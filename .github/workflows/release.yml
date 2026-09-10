@@ -1,6 +1,13 @@
 name: Create release
-run-name: Release build
-on: [workflow_dispatch]
+run-name: Release build ${{ inputs.version-number }}
+on:
+  workflow_dispatch:
+    inputs:
+      version-number:
+        description: Version number
+        required: true
+        type: string
+        default: v1.0
 
 env:
   GAME_NAME: ap_gen_tool
@@ -12,8 +19,8 @@ jobs:
       fail-fast: true
       matrix:
         platform: [
-          { os: "windows", target: "Windows Desktop" },
-          { os: "linux", target: "Linux" }
+          { os: "windows", target: "Windows Desktop", ext: "exe" },
+          { os: "linux", target: "Linux", ext: "x86_64" }
         ]
 
     steps:
@@ -26,7 +33,12 @@ jobs:
           godot-version: 4.7.2-stable
           game-name: ${{ env.GAME_NAME }}
           platform-name: ${{ matrix.platform.target }}
-
+      
+      - name: Move built files
+        run: |
+          mv build/${{ env.GAME_NAME }} export/${{ matrix.platform.os }}/${{ env.GAME_NAME }}.${{ matrix.platform.ext }}
+          mv build/${{ env.GAME_NAME }}.pck export/${{ matrix.platform.os }}/${{ env.GAME_NAME }}.pck
+      
       - name: Run zip script
         working-directory: ./export
         run: ./package-${{ matrix.platform.os }}.sh
@@ -37,4 +49,36 @@ jobs:
           name: ap-gen-tool-${{ matrix.platform.os }}.zip
           archive: false
           path: ./export/${{ matrix.platform.os }}/ap-gen-tool-${{ matrix.platform.os }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: "Push tag"
+        uses: EndBug/latest-tag@latest
+        with:
+          ref: ${{ inputs.version-number }}
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+          skip-decompress: true
+      
+      - name: Create release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: Release ${{ inputs.version-number }}
+          tag_name: ${{ inputs.version-number }}
+          working_directory: dist
+          files: |
+            ap-gen-tool-windows.zip
+            ap-gen-tool-linux.zip
 
