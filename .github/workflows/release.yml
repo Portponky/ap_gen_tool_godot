@@ -12,8 +12,8 @@ jobs:
       fail-fast: true
       matrix:
         platform: [
-          { name: "Windows Desktop" },
-          { name: "Linux" }
+          { name: "Windows Desktop", script: "package-windows.sh", result: "ap-gen-tool-windows.zip" },
+          { name: "Linux", script: "package-linux.sh", result: "ap-gen-tool-linux.zip" }
         ]
 
     steps:
@@ -28,15 +28,10 @@ jobs:
           platform-name: ${{ matrix.platform.name }}
 
       - name: Run zip script
-        run: bash export/package.sh
+        run: bash export/${{ matrix.platform.script }}
       
-      - name: Upload linux zip
+      - name: Upload zip
         uses: actions/upload-artifact@v7
         with:
-          path: export/linux/ap-gen-tool-linux.zip
-       
-      - name: Upload windows zip
-        uses: actions/upload-artifact@v7
-        with:
-          path: export/windows/ap-gen-tool-windows.zip
+          path: export/${{ matrix.platform.result }}
 
