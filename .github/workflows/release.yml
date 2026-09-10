@@ -28,7 +28,7 @@ jobs:
           platform-name: ${{ matrix.platform.target }}
 
       - name: Run zip script
-        working-directory: /export
+        working-directory: ./export
         run: bash package-${{ matrix.platform.os }}.sh
       
       - name: Upload zip
@@ -36,5 +36,5 @@ jobs:
         with:
           name: ap-gen-tool-${{ matrix.platform.os }}.zip
           archive: false
-          path: export/ap-gen-tool-${{ matrix.platform.os }}.zip
+          path: ./export/ap-gen-tool-${{ matrix.platform.os }}.zip
 
