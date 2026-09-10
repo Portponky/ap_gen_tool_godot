@@ -66,7 +66,7 @@ jobs:
       - name: "Push tag"
         uses: EndBug/latest-tag@latest
         with:
-          tag-name: ${{ inputs.version-number }}
+          ref: ${{ inputs.version-number }}
       
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -77,6 +77,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           name: Release ${{ inputs.version-number }}
+          tag_name: ${{ inputs.version-number }}
           files: |
             dist/ap_gen_tool_windows.zip
             dist/ap_gen_tool_linux.zip
