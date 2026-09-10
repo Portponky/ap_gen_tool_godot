@@ -78,7 +78,7 @@ jobs:
         with:
           name: Release ${{ inputs.version-number }}
           tag_name: ${{ inputs.version-number }}
-          working_directory: ${{ ap_gen_tool }}/dist
+          working_directory: ${{ env.GAME_NAME }}/dist
           files: |
             ap_gen_tool_windows.zip
             ap_gen_tool_linux.zip
