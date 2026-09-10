@@ -78,7 +78,8 @@ jobs:
         with:
           name: Release ${{ inputs.version-number }}
           tag_name: ${{ inputs.version-number }}
+          working_directory: ${{ ap_gen_tool }}/dist
           files: |
-            dist/ap_gen_tool_windows.zip
-            dist/ap_gen_tool_linux.zip
+            ap_gen_tool_windows.zip
+            ap_gen_tool_linux.zip
 
