@@ -1,12 +1,12 @@
 name: Create release
 run-name: Release build
-on: [workflow_run]
+on: [workflow_dispatch]
 
 env:
   GAME_NAME: ap_gen_tool
 
 jobs:
-  main:
+  build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
