@@ -10,6 +10,7 @@ on:
         default: v1.0
 
 env:
+  REPO_NAME: ap_gen_tool_godot
   GAME_NAME: ap_gen_tool
 
 jobs:
@@ -78,7 +79,7 @@ jobs:
         with:
           name: Release ${{ inputs.version-number }}
           tag_name: ${{ inputs.version-number }}
-          working_directory: ${{ env.GAME_NAME }}/dist
+          working_directory: ${{ env.REPO_NAME }}/dist
           files: |
             ap_gen_tool_windows.zip
             ap_gen_tool_linux.zip
