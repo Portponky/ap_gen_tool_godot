@@ -1,3 +1,4 @@
+set -euxo pipefail
 cd windows
 mkdir -p games
 mkdir -p data
