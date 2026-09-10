@@ -16,14 +16,14 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build tool for linux
-        uses: appsinacup/action_export_godot_game@master
+        uses: appsinacup/action_export_godot_game@main
         with:
           godot-version: 4.7.2-stable
           game-name: ${{ env.GAME_NAME }}
           platform-name: "Linux x86_64"
 
       - name: Build tool for window
-        uses: appsinacup/action_export_godot_game@master
+        uses: appsinacup/action_export_godot_game@main
         with:
           godot-version: 4.7.2-stable
           game-name: ${{ env.GAME_NAME }}
