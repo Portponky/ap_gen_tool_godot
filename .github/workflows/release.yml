@@ -72,7 +72,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: dist
-          pattern: ap_gen_tool_*
+          pattern: ap-gen-tool-*
           merge-multiple: true
 
       - name: Create release
