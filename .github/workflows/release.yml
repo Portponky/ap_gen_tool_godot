@@ -69,7 +69,7 @@ jobs:
           path: dist
 
       - name: Create release
-        uses: softprops/action-gh-release@v8
+        uses: softprops/action-gh-release@v6
         with:
           name: Release ${{ inputs.version-number }}
           files: |
