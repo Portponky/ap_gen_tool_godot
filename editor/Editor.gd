@@ -47,12 +47,14 @@ var undo := UndoRedo.new()
 var current_level_index: int
 var current_map: Map
 var current_map_data: Dictionary
-var modified := false
+var saved_version := 0
 
 var current_region := -1
 var current_location := -1
 
 func _ready() -> void:
+	get_tree().set_auto_accept_quit(false)
+	
 	%Items.undo = undo
 	%Regions.undo = undo
 	%Connections.undo = undo
@@ -97,6 +99,8 @@ func _ready() -> void:
 	
 	await get_tree().process_frame
 	update_menu_checks()
+	saved_version = undo.get_version()
+	_on_modified()
 
 
 func add_menu_shortcut(menu: PopupMenu, title: String, id: int, keycode: Key, ctrl: bool, shift: bool) -> void:
@@ -112,11 +116,32 @@ func add_menu_shortcut(menu: PopupMenu, title: String, id: int, keycode: Key, ct
 	menu.add_shortcut(shortcut, id, true)
 
 
-func open(file: String) -> void:
-	# Clear out any previous exclusive windows
+func confirm_clear_modified() -> bool:
+	if undo.get_version() == saved_version:
+		return true
+	
+	var confirmer := ConfirmationDialog.new()
+	confirmer.dialog_text = "File is modified! Close and lose changes?"
+	confirmer.canceled.connect(task_complete.emit)
+	confirmer.confirmed.connect(func() -> void:
+		saved_version = undo.get_version()
+		task_complete.emit()
+	)
+	confirmer.popup_exclusive_centered(get_tree().root)
+	
+	await task_complete
+	return undo.get_version() == saved_version
+
+
+func clear_out_exclusive_windows() -> void:
 	while get_last_exclusive_window() != get_window():
 		get_last_exclusive_window().queue_free()
 		await get_tree().process_frame
+
+
+func open(file: String) -> void:
+	# Clear out any previous exclusive windows
+	await clear_out_exclusive_windows()
 	
 	# generate world stem
 	var game := file.get_file()
@@ -124,6 +149,7 @@ func open(file: String) -> void:
 	if not game.ends_with(ext):
 		print("Not a .game.json file at %s", file)
 		return
+		
 	world_stem = game.left(-ext.length())
 	
 	var progress := PROGRESS.instantiate()
@@ -172,10 +198,14 @@ func open(file: String) -> void:
 	%Items.set_world(world)
 	%Connections.set_world(world)
 	load_level(0)
+	
+	undo.clear_history()
+	saved_version = undo.get_version()
+	_on_modified()
 
 
 func save() -> void:
-	if not world or not modified:
+	if not world or not is_modified():
 		return
 	
 	var path := "res://data/" if OS.has_feature("editor") else "%s/data" % OS.get_executable_path().get_base_dir()
@@ -191,7 +221,8 @@ func save() -> void:
 	save_file.store_string(JSON.stringify(world.data))
 	save_file.close()
 	
-	modified = false
+	saved_version = undo.get_version()
+	_on_modified()
 
 
 func generate() -> void:
@@ -223,6 +254,7 @@ func close() -> void:
 	%Regions.clear_world()
 	%Connections.clear_world()
 	
+	world_stem = ""
 	world = null
 	
 	# Sort out menus
@@ -233,7 +265,9 @@ func close() -> void:
 	%MapMenu.add_item("No game loaded")
 	%MapMenu.set_item_disabled(0, true)
 	
-	modified = false
+	undo.clear_history()
+	saved_version = undo.get_version()
+	_on_modified()
 
 
 func open_folder(dir: String) -> void:
@@ -265,15 +299,19 @@ func update_menu_checks() -> void:
 func _execute_menu_choice(id: int) -> void:
 	match id:
 		MenuChoice.Open:
-			var selector := PROJECT_SELECTOR.instantiate()
-			selector.load_game.connect(open)
-			selector.popup_exclusive_centered(self)
+			if await confirm_clear_modified():
+				await clear_out_exclusive_windows()
+				var selector := PROJECT_SELECTOR.instantiate()
+				selector.load_game.connect(open)
+				selector.popup_exclusive_centered(self)
 		MenuChoice.Save:
-			if modified:
+			if is_modified():
 				save()
 		MenuChoice.Close:
-			close()
+			if await confirm_clear_modified():
+				close()
 		MenuChoice.Generate:
+			await clear_out_exclusive_windows()
 			generate()
 		MenuChoice.FolderGames:
 			open_folder("games")
@@ -282,8 +320,8 @@ func _execute_menu_choice(id: int) -> void:
 		MenuChoice.FolderOutput:
 			open_folder("output")
 		MenuChoice.Quit:
-			# ask to save changes
-			get_tree().quit()
+			if await confirm_clear_modified():
+				get_tree().quit()
 		
 		MenuChoice.Undo:
 			undo.undo()
@@ -345,6 +383,14 @@ func _execute_menu_choice(id: int) -> void:
 				load_level(current_level_index + 1)
 
 
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if OS.has_feature("editor"):
+			get_tree().quit()
+		elif await confirm_clear_modified():
+			get_tree().quit()
+
+
 func _on_foldable_container_change(folded: bool, fc: FoldableContainer) -> void:
 	if folded:
 		fc.size_flags_vertical &= ~SIZE_EXPAND
@@ -352,8 +398,15 @@ func _on_foldable_container_change(folded: bool, fc: FoldableContainer) -> void:
 		fc.size_flags_vertical |= SIZE_EXPAND
 
 
+func is_modified() -> bool:
+	return saved_version != undo.get_version()
+
+
 func _on_modified() -> void:
-	modified = true
+	if world_stem.is_empty():
+		get_window().title = "ap_gen_tool_godot"
+	else:
+		get_window().title = "ap_gen_tool_godot - %s.game.json%s" % [world_stem, "*" if is_modified() else ""]
 
 
 func load_level(id: int) -> void:

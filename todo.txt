@@ -1,7 +1,6 @@
 Missing features
 ----------------
 Custom world option code generation
-Save changes confirmation
 
 Things to add
 -------------
