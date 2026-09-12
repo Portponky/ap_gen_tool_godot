@@ -425,7 +425,12 @@ func load_level(id: int) -> void:
 	%Connections.set_map_data(current_map_data)
 	%Connections.update_filters(current_map)
 	%MapView.set_tool(tool)
+	
+	var modified := is_modified()
 	undo.clear_history()
+	if not modified:
+		saved_version = undo.get_version()
+		_on_modified()
 
 
 func set_unreachable(index: int, unreachable: bool) -> void:
