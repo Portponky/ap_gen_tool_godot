@@ -192,7 +192,7 @@ static func load(gamename: String) -> World:
 	
 	for lump: String in world.game.get("map_tweaks", {}):
 		Status.set_task("Applying map tweaks for %s" % lump)
-		world.maps[lump].apply_map_tweaks(world.game.map_tweaks[lump])
+		world.maps[lump].apply_map_tweaks(world.game.map_tweaks[lump], world.game.iwad == "HERETIC.WAD")
 	
 	Status.set_task("Merging default settings for iwad")
 	load_and_merge(world.game, "game_info", Default.game_info)

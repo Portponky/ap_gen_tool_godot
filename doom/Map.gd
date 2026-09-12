@@ -116,30 +116,6 @@ static func load_linedefs(map: Map, linedefs_lump: PackedByteArray, heretic_spec
 		linedef.sector_tag = linedefs_lump.decode_s16(i + 8)
 		linedef.front_sidedef = linedefs_lump.decode_s16(i + 10)
 		linedef.back_sidedef = linedefs_lump.decode_s16(i + 12)
-		
-		# Pick color
-		if linedef.flags & (Linedef.Flags.Blocking | Linedef.Flags.TwoSided) == Linedef.Flags.TwoSided:
-			linedef.color = Color.DIM_GRAY
-		
-		if heretic_specials:
-			if linedef.special_type in [26, 32]:
-				linedef.color = Color.BLUE
-			elif linedef.special_type in [28, 33]:
-				linedef.color = Color.GREEN
-			elif linedef.special_type in [27, 34]:
-				linedef.color = Color.YELLOW
-			elif linedef.special_type in [11, 51, 52, 105]:
-				linedef.color = Color.MAGENTA
-		else:
-			if linedef.special_type in [26, 32, 99, 133]:
-				linedef.color = Color.BLUE
-			elif linedef.special_type in [28, 33, 134, 135]:
-				linedef.color = Color.RED
-			elif linedef.special_type in [27, 34, 136, 137]:
-				linedef.color = Color.YELLOW
-			elif linedef.special_type in [11, 51, 52, 124]:
-				linedef.color = Color.MAGENTA
-		
 		map.linedefs.push_back(linedef)
 
 
@@ -302,6 +278,41 @@ static func build_mesh(sector: Sector) -> void:
 	sector.mesh = array_mesh
 
 
+func build_lines(heretic_specials: bool) -> void:
+	lines.clear()
+	for linedef: Linedef in linedefs:
+		# Pick color
+		linedef.color = Color.WHITE
+		if linedef.flags & (Linedef.Flags.Blocking | Linedef.Flags.TwoSided) == Linedef.Flags.TwoSided:
+			linedef.color = Color.DIM_GRAY
+		
+		if heretic_specials:
+			if linedef.special_type in [26, 32]:
+				linedef.color = Color.BLUE
+			elif linedef.special_type in [28, 33]:
+				linedef.color = Color.GREEN
+			elif linedef.special_type in [27, 34]:
+				linedef.color = Color.YELLOW
+			elif linedef.special_type in [11, 51, 52, 105]:
+				linedef.color = Color.MAGENTA
+		else:
+			if linedef.special_type in [26, 32, 99, 133]:
+				linedef.color = Color.BLUE
+			elif linedef.special_type in [28, 33, 134, 135]:
+				linedef.color = Color.RED
+			elif linedef.special_type in [27, 34, 136, 137]:
+				linedef.color = Color.YELLOW
+			elif linedef.special_type in [11, 51, 52, 124]:
+				linedef.color = Color.MAGENTA
+		
+		if not lines.has(linedef.color):
+			lines[linedef.color] = PackedVector2Array()
+		var v1 := vertices[linedef.start_vertex]
+		var v2 := vertices[linedef.end_vertex]
+		lines[linedef.color].push_back(Vector2(v1.x, -v1.y))
+		lines[linedef.color].push_back(Vector2(v2.x, -v2.y))
+
+
 static func load(world: World, map_lump: String, heretic_specials: bool) -> Map:
 	var load_wad := world.wad_for_lump(map_lump)
 	if not load_wad:
@@ -351,27 +362,18 @@ static func load(world: World, map_lump: String, heretic_specials: bool) -> Map:
 		build_mesh(sector)
 	
 	# build lines
-	for linedef in map.linedefs:
-		if not map.lines.has(linedef.color):
-			map.lines[linedef.color] = PackedVector2Array()
-		var v1 := map.vertices[linedef.start_vertex]
-		var v2 := map.vertices[linedef.end_vertex]
-		map.lines[linedef.color].push_back(Vector2(v1.x, -v1.y))
-		map.lines[linedef.color].push_back(Vector2(v2.x, -v2.y))
+	map.build_lines(heretic_specials)
 	
 	return map
 
 
-func apply_map_tweaks(tweaks: Dictionary) -> void:
-	if not tweaks.has("things"):
-		return
-	
-	for id: String in tweaks.things:
+func apply_map_tweaks(tweaks: Dictionary, heretic_specials: bool) -> void:
+	for id: String in tweaks.get("things", []):
 		var i := id.to_int()
 		if i < 0 or i >= things.size():
 			Status.add_error("Invalid thing map_tweak for thing no. %d" % i)
 			continue
-		var tweak : Dictionary = tweaks.things[id]
+		var tweak: Dictionary = tweaks.things[id]
 		var target := things[i]
 		target.x = tweak.get("x", target.x)
 		target.y = tweak.get("y", target.y)
@@ -380,6 +382,30 @@ func apply_map_tweaks(tweaks: Dictionary) -> void:
 		target.flags = tweak.get("flags", target.flags)
 		if tweak.get("dont_randomize", false):
 			target.flags |= Thing.Flags.Multiplayer
+	
+	var linedefs_tweaked := false
+	for id: String in tweaks.get("linedefs", []):
+		var i := id.to_int()
+		if i < 0 or i >= linedefs.size():
+			Status.add_error("Invalid linedef map_tweak for linedef no. %d" % i)
+			continue
+		var tweak: Dictionary = tweaks.linedefs[id]
+		var target := linedefs[i]
+		target.sector_tag = tweak.get("tag", target.sector_tag)
+		target.special_type = tweak.get("special", target.special_type)
+		linedefs_tweaked = true
+	
+	if linedefs_tweaked:
+		build_lines(heretic_specials)
+	
+	for id: String in tweaks.get("sectors", []):
+		var i := id.to_int()
+		if i < 0 or i >= sectors.size():
+			Status.add_error("Invalid sector map_tweak for linedef no. %d" % i)
+			continue
+		var tweak: Dictionary = tweaks.sectors[id]
+		var target := sectors[i]
+		target.tag = tweak.get("tag", target.tag)
 
 
 func sector_for_point(point: Vector2) -> int:
