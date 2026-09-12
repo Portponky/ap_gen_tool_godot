@@ -27,6 +27,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+keep_editing_on_text_submit = true
 
 [node name="AddButton" type="Button" parent="AddContainer" unique_id=134842518]
 unique_name_in_owner = true
@@ -74,6 +75,7 @@ text = "Accept"
 [connection signal="button_clicked" from="Tree" to="." method="_on_tree_button_clicked"]
 [connection signal="item_selected" from="Tree" to="." method="_on_tree_item_selected"]
 [connection signal="move_item" from="Tree" to="." method="_on_tree_move_item"]
+[connection signal="text_submitted" from="AddContainer/RegionName" to="." method="_on_region_name_text_submitted"]
 [connection signal="pressed" from="AddContainer/AddButton" to="." method="_on_add_button_pressed"]
 [connection signal="pressed" from="RemoveButton" to="." method="_on_remove_button_pressed"]
 [connection signal="close_requested" from="ColorPopup" to="." method="_on_color_popup_close_requested"]

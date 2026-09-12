@@ -155,6 +155,10 @@ func _on_add_button_pressed() -> void:
 	undo.commit_action()
 
 
+func _on_region_name_text_submitted(_new_text: String) -> void:
+	_on_add_button_pressed()
+
+
 func _on_remove_button_pressed() -> void:
 	var selection: TreeItem = %Tree.get_selected()
 	if not selection:
