@@ -126,12 +126,15 @@ func apply_bounding_boxes(bbs: Array) -> void:
 
 
 func _on_add_button_pressed() -> void:
+	var target: String = %RegionName.text
+	if target.is_empty():
+		return
+	
 	# no duplicate names
 	for region: Dictionary in map_data.regions:
-		if region.name == %RegionName.text:
+		if region.name == target:
 			return
 	
-	var target: String = %RegionName.text
 	var color := Color.from_string(target.to_lower(), Color.WHITE)
 	%RegionName.text = ""
 	
