@@ -116,7 +116,7 @@ static func build_locations(world: World, levels: Array) -> Array:
 				break
 		
 		if not exit_found:
-			Status.add_error("%s has no region that connects to the exit" % level.group_name)
+			Status.add_warning("%s has no region that connects to the exit" % level.group_name)
 		
 		locations.push_back({
 			region_name = exit_location_name,
@@ -381,7 +381,7 @@ static func generate_location_table(world: World, locations: Array) -> Dictionar
 			result[id].check_sanity = true
 	
 	for map: String in unreachable_count:
-		Status.add_error("%s has %d unreachable things" % [map, unreachable_count[map]])
+		Status.add_warning("%s has %d unreachable things" % [map, unreachable_count[map]])
 
 	
 	return result
