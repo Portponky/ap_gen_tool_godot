@@ -25,7 +25,8 @@ func render_things(view: MapView, to_map: Transform2D) -> void:
 	view.draw_set_transform_matrix(Transform2D.IDENTITY)
 	
 	# Draw all the things
-	for location: Dictionary in view.map_data.locations:
+	for i: int in range(view.map_data.locations.size() - 1, -1, -1):
+		var location: Dictionary = view.map_data.locations[i]
 		var t: int = location.index
 		var thing := view.map.things[t]
 		var pos := to_map * Vector2(thing.x, -thing.y)
@@ -74,7 +75,7 @@ func render_rules(view: MapView, to_map: Transform2D) -> void:
 	var box_size := to_map.get_scale() * view.RULE_SIZE
 	const font_size := 128
 	var font_vertical_offset := ThemeDB.fallback_font.get_height(font_size) / 2 - ThemeDB.fallback_font.get_descent(font_size)
-	for r in view.rule_cache.size():
+	for r in range(view.rule_cache.size() - 1, -1, -1):
 		var rule: Dictionary = view.rule_cache[r]
 		var box := Rect2(to_map * rule.pos - 0.5 * box_size, box_size)
 		view.draw_rect(box, Color.BLACK)

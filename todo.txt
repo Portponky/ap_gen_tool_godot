@@ -1,4 +1,1 @@
-Rules and items are drawn in the wrong order (should be reverse order)
-Generation logic errors should be warnings
 Map tweaks should apply all tweaks
-
