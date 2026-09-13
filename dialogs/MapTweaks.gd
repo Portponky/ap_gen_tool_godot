@@ -44,7 +44,7 @@ func generate() -> void:
 	if things_count > 0:
 		strings.push_back("      \"things\": {")
 		for i: int in things_count:
-			strings.push_back("        \"123\": {\"x\": 128, \"y\": 256, \"type\": 2013, \"angle\": 0, \"flags\": 7, \"voodoo_ignore_items\": false, \"voodoo_ignore_damage\": false, , \"flying_enemies_only\": false, , \"dont_randomize\": false}%s" % ending_comma(i, things_count))
+			strings.push_back("        \"123\": {\"x\": 128, \"y\": 256, \"type\": 2013, \"angle\": 0, \"flags\": 7, \"voodoo_ignore_items\": false, \"voodoo_ignore_damage\": false, \"flying_enemies_only\": false, \"dont_randomize\": false}%s" % ending_comma(i, things_count))
 		strings.push_back("      }%s" % ending_comma(t, tweaks))
 		t += 1
 	
