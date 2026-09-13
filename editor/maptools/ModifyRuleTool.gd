@@ -110,7 +110,6 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 			if highlight_rule != -1 and highlight_rule_target != -1:
 				draw_new_connection(view)
 			drawing_connection = false
-			do_select_rules_and_connections(view, event.position)
 			view.queue_redraw()
 
 
@@ -251,6 +250,15 @@ func draw_new_connection(view: MapView) -> void:
 	view.undo.add_do_method(add_connection.bind(view, from_index, to_index))
 	view.undo.add_undo_method(remove_connection.bind(view, from_index, to_index))
 	view.undo.commit_action()
+	
+	# select created connection
+	for i: int in view.connection_cache.size():
+		var connection: Dictionary = view.connection_cache[i]
+		if connection.rule_index == from_index and connection.connection.target_region == to_index:
+			selected_connection = i
+			select_connection.emit(from_index, connection.connection_index)
+			view.queue_redraw()
+			return
 
 
 func delete_selected_connection(view: MapView) -> void:
