@@ -1,2 +1,0 @@
-Blank location name when de-selecting
-Select connection after drawing it

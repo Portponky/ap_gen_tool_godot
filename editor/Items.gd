@@ -71,6 +71,8 @@ func set_map(next_map: Map, next_map_data: Dictionary) -> void:
 	for l: int in map_data.locations.size():
 		var id: int = %ItemList.add_item("")
 		style_item_list(id)
+	
+	update_entry_for_selection()
 
 
 func refresh() -> void:
