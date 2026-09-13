@@ -1,1 +1,2 @@
-Map tweaks should apply all tweaks
+Blank location name when de-selecting
+Select connection after drawing it

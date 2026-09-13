@@ -11,6 +11,19 @@ grow_vertical = 2
 size_flags_vertical = 3
 script = ExtResource("1_7xqor")
 
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1942371169]
+layout_mode = 2
+
+[node name="AndLabel" type="Label" parent="HBoxContainer" unique_id=1101236742]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "And"
+
+[node name="OrLabel" type="Label" parent="HBoxContainer" unique_id=1463988915]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Or"
+
 [node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1974144469]
 layout_mode = 2
 size_flags_vertical = 3
@@ -33,10 +46,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 alignment = 2
 
-[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/HBoxContainer/Ands" unique_id=1101236742]
-layout_mode = 2
-text = "And"
-
 [node name="Spacer" type="Control" parent="ScrollContainer/VBoxContainer/HBoxContainer/Ands" unique_id=852526737]
 layout_mode = 2
 size_flags_vertical = 3
@@ -49,10 +58,6 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 2
-
-[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/HBoxContainer/Ors" unique_id=1463988915]
-layout_mode = 2
-text = "Or"
 
 [node name="Spacer" type="Control" parent="ScrollContainer/VBoxContainer/HBoxContainer/Ors" unique_id=162343583]
 layout_mode = 2
