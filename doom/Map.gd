@@ -106,7 +106,7 @@ static func load_things(map: Map, things_lump: PackedByteArray) -> void:
 		map.things.push_back(thing)
 
 
-static func load_linedefs(map: Map, linedefs_lump: PackedByteArray, heretic_specials: bool) -> void:
+static func load_linedefs(map: Map, linedefs_lump: PackedByteArray) -> void:
 	for i in range(0, linedefs_lump.size(), 14):
 		var linedef := Linedef.new()
 		linedef.start_vertex = linedefs_lump.decode_s16(i + 0)
@@ -321,7 +321,7 @@ static func load(world: World, map_lump: String, heretic_specials: bool) -> Map:
 	
 	var map := Map.new()
 	load_things(map, load_wad.load_lump("THINGS", map_lump))
-	load_linedefs(map, load_wad.load_lump("LINEDEFS", map_lump), heretic_specials)
+	load_linedefs(map, load_wad.load_lump("LINEDEFS", map_lump))
 	load_sidedefs(map, load_wad.load_lump("SIDEDEFS", map_lump))
 	load_vertices(map, load_wad.load_lump("VERTEXES", map_lump))
 	load_sectors(map, load_wad.load_lump("SECTORS", map_lump))
@@ -393,6 +393,7 @@ func apply_map_tweaks(tweaks: Dictionary, heretic_specials: bool) -> void:
 		var target := linedefs[i]
 		target.sector_tag = tweak.get("tag", target.sector_tag)
 		target.special_type = tweak.get("special", target.special_type)
+		target.flags = tweak.get("flags", target.flags) as int
 		linedefs_tweaked = true
 	
 	if linedefs_tweaked:
