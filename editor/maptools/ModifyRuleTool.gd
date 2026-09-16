@@ -152,6 +152,13 @@ func do_select_rules_and_connections(view: MapView, screen_pos: Vector2) -> void
 		view.queue_redraw()
 
 
+func start(view: MapView) -> void:
+	if not view.map:
+		return
+	
+	do_select_rules_and_connections(view, view.get_local_mouse_position())
+
+
 func stop() -> void:
 	selected_connection = -1
 	clear_connection.emit()

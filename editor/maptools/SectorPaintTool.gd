@@ -49,6 +49,15 @@ func handle_input(view: MapView, event: InputEvent) -> void:
 			clearing = false
 
 
+func start(view: MapView) -> void:
+	if not view.map:
+		return
+	
+	var doom_coord := view.doom_coordinate(view.get_local_mouse_position())
+	highlight_sector = view.map.sector_for_point(doom_coord)
+	view.queue_redraw()
+
+
 func stop() -> void:
 	highlight_sector = -1
 

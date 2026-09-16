@@ -113,7 +113,7 @@ func handle_input(_view: MapView, _event: InputEvent) -> void:
 	pass
 
 
-func start() -> void:
+func start(_view: MapView) -> void:
 	pass
 
 

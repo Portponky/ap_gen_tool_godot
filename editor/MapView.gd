@@ -59,7 +59,7 @@ func set_tool(next_tool: MapTool) -> bool:
 		tool.stop()
 	tool = next_tool
 	if tool:
-		tool.start()
+		tool.start(self)
 	return true
 
 

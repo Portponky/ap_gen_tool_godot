@@ -53,15 +53,19 @@ func handle_render(view: MapView, to_map: Transform2D) -> void:
 
 func handle_input(view: MapView, event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
-		var doom_coord := view.doom_coordinate(event.position)
-		var sector := view.map.sector_for_point(doom_coord)
-		var line := find_closest_line(view, sector, event.position)
-		
-		if sector != highlight_sector or line != highlight_line:
-			highlight_sector = sector
-			highlight_line = line
-			calculate_arrows(view)
-			view.queue_redraw()
+		query_point(view, event.position)
+
+
+func query_point(view: MapView, position: Vector2) -> void:
+	var doom_coord := view.doom_coordinate(position)
+	var sector := view.map.sector_for_point(doom_coord)
+	var line := find_closest_line(view, sector, position)
+	
+	if sector != highlight_sector or line != highlight_line:
+		highlight_sector = sector
+		highlight_line = line
+		calculate_arrows(view)
+		view.queue_redraw()
 
 
 func find_closest_line(view: MapView, sector: int, screen_pos: Vector2) -> int:
@@ -133,6 +137,14 @@ func generate_arrow(view: MapView, line_index: int, sector_index: int) -> Dictio
 	}
 
 
+func start(view: MapView) -> void:
+	if not view.map:
+		return
+	
+	query_point(view, view.get_local_mouse_position())
+
+
 func stop() -> void:
 	highlight_sector = -1
 	highlight_line = -1
+	arrows.clear()

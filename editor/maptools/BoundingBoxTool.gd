@@ -148,7 +148,7 @@ func edge_index_for_box(view: MapView, screen_pos: Vector2, box_index: int) -> i
 	return -1
 
 
-func start() -> void:
+func start(_view: MapView) -> void:
 	bb_cache_dirty = true
 
 
