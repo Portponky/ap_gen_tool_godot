@@ -443,7 +443,7 @@ func item_refresh() -> void:
 
 
 func block_duplicates() -> void:
-	var coords := {}
+	var coords := {current_map.entrypoint: true}
 	var dupes := []
 	for l: int in current_map_data.locations.size():
 		var location: Dictionary = current_map_data.locations[l]
@@ -451,7 +451,7 @@ func block_duplicates() -> void:
 			continue
 		var t: int = location.index
 		var thing := current_map.things[t]
-		var pos := Vector2(thing.x, thing.y)
+		var pos := Vector2i(thing.x, thing.y)
 		if coords.has(pos):
 			dupes.push_back(l)
 		coords[pos] = true

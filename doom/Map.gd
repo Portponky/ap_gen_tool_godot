@@ -93,6 +93,8 @@ var nodes: Array[BSPNode]
 var segs: Array[Seg]
 
 var bbox: Rect2i
+var entrypoint : Vector2i
+var hub: Vector2i
 var lines: Dictionary[Color, PackedVector2Array]
 
 static func load_things(map: Map, things_lump: PackedByteArray) -> void:
@@ -104,6 +106,9 @@ static func load_things(map: Map, things_lump: PackedByteArray) -> void:
 		thing.type = things_lump.decode_s16(i + 6)
 		thing.flags = things_lump.decode_s16(i + 8)
 		map.things.push_back(thing)
+		
+		if thing.type == 1:
+			map.entrypoint = Vector2i(thing.x, thing.y)
 
 
 static func load_linedefs(map: Map, linedefs_lump: PackedByteArray) -> void:
@@ -364,6 +369,9 @@ static func load(world: World, map_lump: String, heretic_specials: bool) -> Map:
 	# build lines
 	map.build_lines(heretic_specials)
 	
+	# set hub position
+	map.hub = map.entrypoint
+	
 	return map
 
 
@@ -407,6 +415,10 @@ func apply_map_tweaks(tweaks: Dictionary, heretic_specials: bool) -> void:
 		var tweak: Dictionary = tweaks.sectors[id]
 		var target := sectors[i]
 		target.tag = tweak.get("tag", target.tag)
+	
+	if tweaks.has("hub"):
+		hub.x = tweaks.hub.get("x", hub.x)
+		hub.y = tweaks.hub.get("y", hub.y)
 
 
 func sector_for_point(point: Vector2) -> int:

@@ -5,6 +5,8 @@ var unreachable_icon := load("res://assets/graphics/map-unreachable.png")
 var check_sanity_icon := load("res://assets/graphics/map-check-sanity.png")
 var ap_location_icon := load("res://assets/graphics/ap.png")
 var or_requirement_icon := load("res://assets/graphics/plus.png")
+var player_icon := load("res://assets/graphics/player.png")
+var hub_icon := load("res://assets/graphics/hub.png")
 
 func render_sectors(view: MapView, to_map: Transform2D) -> void:
 	view.draw_set_transform_matrix(to_map)
@@ -23,6 +25,13 @@ func render_sectors(view: MapView, to_map: Transform2D) -> void:
 
 func render_things(view: MapView, to_map: Transform2D) -> void:
 	view.draw_set_transform_matrix(Transform2D.IDENTITY)
+	
+	if view.map.entrypoint != view.map.hub:
+		var hub_pos := to_map * Vector2(view.map.hub.x, -view.map.hub.y)
+		view.draw_texture(hub_icon, hub_pos - 0.5 * hub_icon.get_size())
+	
+	var start_pos := to_map * Vector2(view.map.entrypoint.x, -view.map.entrypoint.y)
+	view.draw_texture(player_icon, start_pos - 0.5 * player_icon.get_size())
 	
 	# Draw all the things
 	for i: int in range(view.map_data.locations.size() - 1, -1, -1):
