@@ -10,6 +10,7 @@ const MAP_TWEAK_HELPER := preload("res://dialogs/MapTweaks.tscn")
 
 enum MenuChoice {
 	Open,
+	Reopen,
 	Save,
 	Close,
 	Generate,
@@ -62,6 +63,7 @@ func _ready() -> void:
 	undo.version_changed.connect(_on_modified)
 	
 	add_menu_shortcut(%FileMenu, "Open", MenuChoice.Open, KEY_O, true, false)
+	%FileMenu.add_item("Re-open current game", MenuChoice.Reopen)
 	add_menu_shortcut(%FileMenu, "Save", MenuChoice.Save, KEY_S, true, false)
 	add_menu_shortcut(%FileMenu, "Generate APWorld", MenuChoice.Generate, KEY_G, true, false)
 	add_menu_shortcut(%FileMenu, "Close", MenuChoice.Close, KEY_W, true, false)
@@ -139,18 +141,9 @@ func clear_out_exclusive_windows() -> void:
 		await get_tree().process_frame
 
 
-func open(file: String) -> void:
+func perform_open() -> void:
 	# Clear out any previous exclusive windows
 	await clear_out_exclusive_windows()
-	
-	# generate world stem
-	var game := file.get_file()
-	const ext := ".game.json"
-	if not game.ends_with(ext):
-		print("Not a .game.json file at %s", file)
-		return
-		
-	world_stem = game.left(-ext.length())
 	
 	var progress := PROGRESS.instantiate()
 	progress.popup_exclusive_centered(self)
@@ -165,7 +158,7 @@ func open(file: String) -> void:
 	thread.wait_to_finish()
 	
 	if not world:
-		Status.set_task("Failed to load %s" % file.get_file())
+		Status.set_task("Failed to load %s.game.json" % world_stem)
 		progress.show_close_button()
 		return
 	
@@ -173,31 +166,51 @@ func open(file: String) -> void:
 	
 	# Sort out menus
 	enable_specific_menus(true)
+	rebuild_map_menu()
 	
-	%MapMenu.clear(true)
-	add_menu_shortcut(%MapMenu, "Previous level", MenuChoice.PreviousLevel, KEY_PAGEUP, false, false)
-	add_menu_shortcut(%MapMenu, "Next level", MenuChoice.NextLevel, KEY_PAGEDOWN, false, false)
-	%MapMenu.add_separator()
-	
-	levels.clear()
-	
-	for ep: int in world.game.episodes.size():
-		var episode: Dictionary = world.game.episodes[ep]
-		var episode_menu := PopupMenu.new()
-		for map: Dictionary in episode.maps:
-			episode_menu.add_item(map.name, levels.size())
-			levels.push_back({
-				lump = map.lump,
-				name = map.name
-			})
-		episode_menu.id_pressed.connect(load_level)
-		%MapMenu.add_submenu_node_item(episode.get("name", "Episode %d" % (ep + 1)), episode_menu)
-	
-	# init to first level
 	%MapView.set_world(world)
 	%Items.set_world(world)
 	%Connections.set_world(world)
+
+
+func open(file: String) -> void:
+	# generate world stem
+	var game := file.get_file()
+	const ext := ".game.json"
+	if not game.ends_with(ext):
+		print("Not a .game.json file at %s", file)
+		return
+		
+	world_stem = game.left(-ext.length())
+	
+	await perform_open()
+	
+	# init to first level
 	load_level(0)
+	
+	undo.clear_history()
+	saved_version = undo.get_version()
+	_on_modified()
+
+
+func reopen() -> void:
+	var zoom: float = %MapView.zoom
+	var offset: Vector2 = %MapView.offset
+	
+	# Perform relevant close actions
+	%MapView.clear_world()
+	%Items.clear_world()
+	%Regions.clear_world()
+	%Connections.clear_world()
+	world = null
+	enable_specific_menus(false)
+	
+	await perform_open()
+	
+	load_level(current_level_index)
+	%MapView.zoom = zoom
+	%MapView.offset = offset
+	%MapView.queue_redraw()
 	
 	undo.clear_history()
 	saved_version = undo.get_version()
@@ -284,6 +297,27 @@ func enable_specific_menus(enabled: bool) -> void:
 	%EditMenu.set_item_disabled(%EditMenu.get_item_index(MenuChoice.Redo), not enabled)
 
 
+func rebuild_map_menu() -> void:
+	%MapMenu.clear(true)
+	add_menu_shortcut(%MapMenu, "Previous level", MenuChoice.PreviousLevel, KEY_PAGEUP, false, false)
+	add_menu_shortcut(%MapMenu, "Next level", MenuChoice.NextLevel, KEY_PAGEDOWN, false, false)
+	%MapMenu.add_separator()
+	
+	levels.clear()
+	
+	for ep: int in world.game.episodes.size():
+		var episode: Dictionary = world.game.episodes[ep]
+		var episode_menu := PopupMenu.new()
+		for map: Dictionary in episode.maps:
+			episode_menu.add_item(map.name, levels.size())
+			levels.push_back({
+				lump = map.lump,
+				name = map.name
+			})
+		episode_menu.id_pressed.connect(load_level)
+		%MapMenu.add_submenu_node_item(episode.get("name", "Episode %d" % (ep + 1)), episode_menu)
+
+
 func update_menu_checks() -> void:
 	var items := {
 		MenuChoice.FilterKeys: Settings.filter_connection_keys,
@@ -304,6 +338,9 @@ func _execute_menu_choice(id: int) -> void:
 				var selector := PROJECT_SELECTOR.instantiate()
 				selector.load_game.connect(open)
 				selector.popup_exclusive_centered(self)
+		MenuChoice.Reopen:
+			if world and await confirm_clear_modified():
+				reopen()
 		MenuChoice.Save:
 			if is_modified():
 				save()
@@ -412,6 +449,9 @@ func _on_modified() -> void:
 func load_level(id: int) -> void:
 	var tool: MapTool = %MapView.tool
 	if not %MapView.set_tool(null):
+		return
+	
+	if current_level_index < 0 or current_level_index >= levels.size():
 		return
 	
 	current_level_index = id
