@@ -289,6 +289,7 @@ func open_folder(dir: String) -> void:
 
 
 func enable_specific_menus(enabled: bool) -> void:
+	%FileMenu.set_item_disabled(%FileMenu.get_item_index(MenuChoice.Reopen), not enabled)
 	%FileMenu.set_item_disabled(%FileMenu.get_item_index(MenuChoice.Save), not enabled)
 	%FileMenu.set_item_disabled(%FileMenu.get_item_index(MenuChoice.Generate), not enabled)
 	%FileMenu.set_item_disabled(%FileMenu.get_item_index(MenuChoice.Close), not enabled)
