@@ -483,6 +483,9 @@ func item_refresh() -> void:
 
 
 func block_duplicates() -> void:
+	if not world:
+		return
+	
 	var coords := {current_map.entrypoint: true}
 	var dupes := []
 	for l: int in current_map_data.locations.size():
