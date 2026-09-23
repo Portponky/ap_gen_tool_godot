@@ -21,3 +21,8 @@ func show_close_button() -> void:
 
 func _on_close_button_pressed() -> void:
 	queue_free()
+
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_accept") and %ButtonArea.visible:
+		queue_free()
