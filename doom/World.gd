@@ -1,6 +1,8 @@
 class_name World
 extends Resource
 
+static var comment_regex := RegEx.create_from_string("//[^\\n]*\\n")
+
 var game: Dictionary
 var data: Dictionary
 var wads: Array[Wad]
@@ -87,13 +89,20 @@ func populate_default_data() -> void:
 	
 
 
-static func attempt_load_json(path: String) -> Dictionary:
+static func attempt_load_json(path: String, strip_comments: bool) -> Dictionary:
 	Status.set_task("Loading %s" % path.get_file())
 	
 	var string := FileAccess.get_file_as_string(path)
 	if string.is_empty():
 		Status.add_error("Unable to read file %s: %s" % [path, error_string(FileAccess.get_open_error())])
 		return {}
+	
+	if strip_comments:
+		var matches := comment_regex.search_all(string)
+		if matches.size() > 0:
+			Status.add_warning("%d badly formed json comments found" % matches.size())
+			string = comment_regex.sub(string, "", true)
+	
 	var json := JSON.new()
 	if json.parse(string) != OK:
 		Status.add_error("Error parsing %s at line %d: %s" % [path, json.get_error_line(), json.get_error_message()])
@@ -145,8 +154,8 @@ static func load(gamename: String) -> World:
 	var world := World.new()
 	Status.set_task("Loading %s game files" % gamename)
 	var path := "res://" if OS.has_feature("editor") else OS.get_executable_path().get_base_dir()
-	world.game = attempt_load_json("%s/games/%s.game.json" % [path, gamename])
-	world.data = attempt_load_json("%s/data/%s.data.json" % [path, gamename])
+	world.game = attempt_load_json("%s/games/%s.game.json" % [path, gamename], true)
+	world.data = attempt_load_json("%s/data/%s.data.json" % [path, gamename], false)
 	if not world.game:
 		Status.add_error("Game json not present")
 		return null

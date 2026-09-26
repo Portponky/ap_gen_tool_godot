@@ -162,7 +162,11 @@ func perform_open() -> void:
 		progress.show_close_button()
 		return
 	
-	progress.queue_free()
+	if Status.warnings.size() + Status.errors.size() > 0:
+		Status.set_task("Successfully loaded %s.game.json" % world_stem)
+		progress.show_close_button()
+	else:
+		progress.queue_free()
 	
 	# Sort out menus
 	enable_specific_menus(true)
